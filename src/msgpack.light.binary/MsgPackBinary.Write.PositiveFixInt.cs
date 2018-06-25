@@ -24,7 +24,7 @@ namespace ProGaudi.MsgPack.Light
             if (value < DataCodes.FixPositiveMin) throw new InvalidOperationException(nameof(value));
 
             EnsureCapacity(buffer, 1);
-            buffer[0] = unchecked((byte) value);
+            buffer[0] = unchecked((byte)value);
             return 1;
         }
     }

@@ -21,8 +21,9 @@ namespace ProGaudi.MsgPack.Light
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int WriteInt16(in Span<byte> buffer, short value)
         {
-            if (value < sbyte.MinValue || byte.MaxValue < value) return WriteFixInt16(buffer, value);
-            return value < 0 ? WriteInt8(buffer, (sbyte)value) : WriteUInt8(buffer, (byte)value);
+            if (value >= 0) return WriteUInt16(buffer, (ushort) value);
+            if (value < sbyte.MinValue) return WriteFixInt16(buffer, value);
+            return WriteInt8(buffer, (sbyte)value);
         }
     }
 }
