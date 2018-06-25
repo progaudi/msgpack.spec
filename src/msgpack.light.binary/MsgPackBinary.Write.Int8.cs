@@ -9,29 +9,12 @@ namespace ProGaudi.MsgPack.Light
     public static partial class MsgPackBinary
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int WriteFixInt8(in Span<byte> buffer, byte value)
-        {
-            if (value > sbyte.MaxValue) throw new ArgumentOutOfRangeException(nameof(value));
-            EnsureCapacity(buffer, 2);
-            buffer[0] = DataCodes.Int8;
-            buffer[1] = value;
-            return 2;
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int WriteFixInt8(in Span<byte> buffer, sbyte value)
         {
             EnsureCapacity(buffer, 2);
             buffer[0] = DataCodes.Int8;
             buffer[1] = unchecked((byte)value);
             return 2;
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int WriteInt8(in Span<byte> buffer, byte value)
-        {
-            if (value > DataCodes.FixPositiveMax) throw new ArgumentOutOfRangeException(nameof(value));
-            return WritePositiveFixInt(buffer, value);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

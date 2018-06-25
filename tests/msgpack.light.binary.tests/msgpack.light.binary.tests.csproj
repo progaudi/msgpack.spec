@@ -18,6 +18,11 @@
 
     <IsPackable>false</IsPackable>
   </PropertyGroup>
+  <PropertyGroup>
+    <LangVersion>latest</LangVersion> <!-- default to allowing all language features -->
+    <WarningLevel>4</WarningLevel>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+  </PropertyGroup>
   <ItemGroup>
     <Compile Remove="Reader\Array.cs" />
     <Compile Remove="Reader\Binary.cs" />

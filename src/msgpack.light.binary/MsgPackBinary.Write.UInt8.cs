@@ -18,20 +18,10 @@ namespace ProGaudi.MsgPack.Light
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int WriteFixUInt8(in Span<byte> buffer, sbyte value)
-        {
-            if (value < byte.MinValue) throw new ArgumentOutOfRangeException(nameof(value));
-            return WriteFixUInt8(buffer, unchecked ((byte) value));
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int WriteUInt8(in Span<byte> buffer, byte value)
         {
             if (value <= DataCodes.FixPositiveMax) return WritePositiveFixInt(buffer, value);
             return WriteFixUInt8(buffer, value);
         }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int WriteUInt8(in Span<byte> buffer, sbyte value) => WritePositiveFixInt(buffer, value);
     }
 }

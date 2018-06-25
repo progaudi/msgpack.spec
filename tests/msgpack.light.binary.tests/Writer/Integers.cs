@@ -44,31 +44,35 @@ namespace ProGaudi.MsgPack.Light.Tests.Writer
         //    ((MsgPackToken)number).RawBytes.ShouldBe(data);
         //}
 
-        //[Theory]
-        //[InlineData(0, new byte[] {0x00})]
-        //[InlineData(1, new byte[] {1})]
-        //[InlineData(-1, new byte[] {0xff})]
-        //[InlineData(sbyte.MinValue, new byte[] {208, 128})]
-        //[InlineData(sbyte.MaxValue, new byte[] {127})]
-        //[InlineData(short.MinValue, new byte[] {209, 128, 0})]
-        //[InlineData(short.MaxValue, new byte[] {205, 127, 0xff})]
-        //public void TestSignedShort(short number, byte[] data)
-        //{
-        //    MsgPackSerializer.Serialize(number).ShouldBe(data);
-        //    ((MsgPackToken)number).RawBytes.ShouldBe(data);
-        //}
+        [Theory]
+        [InlineData(0, new byte[] { 0x00 })]
+        [InlineData(1, new byte[] { 1 })]
+        [InlineData(-1, new byte[] { 0xff })]
+        [InlineData(sbyte.MinValue, new byte[] { 208, 128 })]
+        [InlineData(sbyte.MaxValue, new byte[] { 127 })]
+        [InlineData(short.MinValue, new byte[] { 209, 128, 0 })]
+        [InlineData(short.MaxValue, new byte[] { 209, 127, 0xff })]
+        public void TestSignedShort(short number, byte[] data)
+        {
+            var buffer = new Span<byte>(ArrayPool<byte>.Shared.Rent(5));
+            var length = MsgPackBinary.WriteInt16(buffer, number);
+            length.ShouldBe(data.Length);
+            buffer.Slice(0, length).ToArray().ShouldBe(data);
+        }
 
-        //[Theory]
-        //[InlineData(0, new byte[] {0x00})]
-        //[InlineData(1, new byte[] {1})]
-        //[InlineData(-1, new byte[] {0xff})]
-        //[InlineData(sbyte.MinValue, new byte[] {208, 128})]
-        //[InlineData(sbyte.MaxValue, new byte[] {127})]
-        //public void TestSignedByte(sbyte number, byte[] data)
-        //{
-        //    MsgPackSerializer.Serialize(number).ShouldBe(data);
-        //    ((MsgPackToken)number).RawBytes.ShouldBe(data);
-        //}
+        [Theory]
+        [InlineData(0, new byte[] { 0x00 })]
+        [InlineData(1, new byte[] { 1 })]
+        [InlineData(-1, new byte[] { 0xff })]
+        [InlineData(sbyte.MinValue, new byte[] { 208, 128 })]
+        [InlineData(sbyte.MaxValue, new byte[] { 127 })]
+        public void TestSignedByte(sbyte number, byte[] data)
+        {
+            var buffer = new Span<byte>(ArrayPool<byte>.Shared.Rent(5));
+            var length = MsgPackBinary.WriteInt8(buffer, number);
+            length.ShouldBe(data.Length);
+            buffer.Slice(0, length).ToArray().ShouldBe(data);
+        }
 
         //[Theory]
         //[InlineData(0, new byte[] {0x00})]
@@ -97,14 +101,16 @@ namespace ProGaudi.MsgPack.Light.Tests.Writer
         //}
 
         //[Theory]
-        //[InlineData(0, new byte[] {0x00})]
-        //[InlineData(1, new byte[] {1})]
-        //[InlineData(byte.MaxValue, new byte[] {0xcc, 0xff})]
-        //[InlineData(ushort.MaxValue, new byte[] {0xcd, 0xff, 0xff})]
+        //[InlineData(0, new byte[] { 0x00 })]
+        //[InlineData(1, new byte[] { 1 })]
+        //[InlineData(byte.MaxValue, new byte[] { 0xcc, 0xff })]
+        //[InlineData(ushort.MaxValue, new byte[] { 0xcd, 0xff, 0xff })]
         //public void TetsUnsignedShort(ushort number, byte[] data)
         //{
-        //    MsgPackSerializer.Serialize(number).ShouldBe(data);
-        //    ((MsgPackToken)number).RawBytes.ShouldBe(data);
+        //    var buffer = new Span<byte>(ArrayPool<byte>.Shared.Rent(5));
+        //    var length = MsgPackBinary.WriteUInt16(buffer, number);
+        //    length.ShouldBe(data.Length);
+        //    buffer.Slice(0, length).ToArray().ShouldBe(data);
         //}
 
         [Theory]
