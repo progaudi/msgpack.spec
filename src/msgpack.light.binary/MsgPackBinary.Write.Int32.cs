@@ -5,7 +5,7 @@ using System.Runtime.CompilerServices;
 namespace ProGaudi.MsgPack.Light
 {
     /// <summary>
-    /// Methods for working with signed int 16
+    /// Methods for working with signed int 32
     /// </summary>
     public static partial class MsgPackBinary
     {
@@ -18,6 +18,7 @@ namespace ProGaudi.MsgPack.Light
             return 5;
         }
 
+        // https://github.com/msgpack/msgpack/issues/164
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int WriteInt32(in Span<byte> buffer, int value)
         {

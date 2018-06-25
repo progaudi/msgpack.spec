@@ -17,6 +17,7 @@ namespace ProGaudi.MsgPack.Light
             return 2;
         }
 
+        // https://github.com/msgpack/msgpack/issues/164
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int WriteInt8(in Span<byte> buffer, sbyte value)
         {

@@ -5,7 +5,7 @@ using System.Runtime.CompilerServices;
 namespace ProGaudi.MsgPack.Light
 {
     /// <summary>
-    /// Methods for working with unsigned int 16
+    /// Methods for working with unsigned int 32
     /// </summary>
     public static partial class MsgPackBinary
     {
