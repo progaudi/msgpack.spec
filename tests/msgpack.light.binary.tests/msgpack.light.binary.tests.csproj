@@ -1,0 +1,59 @@
+﻿<Project Sdk="Microsoft.NET.Sdk" ToolsVersion="15.0">
+  <PropertyGroup>
+    <Description>Tests for MsgPack.Light library</Description>
+    <OutputType>Exe</OutputType>
+    <TargetFrameworks>netcoreapp2.0</TargetFrameworks>
+    <WarningsAsErrors>true</WarningsAsErrors>
+    <AssemblyName>msgpack.light.tests</AssemblyName>
+    <RootNamespace>ProGaudi.MsgPack.Light.Tests</RootNamespace>
+    <Product>msgpack.light</Product>
+    <Copyright>Copyright © 2016-2018</Copyright>
+    <PackageTags>tests;xunit;msgpack;serialization</PackageTags>
+    <PackageProjectUrl>https://github.com/progaudi/MsgPack.Light</PackageProjectUrl>
+    <PackageLicenseUrl>https://raw.githubusercontent.com/progaudi/MsgPack.Light/master/LICENSE</PackageLicenseUrl>
+    <GenerateAssemblyTitleAttribute>true</GenerateAssemblyTitleAttribute>
+    <GenerateAssemblyProductAttribute>true</GenerateAssemblyProductAttribute>
+    <GenerateAssemblyCopyrightAttribute>true</GenerateAssemblyCopyrightAttribute>
+    <ProjectGuid>{5E849934-F19E-4BAA-9AD5-27AE3FED2C9C}</ProjectGuid>
+
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Remove="Reader\Array.cs" />
+    <Compile Remove="Reader\Binary.cs" />
+    <Compile Remove="Reader\Boolean.cs" />
+    <Compile Remove="Reader\DateTime.cs" />
+    <Compile Remove="Reader\Double.cs" />
+    <Compile Remove="Reader\Enums.cs" />
+    <Compile Remove="Reader\Helpers.cs" />
+    <Compile Remove="Reader\Map.cs" />
+    <Compile Remove="Reader\Null.cs" />
+    <Compile Remove="Reader\Nullable.cs" />
+    <Compile Remove="Reader\ReadToken.cs" />
+    <Compile Remove="Reader\SkipToken.cs" />
+    <Compile Remove="Reader\String.cs" />
+    <Compile Remove="Reader\TimeSpan.cs" />
+    <Compile Remove="Writer\Array.cs" />
+    <Compile Remove="Writer\Binary.cs" />
+    <Compile Remove="Writer\Boolean.cs" />
+    <Compile Remove="Writer\DateTime.cs" />
+    <Compile Remove="Writer\Double.cs" />
+    <Compile Remove="Writer\Enums.cs" />
+    <Compile Remove="Writer\Helpers.cs" />
+    <Compile Remove="Writer\Map.cs" />
+    <Compile Remove="Writer\Null.cs" />
+    <Compile Remove="Writer\Nullable.cs" />
+    <Compile Remove="Writer\String.cs" />
+    <Compile Remove="Writer\Timespan.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.7.0" />
+    <PackageReference Include="Moq" Version="4.8.2" />
+    <PackageReference Include="xunit" Version="2.3.1" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.3.1" />
+    <PackageReference Include="Shouldly" Version="3.0.0" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\msgpack.light.binary\msgpack.light.binary.csproj" />
+  </ItemGroup>
+</Project>

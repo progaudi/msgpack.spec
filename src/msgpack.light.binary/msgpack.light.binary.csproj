@@ -1,0 +1,30 @@
+﻿<Project Sdk="Microsoft.NET.Sdk" ToolsVersion="15.0">
+  <PropertyGroup>
+    <Description>Lightweight msgpack serialization library</Description>
+    <TargetFrameworks>netstandard2.0</TargetFrameworks>
+    <WarningsAsErrors>true</WarningsAsErrors>
+    <AssemblyTitle>msgpack.light</AssemblyTitle>
+    <RootNamespace>ProGaudi.MsgPack.Light</RootNamespace>
+    <Product>msgpack.light</Product>
+    <Copyright>Copyright © 2016-2018</Copyright>
+    <PackageTags>msgpack;serialization</PackageTags>
+    <PackageProjectUrl>https://github.com/progaudi/MsgPack.Light</PackageProjectUrl>
+    <PackageLicenseUrl>https://raw.githubusercontent.com/progaudi/MsgPack.Light/master/LICENSE</PackageLicenseUrl>
+    <GenerateAssemblyTitleAttribute>true</GenerateAssemblyTitleAttribute>
+    <GenerateAssemblyProductAttribute>true</GenerateAssemblyProductAttribute>
+    <GenerateAssemblyCopyrightAttribute>true</GenerateAssemblyCopyrightAttribute>
+    <ProjectGuid>{7058F131-95D8-411F-A8F9-5D545B2F6CD6}</ProjectGuid>
+    <Version>2.0.0</Version>
+    <Authors>roman-kozachenko;aensidhe</Authors>
+    <Company>progaudi</Company>
+  </PropertyGroup>
+  <PropertyGroup>
+    <LangVersion>latest</LangVersion> <!-- default to allowing all language features -->
+    <WarningLevel>4</WarningLevel>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="JetBrains.Annotations" Version="11.1.0" />
+    <PackageReference Include="System.Memory" Version="4.5.1" />
+  </ItemGroup>
+</Project>
