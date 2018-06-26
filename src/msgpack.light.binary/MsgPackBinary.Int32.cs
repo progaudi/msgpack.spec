@@ -23,6 +23,19 @@ namespace ProGaudi.MsgPack.Light
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static int ReadFixInt32(in Span<byte> buffer, out int readSize) => TryReadFixInt32(buffer, out var result, out readSize)
+            ? result
+            : throw new InvalidOperationException();
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool TryReadFixInt32(in Span<byte> buffer, out int value, out int readSize)
+        {
+            readSize = 5;
+            var result = buffer[0] == DataCodes.Int32;
+            return BinaryPrimitives.TryReadInt32BigEndian(buffer.Slice(1), out value) && result;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int WriteInt32(in Span<byte> buffer, int value) => TryWriteInt32(buffer, value, out var wroteSize)
             ? wroteSize
             : throw new InvalidOperationException();
@@ -33,7 +46,7 @@ namespace ProGaudi.MsgPack.Light
         {
             if (value >= 0) return TryWriteUInt32(buffer, (uint)value, out wroteSize);
             if (value < short.MinValue) return TryWriteFixInt32(buffer, value, out wroteSize);
-            if (value < sbyte.MinValue) return TryWriteFixInt16(buffer, (short)value, out wroteSize);
+            if (value < sbyte.MinValue) return TryWriteFixInt32(buffer, (short)value, out wroteSize);
             return TryWriteInt8(buffer, (sbyte)value, out wroteSize);
         }
     }

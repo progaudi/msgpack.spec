@@ -23,6 +23,19 @@ namespace ProGaudi.MsgPack.Light
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static uint ReadFixUInt32(in Span<byte> buffer, out int readSize) => TryReadFixUInt32(buffer, out var result, out readSize)
+            ? result
+            : throw new InvalidOperationException();
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool TryReadFixUInt32(in Span<byte> buffer, out uint value, out int readSize)
+        {
+            readSize = 5;
+            var result = buffer[0] == DataCodes.UInt32;
+            return BinaryPrimitives.TryReadUInt32BigEndian(buffer.Slice(1), out value) && result;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int WriteUInt32(in Span<byte> buffer, uint value) => TryWriteUInt32(buffer, value, out var wroteSize)
             ? wroteSize
             : throw new InvalidOperationException();

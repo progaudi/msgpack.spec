@@ -23,6 +23,19 @@ namespace ProGaudi.MsgPack.Light
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static ushort ReadFixUInt16(in Span<byte> buffer, out int readSize) => TryReadFixUInt16(buffer, out var result, out readSize)
+            ? result
+            : throw new InvalidOperationException();
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool TryReadFixUInt16(in Span<byte> buffer, out ushort value, out int readSize)
+        {
+            readSize = 3;
+            var result = buffer[0] == DataCodes.Int16;
+            return BinaryPrimitives.TryReadUInt16BigEndian(buffer.Slice(1), out value) && result;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int WriteUInt16(in Span<byte> buffer, ushort value) => TryWriteUInt16(buffer, value, out var wroteSize)
             ? wroteSize
             : throw new InvalidOperationException();
