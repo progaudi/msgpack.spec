@@ -1,6 +1,7 @@
 using System;
 using System.Buffers.Binary;
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 
 namespace ProGaudi.MsgPack.Light
 {
@@ -19,8 +20,7 @@ namespace ProGaudi.MsgPack.Light
         {
             wroteSize = 9;
             buffer[0] = DataCodes.UInt64;
-            BinaryPrimitives.WriteUInt64BigEndian(buffer.Slice(1), value);
-            return true;
+            return BinaryPrimitives.TryWriteUInt64BigEndian(buffer.Slice(1), value);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

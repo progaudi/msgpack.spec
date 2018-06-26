@@ -19,9 +19,9 @@ namespace ProGaudi.MsgPack.Light
         {
             wroteSize = 5;
             buffer[0] = DataCodes.Int32;
-            BinaryPrimitives.WriteInt32BigEndian(buffer.Slice(1), value);
-            return true;
+            return BinaryPrimitives.TryWriteInt32BigEndian(buffer.Slice(1), value);
         }
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int WriteInt32(in Span<byte> buffer, int value) => TryWriteInt32(buffer, value, out var wroteSize)
             ? wroteSize
