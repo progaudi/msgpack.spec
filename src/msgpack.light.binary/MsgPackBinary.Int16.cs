@@ -10,12 +10,17 @@ namespace ProGaudi.MsgPack.Light
     public static partial class MsgPackBinary
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int WriteFixInt16(in Span<byte> buffer, short value)
+        public static int WriteFixInt16(in Span<byte> buffer, short value) => TryWriteFixInt16(buffer, value, out var wroteSize)
+            ? wroteSize
+            : throw new InvalidOperationException();
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool TryWriteFixInt16(in Span<byte> buffer, short value, out int wroteSize)
         {
-            EnsureCapacity(buffer, 3);
+            wroteSize = 3;
             buffer[0] = DataCodes.Int16;
             BinaryPrimitives.WriteInt16BigEndian(buffer.Slice(1), value);
-            return 3;
+            return true;
         }
 
         // https://github.com/msgpack/msgpack/issues/164
