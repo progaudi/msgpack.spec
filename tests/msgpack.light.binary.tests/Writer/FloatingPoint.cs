@@ -1,4 +1,5 @@
 using System;
+using System.Buffers;
 
 using Shouldly;
 
@@ -23,10 +24,12 @@ namespace ProGaudi.MsgPack.Light.Tests.Writer
         [InlineData(double.MinValue, new byte[] {203, 255, 239, 255, 255, 255, 255, 255, 255})]
         [InlineData(double.PositiveInfinity, new byte[] {203, 127, 240, 0, 0, 0, 0, 0, 0})]
         [InlineData(double.NegativeInfinity, new byte[] {203, 255, 240, 0, 0, 0, 0, 0, 0})]
-        public void TestDouble(double value, byte[] bytes)
+        public void TestDouble(double number, byte[] data)
         {
-            MsgPackSerializer.Serialize(value).ShouldBe(bytes);
-            ((MsgPackToken)value).RawBytes.ShouldBe(bytes);
+            var buffer = new Span<byte>(ArrayPool<byte>.Shared.Rent(10));
+            var length = MsgPackBinary.WriteDouble(buffer, number);
+            length.ShouldBe(data.Length);
+            buffer.Slice(0, length).ToArray().ShouldBe(data);
         }
 
         [Theory]
@@ -44,10 +47,12 @@ namespace ProGaudi.MsgPack.Light.Tests.Writer
         [InlineData(float.MinValue, new byte[] {202, 255, 127, 255, 255})]
         [InlineData(float.PositiveInfinity, new byte[] {202, 127, 128, 0, 0})]
         [InlineData(float.NegativeInfinity, new byte[] {202, 255, 128, 0, 0})]
-        public void TestFloat(float value, byte[] bytes)
+        public void TestFloat(float number, byte[] data)
         {
-            MsgPackSerializer.Serialize(value).ShouldBe(bytes);
-            ((MsgPackToken)value).RawBytes.ShouldBe(bytes);
+            var buffer = new Span<byte>(ArrayPool<byte>.Shared.Rent(10));
+            var length = MsgPackBinary.WriteFloat(buffer, number);
+            length.ShouldBe(data.Length);
+            buffer.Slice(0, length).ToArray().ShouldBe(data);
         }
     }
 }

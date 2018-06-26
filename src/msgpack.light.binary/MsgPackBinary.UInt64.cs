@@ -1,12 +1,11 @@
 using System;
 using System.Buffers.Binary;
 using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
 
 namespace ProGaudi.MsgPack.Light
 {
     /// <summary>
-    /// Methods for working with unsigned int 16
+    /// Methods for working with unsigned int 64
     /// </summary>
     public static partial class MsgPackBinary
     {
