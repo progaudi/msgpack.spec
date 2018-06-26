@@ -58,22 +58,25 @@ namespace ProGaudi.MsgPack.Light
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool TryReadInt8(in Span<byte> buffer, out sbyte value, out int readSize)
         {
-            if (TryReadFixInt8(buffer, out value, out readSize))
-                return true;
-
             if (TryReadFixUInt8(buffer, out var byteResult, out readSize))
             {
                 value = unchecked((sbyte)byteResult);
                 return true;
             }
 
-            if (TryReadPositiveFixInt(buffer, out byteResult, out readSize))
+            if (TryReadNegativeFixInt(buffer, out value, out readSize))
             {
-                value = unchecked((sbyte)byteResult);
                 return true;
             }
 
-            return TryReadNegativeFixInt(buffer, out value, out readSize);
+            if (TryReadFixInt8(buffer, out value, out readSize))
+                return true;
+
+            if (!TryReadPositiveFixInt(buffer, out byteResult, out readSize))
+                return false;
+
+            value = unchecked((sbyte)byteResult);
+            return true;
         }
     }
 }

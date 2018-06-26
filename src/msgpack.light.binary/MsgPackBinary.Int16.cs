@@ -25,11 +25,16 @@ namespace ProGaudi.MsgPack.Light
 
         // https://github.com/msgpack/msgpack/issues/164
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int WriteInt16(in Span<byte> buffer, short value)
+        public static int WriteInt16(in Span<byte> buffer, short value) => TryWriteInt16(buffer, value, out var wroteSize)
+            ? wroteSize
+            : throw new InvalidOperationException();
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool TryWriteInt16(in Span<byte> buffer, short value, out int wroteSize)
         {
-            if (value >= 0) return WriteUInt16(buffer, (ushort) value);
-            if (value < sbyte.MinValue) return WriteFixInt16(buffer, value);
-            return WriteInt8(buffer, (sbyte)value);
+            if (value >= 0) return TryWriteUInt16(buffer, (ushort)value, out wroteSize);
+            if (value < sbyte.MinValue) return TryWriteFixInt16(buffer, value, out wroteSize);
+            return TryWriteInt8(buffer, (sbyte)value, out wroteSize);
         }
     }
 }

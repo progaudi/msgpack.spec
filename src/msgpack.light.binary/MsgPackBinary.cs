@@ -1,6 +1,3 @@
-using System;
-using System.Runtime.CompilerServices;
-
 namespace ProGaudi.MsgPack.Light
 {
     /// <summary>
@@ -9,13 +6,5 @@ namespace ProGaudi.MsgPack.Light
     /// </summary>
     public static partial class MsgPackBinary
     {
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static void EnsureCapacity(in Span<byte> buffer, in int count)
-        {
-            if (buffer.Length < count)
-            {
-                throw new ArgumentOutOfRangeException(nameof(buffer));
-            }
-        }
     }
 }

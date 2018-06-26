@@ -10,19 +10,29 @@ namespace ProGaudi.MsgPack.Light
     public static partial class MsgPackBinary
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int WriteFixUInt16(in Span<byte> buffer, ushort value)
+        public static int WriteFixUInt16(in Span<byte> buffer, ushort value) => TryWriteFixUInt16(buffer, value, out var wroteSize)
+            ? wroteSize
+            : throw new InvalidOperationException();
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool TryWriteFixUInt16(in Span<byte> buffer, ushort value, out int wroteSize)
         {
-            EnsureCapacity(buffer, 3);
+            wroteSize = 3;
             buffer[0] = DataCodes.UInt16;
             BinaryPrimitives.WriteUInt16BigEndian(buffer.Slice(1), value);
-            return 3;
+            return true;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int WriteUInt16(in Span<byte> buffer, ushort value)
+        public static int WriteUInt16(in Span<byte> buffer, ushort value) => TryWriteUInt16(buffer, value, out var wroteSize)
+            ? wroteSize
+            : throw new InvalidOperationException();
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool TryWriteUInt16(in Span<byte> buffer, ushort value, out int wroteSize)
         {
-            if (value > byte.MaxValue) return WriteFixUInt16(buffer, value);
-            return WriteUInt8(buffer, (byte)value);
+            if (value > byte.MaxValue) return TryWriteFixUInt16(buffer, value, out wroteSize);
+            return TryWriteUInt8(buffer, (byte)value, out wroteSize);
         }
     }
 }
