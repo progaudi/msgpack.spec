@@ -23,12 +23,12 @@ namespace ProGaudi.MsgPack.Light
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static sbyte ReadFixInt8(in Span<byte> buffer, out int readSize) => TryReadFixInt8(buffer, out var result, out readSize)
+        public static sbyte ReadFixInt8(in ReadOnlySpan<byte> buffer, out int readSize) => TryReadFixInt8(buffer, out var result, out readSize)
             ? result
             : throw new InvalidOperationException();
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool TryReadFixInt8(in Span<byte> buffer, out sbyte value, out int readSize)
+        public static bool TryReadFixInt8(in ReadOnlySpan<byte> buffer, out sbyte value, out int readSize)
         {
             readSize = 2;
             var result = buffer[0] == DataCodes.Int8;
@@ -51,12 +51,12 @@ namespace ProGaudi.MsgPack.Light
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static sbyte ReadInt8(in Span<byte> buffer, out int readSize) => TryReadInt8(buffer, out var result, out readSize)
+        public static sbyte ReadInt8(in ReadOnlySpan<byte> buffer, out int readSize) => TryReadInt8(buffer, out var result, out readSize)
             ? result
             : throw new InvalidOperationException();
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool TryReadInt8(in Span<byte> buffer, out sbyte value, out int readSize)
+        public static bool TryReadInt8(in ReadOnlySpan<byte> buffer, out sbyte value, out int readSize)
         {
             if (TryReadFixUInt8(buffer, out var byteResult, out readSize))
             {
@@ -72,11 +72,13 @@ namespace ProGaudi.MsgPack.Light
             if (TryReadFixInt8(buffer, out value, out readSize))
                 return true;
 
-            if (!TryReadPositiveFixInt(buffer, out byteResult, out readSize))
-                return false;
+            if (TryReadPositiveFixInt(buffer, out byteResult, out readSize))
+            {
+                value = unchecked((sbyte)byteResult);
+                return true;
+            }
 
-            value = unchecked((sbyte)byteResult);
-            return true;
+            return false;
         }
     }
 }

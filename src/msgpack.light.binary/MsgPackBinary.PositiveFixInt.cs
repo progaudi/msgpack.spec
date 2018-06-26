@@ -24,12 +24,12 @@ namespace ProGaudi.MsgPack.Light
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static byte ReadPositiveFixInt(in Span<byte> buffer, out int readSize) => TryReadPositiveFixInt(buffer, out var result, out readSize)
+        public static byte ReadPositiveFixInt(in ReadOnlySpan<byte> buffer, out int readSize) => TryReadPositiveFixInt(buffer, out var result, out readSize)
             ? result
             : throw new InvalidOperationException();
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool TryReadPositiveFixInt(in Span<byte> buffer, out byte value, out int readSize)
+        public static bool TryReadPositiveFixInt(in ReadOnlySpan<byte> buffer, out byte value, out int readSize)
         {
             readSize = 1;
             return (value = buffer[0]) <= DataCodes.FixPositiveMax;

@@ -24,12 +24,12 @@ namespace ProGaudi.MsgPack.Light
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static sbyte ReadNegativeFixInt(in Span<byte> buffer, out int readSize) => TryReadNegativeFixInt(buffer, out var result, out readSize)
+        public static sbyte ReadNegativeFixInt(in ReadOnlySpan<byte> buffer, out int readSize) => TryReadNegativeFixInt(buffer, out var result, out readSize)
             ? result
             : throw new InvalidOperationException();
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool TryReadNegativeFixInt(in Span<byte> buffer, out sbyte value, out int readSize)
+        public static bool TryReadNegativeFixInt(in ReadOnlySpan<byte> buffer, out sbyte value, out int readSize)
         {
             readSize = 1;
             value = unchecked((sbyte)buffer[0]);

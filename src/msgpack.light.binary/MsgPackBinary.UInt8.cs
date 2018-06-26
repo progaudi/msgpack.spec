@@ -23,12 +23,12 @@ namespace ProGaudi.MsgPack.Light
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static byte ReadFixUInt8(in Span<byte> buffer, out int readSize) => TryReadFixUInt8(buffer, out var result, out readSize)
+        public static byte ReadFixUInt8(in ReadOnlySpan<byte> buffer, out int readSize) => TryReadFixUInt8(buffer, out var result, out readSize)
             ? result
             : throw new InvalidOperationException();
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool TryReadFixUInt8(in Span<byte> buffer, out byte value, out int readSize)
+        public static bool TryReadFixUInt8(in ReadOnlySpan<byte> buffer, out byte value, out int readSize)
         {
             readSize = 2;
             var result = buffer[0] == DataCodes.UInt8;
@@ -51,12 +51,12 @@ namespace ProGaudi.MsgPack.Light
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static byte ReadUInt8(in Span<byte> buffer, out int readSize) => TryReadUInt8(buffer, out var value, out readSize)
+        public static byte ReadUInt8(in ReadOnlySpan<byte> buffer, out int readSize) => TryReadUInt8(buffer, out var value, out readSize)
             ? value
             : throw new InvalidOperationException();
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool TryReadUInt8(in Span<byte> buffer, out byte value, out int readSize)
+        public static bool TryReadUInt8(in ReadOnlySpan<byte> buffer, out byte value, out int readSize)
         {
             if (TryReadFixUInt8(buffer, out value, out readSize))
                 return true;

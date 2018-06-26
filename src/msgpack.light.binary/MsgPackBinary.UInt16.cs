@@ -23,15 +23,15 @@ namespace ProGaudi.MsgPack.Light
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static ushort ReadFixUInt16(in Span<byte> buffer, out int readSize) => TryReadFixUInt16(buffer, out var result, out readSize)
+        public static ushort ReadFixUInt16(in ReadOnlySpan<byte> buffer, out int readSize) => TryReadFixUInt16(buffer, out var result, out readSize)
             ? result
             : throw new InvalidOperationException();
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool TryReadFixUInt16(in Span<byte> buffer, out ushort value, out int readSize)
+        public static bool TryReadFixUInt16(in ReadOnlySpan<byte> buffer, out ushort value, out int readSize)
         {
             readSize = 3;
-            var result = buffer[0] == DataCodes.Int16;
+            var result = buffer[0] == DataCodes.UInt16;
             return BinaryPrimitives.TryReadUInt16BigEndian(buffer.Slice(1), out value) && result;
         }
 
@@ -45,6 +45,48 @@ namespace ProGaudi.MsgPack.Light
         {
             if (value > byte.MaxValue) return TryWriteFixUInt16(buffer, value, out wroteSize);
             return TryWriteUInt8(buffer, (byte)value, out wroteSize);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static ushort ReadUInt16(in ReadOnlySpan<byte> buffer, out int readSize) => TryReadUInt16(buffer, out var value, out readSize)
+            ? value
+            : throw new InvalidOperationException();
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool TryReadUInt16(in ReadOnlySpan<byte> buffer, out ushort value, out int readSize)
+        {
+            var code = buffer[0];
+            bool result;
+
+            switch (code)
+            {
+                case DataCodes.UInt16:
+                    return TryReadFixUInt16(buffer, out value, out readSize);
+
+                case DataCodes.UInt8:
+                    result = TryReadFixUInt8(buffer, out var uint8, out readSize);
+                    value = uint8;
+                    return result;
+
+                case DataCodes.Int16:
+                    result = TryReadFixInt16(buffer, out var int16, out readSize) && int16 >= 0;
+                    value = result ? (ushort)int16 : default;
+                    return result;
+
+                case DataCodes.Int8:
+                    result = TryReadFixInt8(buffer, out var int8, out readSize) && int8 >= 0;
+                    value = result ? (ushort)int8 : default;
+                    return result;
+            }
+
+            if (TryReadPositiveFixInt(buffer, out var positive, out readSize))
+            {
+                value = positive;
+                return true;
+            }
+
+            value = default;
+            return false;
         }
     }
 }
