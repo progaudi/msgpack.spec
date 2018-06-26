@@ -26,7 +26,6 @@
   <ItemGroup>
     <Compile Remove="Reader\Array.cs" />
     <Compile Remove="Reader\Binary.cs" />
-    <Compile Remove="Reader\Boolean.cs" />
     <Compile Remove="Reader\DateTime.cs" />
     <Compile Remove="Reader\Enums.cs" />
     <Compile Remove="Reader\Helpers.cs" />
@@ -38,7 +37,6 @@
     <Compile Remove="Reader\TimeSpan.cs" />
     <Compile Remove="Writer\Array.cs" />
     <Compile Remove="Writer\Binary.cs" />
-    <Compile Remove="Writer\Boolean.cs" />
     <Compile Remove="Writer\DateTime.cs" />
     <Compile Remove="Writer\Enums.cs" />
     <Compile Remove="Writer\Helpers.cs" />

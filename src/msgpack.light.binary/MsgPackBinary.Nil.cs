@@ -22,9 +22,11 @@ namespace ProGaudi.MsgPack.Light
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int ReadNil(in ReadOnlySpan<byte> buffer) => TryReadNil(buffer, out var readSize)
-            ? readSize
-            : throw new InvalidOperationException();
+        public static void ReadNil(in ReadOnlySpan<byte> buffer, out int readSize)
+        {
+            if (!TryReadNil(buffer, out readSize))
+                throw new InvalidOperationException();
+        }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool TryReadNil(in ReadOnlySpan<byte> buffer, out int readSize)
