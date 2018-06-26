@@ -1,3 +1,5 @@
+using System;
+using System.Buffers;
 using System.Collections.Generic;
 
 using Shouldly;
@@ -9,27 +11,10 @@ namespace ProGaudi.MsgPack.Light.Tests.Reader
     public class Null
     {
         [Fact]
-        public void ReadNullArray()
+        public void ReadNull()
         {
-            MsgPackSerializer.Deserialize<int[]>(new[] { (byte)DataTypes.Null }).ShouldBe(null);
-        }
-
-        [Fact]
-        public void ReadNullByteArray()
-        {
-            MsgPackSerializer.Deserialize<byte[]>(new[] { (byte)DataTypes.Null }).ShouldBe(null);
-        }
-
-        [Fact]
-        public void ReadNullMap()
-        {
-            MsgPackSerializer.Deserialize<Dictionary<int, int>>(new[] { (byte)DataTypes.Null }).ShouldBe(null);
-        }
-
-        [Fact]
-        public void ReadNullString()
-        {
-            MsgPackSerializer.Deserialize<string>(new[] { (byte)DataTypes.Null }).ShouldBe(null);
+            var buffer = new [] { DataCodes.Nil };
+            MsgPackBinary.ReadNil(buffer).ShouldBe(1);
         }
     }
 }

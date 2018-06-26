@@ -31,7 +31,6 @@
     <Compile Remove="Reader\Enums.cs" />
     <Compile Remove="Reader\Helpers.cs" />
     <Compile Remove="Reader\Map.cs" />
-    <Compile Remove="Reader\Null.cs" />
     <Compile Remove="Reader\Nullable.cs" />
     <Compile Remove="Reader\ReadToken.cs" />
     <Compile Remove="Reader\SkipToken.cs" />
@@ -44,7 +43,6 @@
     <Compile Remove="Writer\Enums.cs" />
     <Compile Remove="Writer\Helpers.cs" />
     <Compile Remove="Writer\Map.cs" />
-    <Compile Remove="Writer\Null.cs" />
     <Compile Remove="Writer\Nullable.cs" />
     <Compile Remove="Writer\String.cs" />
     <Compile Remove="Writer\Timespan.cs" />
