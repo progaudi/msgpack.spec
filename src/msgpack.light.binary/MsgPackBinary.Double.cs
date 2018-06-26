@@ -10,12 +10,12 @@ namespace ProGaudi.MsgPack.Light
     public static partial class MsgPackBinary
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int WriteFixFloat64(in Span<byte> buffer, double value) => TryWriteFixFloat64(buffer, value, out var wroteSize)
+        public static int WriteFixFloat64(Span<byte> buffer, double value) => TryWriteFixFloat64(buffer, value, out var wroteSize)
             ? wroteSize
             : throw new InvalidOperationException();
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool TryWriteFixFloat64(in Span<byte> buffer, double value, out int wroteSize)
+        public static bool TryWriteFixFloat64(Span<byte> buffer, double value, out int wroteSize)
         {
             wroteSize = 9;
             buffer[0] = DataCodes.Float64;
@@ -48,12 +48,12 @@ namespace ProGaudi.MsgPack.Light
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static double ReadFixFloat64(in ReadOnlySpan<byte> buffer, out int readSize) => TryReadFixFloat64(buffer, out var result, out readSize)
+        public static double ReadFixFloat64(ReadOnlySpan<byte> buffer, out int readSize) => TryReadFixFloat64(buffer, out var result, out readSize)
             ? result
             : throw new InvalidOperationException();
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool TryReadFixFloat64(in ReadOnlySpan<byte> buffer, out double value, out int readSize)
+        public static bool TryReadFixFloat64(ReadOnlySpan<byte> buffer, out double value, out int readSize)
         {
             readSize = 9;
             var result = buffer[0] == DataCodes.Float64;
@@ -63,18 +63,18 @@ namespace ProGaudi.MsgPack.Light
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int WriteDouble(in Span<byte> buffer, double value) => WriteFixFloat64(buffer, value);
+        public static int WriteDouble(Span<byte> buffer, double value) => WriteFixFloat64(buffer, value);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool TryWriteDouble(in Span<byte> buffer, double value, out int wroteSize) => TryWriteFixFloat64(buffer, value, out wroteSize);
+        public static bool TryWriteDouble(Span<byte> buffer, double value, out int wroteSize) => TryWriteFixFloat64(buffer, value, out wroteSize);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static double ReadDouble(in ReadOnlySpan<byte> buffer, out int readSize) => TryReadDouble(buffer, out var value, out readSize)
+        public static double ReadDouble(ReadOnlySpan<byte> buffer, out int readSize) => TryReadDouble(buffer, out var value, out readSize)
             ? value
             : throw new InvalidOperationException();
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool TryReadDouble(in ReadOnlySpan<byte> buffer, out double value, out int readSize)
+        public static bool TryReadDouble(ReadOnlySpan<byte> buffer, out double value, out int readSize)
         {
             var code = buffer[0];
             switch (code)

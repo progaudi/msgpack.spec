@@ -9,12 +9,12 @@ namespace ProGaudi.MsgPack.Light
     public static partial class MsgPackBinary
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int WriteNil(in Span<byte> buffer) => TryWriteNil(buffer, out var wroteSize)
+        public static int WriteNil(Span<byte> buffer) => TryWriteNil(buffer, out var wroteSize)
             ? wroteSize
             : throw new InvalidOperationException();
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool TryWriteNil(in Span<byte> buffer, out int wroteSize)
+        public static bool TryWriteNil(Span<byte> buffer, out int wroteSize)
         {
             wroteSize = 1;
             buffer[0] = DataCodes.Nil;
@@ -22,14 +22,14 @@ namespace ProGaudi.MsgPack.Light
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void ReadNil(in ReadOnlySpan<byte> buffer, out int readSize)
+        public static void ReadNil(ReadOnlySpan<byte> buffer, out int readSize)
         {
             if (!TryReadNil(buffer, out readSize))
                 throw new InvalidOperationException();
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool TryReadNil(in ReadOnlySpan<byte> buffer, out int readSize)
+        public static bool TryReadNil(ReadOnlySpan<byte> buffer, out int readSize)
         {
             readSize = 1;
             return buffer[0] == DataCodes.Nil;

@@ -9,12 +9,12 @@ namespace ProGaudi.MsgPack.Light
     public static partial class MsgPackBinary
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int WritePositiveFixInt(in Span<byte> buffer, byte value) => TryWritePositiveFixInt(buffer, value, out var wroteSize)
+        public static int WritePositiveFixInt(Span<byte> buffer, byte value) => TryWritePositiveFixInt(buffer, value, out var wroteSize)
             ? wroteSize
             : throw new InvalidOperationException();
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool TryWritePositiveFixInt(in Span<byte> buffer, byte value, out int wroteSize)
+        public static bool TryWritePositiveFixInt(Span<byte> buffer, byte value, out int wroteSize)
         {
             wroteSize = 1;
             if (value > DataCodes.FixPositiveMax) return false;
@@ -24,12 +24,12 @@ namespace ProGaudi.MsgPack.Light
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static byte ReadPositiveFixInt(in ReadOnlySpan<byte> buffer, out int readSize) => TryReadPositiveFixInt(buffer, out var result, out readSize)
+        public static byte ReadPositiveFixInt(ReadOnlySpan<byte> buffer, out int readSize) => TryReadPositiveFixInt(buffer, out var result, out readSize)
             ? result
             : throw new InvalidOperationException();
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool TryReadPositiveFixInt(in ReadOnlySpan<byte> buffer, out byte value, out int readSize)
+        public static bool TryReadPositiveFixInt(ReadOnlySpan<byte> buffer, out byte value, out int readSize)
         {
             readSize = 1;
             return (value = buffer[0]) <= DataCodes.FixPositiveMax;

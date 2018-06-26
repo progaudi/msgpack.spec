@@ -10,12 +10,12 @@ namespace ProGaudi.MsgPack.Light
     public static partial class MsgPackBinary
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int WriteFixFloat32(in Span<byte> buffer, float value) => TryWriteFixFloat32(buffer, value, out var wroteSize)
+        public static int WriteFixFloat32(Span<byte> buffer, float value) => TryWriteFixFloat32(buffer, value, out var wroteSize)
             ? wroteSize
             : throw new InvalidOperationException();
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool TryWriteFixFloat32(in Span<byte> buffer, float value, out int wroteSize)
+        public static bool TryWriteFixFloat32(Span<byte> buffer, float value, out int wroteSize)
         {
             wroteSize = 5;
             buffer[0] = DataCodes.Float32;
@@ -40,12 +40,12 @@ namespace ProGaudi.MsgPack.Light
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static float ReadFixFloat32(in ReadOnlySpan<byte> buffer, out int readSize) => TryReadFixFloat32(buffer, out var result, out readSize)
+        public static float ReadFixFloat32(ReadOnlySpan<byte> buffer, out int readSize) => TryReadFixFloat32(buffer, out var result, out readSize)
             ? result
             : throw new InvalidOperationException();
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool TryReadFixFloat32(in ReadOnlySpan<byte> buffer, out float value, out int readSize)
+        public static bool TryReadFixFloat32(ReadOnlySpan<byte> buffer, out float value, out int readSize)
         {
             readSize = 5;
             var result = buffer[0] == DataCodes.Float32;
@@ -55,16 +55,16 @@ namespace ProGaudi.MsgPack.Light
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int WriteFloat(in Span<byte> buffer, float value) => WriteFixFloat32(buffer, value);
+        public static int WriteFloat(Span<byte> buffer, float value) => WriteFixFloat32(buffer, value);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool TryWriteFloat(in Span<byte> buffer, float value, out int wroteSize) => TryWriteFixFloat32(buffer, value, out wroteSize);
+        public static bool TryWriteFloat(Span<byte> buffer, float value, out int wroteSize) => TryWriteFixFloat32(buffer, value, out wroteSize);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static float ReadFloat(in ReadOnlySpan<byte> buffer, out int readSize) => ReadFixFloat32(buffer, out readSize);
+        public static float ReadFloat(ReadOnlySpan<byte> buffer, out int readSize) => ReadFixFloat32(buffer, out readSize);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool TryReadFloat(in ReadOnlySpan<byte> buffer, out float value, out int readSize) => TryReadFixFloat32(buffer, out value, out readSize);
+        public static bool TryReadFloat(ReadOnlySpan<byte> buffer, out float value, out int readSize) => TryReadFixFloat32(buffer, out value, out readSize);
 
         [StructLayout(LayoutKind.Explicit)]
         private struct FloatBinary

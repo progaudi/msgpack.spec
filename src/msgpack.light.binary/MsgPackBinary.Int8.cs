@@ -9,12 +9,12 @@ namespace ProGaudi.MsgPack.Light
     public static partial class MsgPackBinary
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int WriteFixInt8(in Span<byte> buffer, sbyte value) => TryWriteFixInt8(buffer, value, out var wroteSize)
+        public static int WriteFixInt8(Span<byte> buffer, sbyte value) => TryWriteFixInt8(buffer, value, out var wroteSize)
             ? wroteSize
             : throw new InvalidOperationException();
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool TryWriteFixInt8(in Span<byte> buffer, sbyte value, out int wroteSize)
+        public static bool TryWriteFixInt8(Span<byte> buffer, sbyte value, out int wroteSize)
         {
             wroteSize = 2;
             buffer[0] = DataCodes.Int8;
@@ -23,12 +23,12 @@ namespace ProGaudi.MsgPack.Light
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static sbyte ReadFixInt8(in ReadOnlySpan<byte> buffer, out int readSize) => TryReadFixInt8(buffer, out var result, out readSize)
+        public static sbyte ReadFixInt8(ReadOnlySpan<byte> buffer, out int readSize) => TryReadFixInt8(buffer, out var result, out readSize)
             ? result
             : throw new InvalidOperationException();
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool TryReadFixInt8(in ReadOnlySpan<byte> buffer, out sbyte value, out int readSize)
+        public static bool TryReadFixInt8(ReadOnlySpan<byte> buffer, out sbyte value, out int readSize)
         {
             readSize = 2;
             var result = buffer[0] == DataCodes.Int8;
@@ -38,12 +38,12 @@ namespace ProGaudi.MsgPack.Light
 
         // https://github.com/msgpack/msgpack/issues/164
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int WriteInt8(in Span<byte> buffer, sbyte value) => TryWriteInt8(buffer, value, out var wroteSize)
+        public static int WriteInt8(Span<byte> buffer, sbyte value) => TryWriteInt8(buffer, value, out var wroteSize)
             ? wroteSize
             : throw new InvalidOperationException();
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool TryWriteInt8(in Span<byte> buffer, sbyte value, out int wroteSize)
+        public static bool TryWriteInt8(Span<byte> buffer, sbyte value, out int wroteSize)
         {
             if (value >= 0) return TryWriteUInt8(buffer, (byte)value, out wroteSize);
             if (value >= DataCodes.FixNegativeMinSByte) return TryWriteNegativeFixInt(buffer, value, out wroteSize);
@@ -51,12 +51,12 @@ namespace ProGaudi.MsgPack.Light
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static sbyte ReadInt8(in ReadOnlySpan<byte> buffer, out int readSize) => TryReadInt8(buffer, out var result, out readSize)
+        public static sbyte ReadInt8(ReadOnlySpan<byte> buffer, out int readSize) => TryReadInt8(buffer, out var result, out readSize)
             ? result
             : throw new InvalidOperationException();
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool TryReadInt8(in ReadOnlySpan<byte> buffer, out sbyte value, out int readSize)
+        public static bool TryReadInt8(ReadOnlySpan<byte> buffer, out sbyte value, out int readSize)
         {
             if (TryReadFixUInt8(buffer, out var byteResult, out readSize))
             {

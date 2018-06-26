@@ -10,12 +10,12 @@ namespace ProGaudi.MsgPack.Light
     public static partial class MsgPackBinary
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int WriteFixUInt64(in Span<byte> buffer, ulong value) => TryWriteFixUInt64(buffer, value, out var wroteSize)
+        public static int WriteFixUInt64(Span<byte> buffer, ulong value) => TryWriteFixUInt64(buffer, value, out var wroteSize)
             ? wroteSize
             : throw new InvalidOperationException();
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool TryWriteFixUInt64(in Span<byte> buffer, ulong value, out int wroteSize)
+        public static bool TryWriteFixUInt64(Span<byte> buffer, ulong value, out int wroteSize)
         {
             wroteSize = 9;
             buffer[0] = DataCodes.UInt64;
@@ -23,12 +23,12 @@ namespace ProGaudi.MsgPack.Light
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static ulong ReadFixUInt64(in ReadOnlySpan<byte> buffer, out int readSize) => TryReadFixUInt64(buffer, out var result, out readSize)
+        public static ulong ReadFixUInt64(ReadOnlySpan<byte> buffer, out int readSize) => TryReadFixUInt64(buffer, out var result, out readSize)
             ? result
             : throw new InvalidOperationException();
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool TryReadFixUInt64(in ReadOnlySpan<byte> buffer, out ulong value, out int readSize)
+        public static bool TryReadFixUInt64(ReadOnlySpan<byte> buffer, out ulong value, out int readSize)
         {
             readSize = 9;
             var result = buffer[0] == DataCodes.UInt64;
@@ -36,24 +36,24 @@ namespace ProGaudi.MsgPack.Light
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int WriteUInt64(in Span<byte> buffer, ulong value) => TryWriteUInt64(buffer, value, out var wroteSize)
+        public static int WriteUInt64(Span<byte> buffer, ulong value) => TryWriteUInt64(buffer, value, out var wroteSize)
             ? wroteSize
             : throw new InvalidOperationException();
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool TryWriteUInt64(in Span<byte> buffer, ulong value, out int wroteSize)
+        public static bool TryWriteUInt64(Span<byte> buffer, ulong value, out int wroteSize)
         {
             if (value > uint.MaxValue) return TryWriteFixUInt64(buffer, value, out wroteSize);
             return TryWriteUInt32(buffer, (uint)value, out wroteSize);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static ulong ReadUInt64(in ReadOnlySpan<byte> buffer, out int readSize) => TryReadUInt64(buffer, out var value, out readSize)
+        public static ulong ReadUInt64(ReadOnlySpan<byte> buffer, out int readSize) => TryReadUInt64(buffer, out var value, out readSize)
             ? value
             : throw new InvalidOperationException();
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool TryReadUInt64(in ReadOnlySpan<byte> buffer, out ulong value, out int readSize)
+        public static bool TryReadUInt64(ReadOnlySpan<byte> buffer, out ulong value, out int readSize)
         {
             var code = buffer[0];
             bool result;

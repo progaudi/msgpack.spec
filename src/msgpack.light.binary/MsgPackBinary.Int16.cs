@@ -10,12 +10,12 @@ namespace ProGaudi.MsgPack.Light
     public static partial class MsgPackBinary
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int WriteFixInt16(in Span<byte> buffer, short value) => TryWriteFixInt16(buffer, value, out var wroteSize)
+        public static int WriteFixInt16(Span<byte> buffer, short value) => TryWriteFixInt16(buffer, value, out var wroteSize)
             ? wroteSize
             : throw new InvalidOperationException();
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool TryWriteFixInt16(in Span<byte> buffer, short value, out int wroteSize)
+        public static bool TryWriteFixInt16(Span<byte> buffer, short value, out int wroteSize)
         {
             wroteSize = 3;
             buffer[0] = DataCodes.Int16;
@@ -23,12 +23,12 @@ namespace ProGaudi.MsgPack.Light
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static short ReadFixInt16(in ReadOnlySpan<byte> buffer, out int readSize) => TryReadFixInt16(buffer, out var result, out readSize)
+        public static short ReadFixInt16(ReadOnlySpan<byte> buffer, out int readSize) => TryReadFixInt16(buffer, out var result, out readSize)
             ? result
             : throw new InvalidOperationException();
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool TryReadFixInt16(in ReadOnlySpan<byte> buffer, out short value, out int readSize)
+        public static bool TryReadFixInt16(ReadOnlySpan<byte> buffer, out short value, out int readSize)
         {
             readSize = 3;
             var result = buffer[0] == DataCodes.Int16;
@@ -37,12 +37,12 @@ namespace ProGaudi.MsgPack.Light
 
         // https://github.com/msgpack/msgpack/issues/164
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int WriteInt16(in Span<byte> buffer, short value) => TryWriteInt16(buffer, value, out var wroteSize)
+        public static int WriteInt16(Span<byte> buffer, short value) => TryWriteInt16(buffer, value, out var wroteSize)
             ? wroteSize
             : throw new InvalidOperationException();
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool TryWriteInt16(in Span<byte> buffer, short value, out int wroteSize)
+        public static bool TryWriteInt16(Span<byte> buffer, short value, out int wroteSize)
         {
             if (value >= 0) return TryWriteUInt16(buffer, (ushort)value, out wroteSize);
             if (value < sbyte.MinValue) return TryWriteFixInt16(buffer, value, out wroteSize);
@@ -50,12 +50,12 @@ namespace ProGaudi.MsgPack.Light
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static short ReadInt16(in ReadOnlySpan<byte> buffer, out int readSize) => TryReadInt16(buffer, out var value, out readSize)
+        public static short ReadInt16(ReadOnlySpan<byte> buffer, out int readSize) => TryReadInt16(buffer, out var value, out readSize)
             ? value
             : throw new InvalidOperationException();
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool TryReadInt16(in ReadOnlySpan<byte> buffer, out short value, out int readSize)
+        public static bool TryReadInt16(ReadOnlySpan<byte> buffer, out short value, out int readSize)
         {
             var code = buffer[0];
             bool result;
