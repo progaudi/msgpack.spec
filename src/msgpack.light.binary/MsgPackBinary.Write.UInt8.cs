@@ -8,39 +8,6 @@ namespace ProGaudi.MsgPack.Light
     /// </summary>
     public static partial class MsgPackBinary
     {
-        //[MethodImpl(MethodImplOptions.AggressiveInlining)]
-        //public static int WriteFixUInt8(in Span<byte> buffer, byte value)
-        //{
-        //    EnsureCapacity(buffer, 2);
-        //    buffer[0] = DataCodes.UInt8;
-        //    buffer[1] = value;
-        //    return 2;
-        //}
-
-        //[MethodImpl(MethodImplOptions.AggressiveInlining)]
-        //public static int WriteUInt8(in Span<byte> buffer, byte value)
-        //{
-        //    if (value <= DataCodes.FixPositiveMax) return WritePositiveFixInt(buffer, value);
-        //    return WriteFixUInt8(buffer, value);
-        //}
-
-        //[MethodImpl(MethodImplOptions.AggressiveInlining)]
-        //public static byte ReadFixUInt8(in Span<byte> buffer, out int readSize)
-        //{
-        //    EnsureCapacity(buffer, 2);
-        //    if (buffer[0] != DataCodes.UInt8) throw new InvalidOperationException();
-        //    readSize = 2;
-        //    return buffer[1];
-        //}
-
-        //[MethodImpl(MethodImplOptions.AggressiveInlining)]
-        //public static byte ReadUInt8(in Span<byte> buffer, out int readSize)
-        //{
-        //    if (buffer[0] != DataCodes.UInt8) throw new InvalidOperationException();
-        //    readSize = 2;
-        //    return buffer[1];
-        //}
-
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int WriteFixUInt8(in Span<byte> buffer, byte value) => TryWriteFixUInt8(buffer, value, out var wroteSize)
             ? wroteSize
@@ -64,8 +31,9 @@ namespace ProGaudi.MsgPack.Light
         public static bool TryReadFixUInt8(in Span<byte> buffer, out byte value, out int readSize)
         {
             readSize = 2;
-            value = buffer[1];
-            return buffer[0] == DataCodes.UInt8;
+            var result = buffer[0] == DataCodes.UInt8;
+            value = result ? buffer[1] : default;
+            return result;
         }
 
         // https://github.com/msgpack/msgpack/issues/164

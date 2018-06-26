@@ -31,8 +31,9 @@ namespace ProGaudi.MsgPack.Light
         public static bool TryReadFixInt8(in Span<byte> buffer, out sbyte value, out int readSize)
         {
             readSize = 2;
-            value = unchecked((sbyte)buffer[1]);
-            return buffer[0] == DataCodes.Int8;
+            var result = buffer[0] == DataCodes.Int8;
+            value = result ? unchecked((sbyte)buffer[1]) : default;
+            return result;
         }
 
         // https://github.com/msgpack/msgpack/issues/164
@@ -61,6 +62,12 @@ namespace ProGaudi.MsgPack.Light
                 return true;
 
             if (TryReadFixUInt8(buffer, out var byteResult, out readSize))
+            {
+                value = unchecked((sbyte)byteResult);
+                return true;
+            }
+
+            if (TryReadPositiveFixInt(buffer, out byteResult, out readSize))
             {
                 value = unchecked((sbyte)byteResult);
                 return true;

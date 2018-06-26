@@ -62,19 +62,17 @@ namespace ProGaudi.MsgPack.Light.Tests.Reader
         //    ((short)token).ShouldBe(number);
         //}
 
-        //[Theory]
-        //[InlineData(0, new byte[] {0x00})]
-        //[InlineData(1, new byte[] {1})]
-        //[InlineData(-1, new byte[] {0xff})]
-        //[InlineData(sbyte.MinValue, new byte[] {208, 128})]
-        //[InlineData(sbyte.MaxValue, new byte[] {127})]
-        //public void TestSignedByte(sbyte number, byte[] data)
-        //{
-        //    MsgPackSerializer.Deserialize<sbyte>(data).ShouldBe(number);
-
-        //    var token = Helpers.CheckTokenDeserialization(data);
-        //    ((sbyte)token).ShouldBe(number);
-        //}
+        [Theory]
+        [InlineData(0, new byte[] { 0x00 })]
+        [InlineData(1, new byte[] { 1 })]
+        [InlineData(-1, new byte[] { 0xff })]
+        [InlineData(sbyte.MinValue, new byte[] { 208, 128 })]
+        [InlineData(sbyte.MaxValue, new byte[] { 127 })]
+        public void TestSignedByte(sbyte number, byte[] data)
+        {
+            MsgPackBinary.ReadInt8(data, out var readSize).ShouldBe(number);
+            readSize.ShouldBe(data.Length);
+        }
 
         //[Theory]
         //[InlineData(0, new byte[] {0x00})]
@@ -90,8 +88,6 @@ namespace ProGaudi.MsgPack.Light.Tests.Reader
         //    var token = Helpers.CheckTokenDeserialization(data);
         //    ((ulong)token).ShouldBe(number);
         //}
-
-        
 
         //[Theory]
         //[InlineData(0, new byte[] {0x00})]
@@ -115,13 +111,14 @@ namespace ProGaudi.MsgPack.Light.Tests.Reader
         //    MsgPackSerializer.Deserialize<ushort>(data).ShouldBe(number);
         //}
 
-        //[Theory]
-        //[InlineData(0, new byte[] {0x00})]
-        //[InlineData(1, new byte[] {1})]
-        //[InlineData(byte.MaxValue, new byte[] {0xcc, 0xff})]
-        //public void TetsUnsignedByte(byte number, byte[] data)
-        //{
-        //    MsgPackSerializer.Deserialize<byte>(data).ShouldBe(number);
-        //}
+        [Theory]
+        [InlineData(0, new byte[] { 0x00 })]
+        [InlineData(1, new byte[] { 1 })]
+        [InlineData(byte.MaxValue, new byte[] { 0xcc, 0xff })]
+        public void TetsUnsignedByte(byte number, byte[] data)
+        {
+            MsgPackBinary.ReadUInt8(data, out var readSize).ShouldBe(number);
+            readSize.ShouldBe(data.Length);
+        }
     }
 }
