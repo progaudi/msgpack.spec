@@ -1,3 +1,6 @@
+using System;
+using System.Buffers;
+
 using Shouldly;
 
 using Xunit;
@@ -83,9 +86,10 @@ namespace ProGaudi.MsgPack.Light.Tests.Writer
         })]
         public void Test(byte[] value, byte[] data)
         {
-            MsgPackSerializer.Serialize(value).ShouldBe(data);
-
-            ((MsgPackToken)value).RawBytes.ShouldBe(data);
+            var buffer = new Span<byte>(ArrayPool<byte>.Shared.Rent(data.Length));
+            MsgPackBinary.TryWriteBinary(buffer, value, out var wroteSize).ShouldBeTrue();
+            wroteSize.ShouldBe(data.Length);
+            buffer.Slice(0, wroteSize).ToArray().ShouldBe(data);
         }
     }
 }

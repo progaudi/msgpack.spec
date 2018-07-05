@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk" ToolsVersion="15.0">
+<Project Sdk="Microsoft.NET.Sdk" ToolsVersion="15.0">
   <PropertyGroup>
     <Description>Tests for MsgPack.Light library</Description>
     <OutputType>Exe</OutputType>
@@ -25,7 +25,6 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Remove="Reader\Array.cs" />
-    <Compile Remove="Reader\Binary.cs" />
     <Compile Remove="Reader\DateTime.cs" />
     <Compile Remove="Reader\Enums.cs" />
     <Compile Remove="Reader\Helpers.cs" />
@@ -36,7 +35,6 @@
     <Compile Remove="Reader\String.cs" />
     <Compile Remove="Reader\TimeSpan.cs" />
     <Compile Remove="Writer\Array.cs" />
-    <Compile Remove="Writer\Binary.cs" />
     <Compile Remove="Writer\DateTime.cs" />
     <Compile Remove="Writer\Enums.cs" />
     <Compile Remove="Writer\Helpers.cs" />
