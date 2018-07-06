@@ -1,3 +1,6 @@
+using System;
+using System.Buffers;
+
 using Shouldly;
 
 using Xunit;
@@ -33,10 +36,9 @@ namespace ProGaudi.MsgPack.Light.Tests.Reader
         [InlineData("Шла Саша по шоссе и сосала сушку", new byte[] { 217, 58, 208, 168, 208, 187, 208, 176, 32, 208, 161, 208, 176, 209, 136, 208, 176, 32, 208, 191, 208, 190, 32, 209, 136, 208, 190, 209, 129, 209, 129, 208, 181, 32, 208, 184, 32, 209, 129, 208, 190, 209, 129, 208, 176, 208, 187, 208, 176, 32, 209, 129, 209, 131, 209, 136, 208, 186, 209, 131 })]
         public void TestStringPack(string s, byte[] data)
         {
-            MsgPackSerializer.Deserialize<string>(data).ShouldBe(s);
-
-            var token = Helpers.CheckTokenDeserialization(data);
-            ((string)token).ShouldBe(s);
+            MsgPackBinary.TryReadString(data, out var actual, out var readSize).ShouldBeTrue();
+            actual.ShouldBe(s);
+            readSize.ShouldBe(data.Length);
         }
     }
 }

@@ -2,7 +2,7 @@
   <PropertyGroup>
     <Description>Tests for MsgPack.Light library</Description>
     <OutputType>Exe</OutputType>
-    <TargetFrameworks>netcoreapp2.0</TargetFrameworks>
+    <TargetFrameworks>netcoreapp2.0;netcoreapp2.1</TargetFrameworks>
     <WarningsAsErrors>true</WarningsAsErrors>
     <AssemblyName>msgpack.light.tests</AssemblyName>
     <RootNamespace>ProGaudi.MsgPack.Light.Tests</RootNamespace>
@@ -32,7 +32,6 @@
     <Compile Remove="Reader\Nullable.cs" />
     <Compile Remove="Reader\ReadToken.cs" />
     <Compile Remove="Reader\SkipToken.cs" />
-    <Compile Remove="Reader\String.cs" />
     <Compile Remove="Reader\TimeSpan.cs" />
     <Compile Remove="Writer\Array.cs" />
     <Compile Remove="Writer\DateTime.cs" />
@@ -40,7 +39,6 @@
     <Compile Remove="Writer\Helpers.cs" />
     <Compile Remove="Writer\Map.cs" />
     <Compile Remove="Writer\Nullable.cs" />
-    <Compile Remove="Writer\String.cs" />
     <Compile Remove="Writer\Timespan.cs" />
   </ItemGroup>
   <ItemGroup>

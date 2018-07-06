@@ -12,7 +12,8 @@ namespace ProGaudi.MsgPack.Light
         public const byte FixArrayMax = 0x9f;
 
         public const byte FixStringMin = 0xa0;
-        public const byte FixStringMax = 0xaf;
+        public const byte FixStringMax = 0xbf;
+        public const byte FixStringMaxLength = FixStringMax - FixStringMin;
 
         public const byte Nil = 0xc0;
 
@@ -25,9 +26,9 @@ namespace ProGaudi.MsgPack.Light
         public const byte Binary16 = 0xc5;
         public const byte Binary32 = 0xc6;
 
-        public const byte Ext8 = 0xc7;
-        public const byte Ext16 = 0xc8;
-        public const byte Ext32 = 0xc9;
+        public const byte Extension8 = 0xc7;
+        public const byte Extension16 = 0xc8;
+        public const byte Extension32 = 0xc9;
 
         public const byte Float32 = 0xca;
         public const byte Float64 = 0xcb;
@@ -48,9 +49,9 @@ namespace ProGaudi.MsgPack.Light
         public const byte FixExt8 = 0xd7;
         public const byte FixExt16 = 0xd8;
 
-        public const byte Str8 = 0xd9;
-        public const byte Str16 = 0xda;
-        public const byte Str32 = 0xdb;
+        public const byte String8 = 0xd9;
+        public const byte String16 = 0xda;
+        public const byte String32 = 0xdb;
 
         public const byte Array16 = 0xdc;
         public const byte Array32 = 0xdd;

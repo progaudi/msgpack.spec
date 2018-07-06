@@ -1,7 +1,7 @@
-﻿<Project Sdk="Microsoft.NET.Sdk" ToolsVersion="15.0">
+<Project Sdk="Microsoft.NET.Sdk" ToolsVersion="15.0">
   <PropertyGroup>
     <Description>Lightweight msgpack serialization library</Description>
-    <TargetFrameworks>netstandard2.0</TargetFrameworks>
+    <TargetFrameworks>netstandard2.0;netcoreapp2.1</TargetFrameworks>
     <WarningsAsErrors>true</WarningsAsErrors>
     <AssemblyTitle>msgpack.light</AssemblyTitle>
     <RootNamespace>ProGaudi.MsgPack.Light</RootNamespace>
@@ -17,6 +17,7 @@
     <Version>2.0.0</Version>
     <Authors>roman-kozachenko;aensidhe</Authors>
     <Company>progaudi</Company>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup>
     <LangVersion>latest</LangVersion> <!-- default to allowing all language features -->
