@@ -7,6 +7,7 @@ namespace ProGaudi.MsgPack.Light
 
         public const byte FixMapMin = 0x80;
         public const byte FixMapMax = 0x8f;
+        public const byte FixMapMaxLength = FixMapMax - FixMapMin;
 
         public const byte FixArrayMin = 0x90;
         public const byte FixArrayMax = 0x9f;
