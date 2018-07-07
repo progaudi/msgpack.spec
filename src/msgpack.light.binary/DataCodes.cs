@@ -45,11 +45,11 @@ namespace ProGaudi.MsgPack.Light
         public const byte Int32 = 0xd2;
         public const byte Int64 = 0xd3;
 
-        public const byte FixExt1 = 0xd4;
-        public const byte FixExt2 = 0xd5;
-        public const byte FixExt4 = 0xd6;
-        public const byte FixExt8 = 0xd7;
-        public const byte FixExt16 = 0xd8;
+        public const byte FixExtension1 = 0xd4;
+        public const byte FixExtension2 = 0xd5;
+        public const byte FixExtension4 = 0xd6;
+        public const byte FixExtension8 = 0xd7;
+        public const byte FixExtension16 = 0xd8;
 
         public const byte String8 = 0xd9;
         public const byte String16 = 0xda;
