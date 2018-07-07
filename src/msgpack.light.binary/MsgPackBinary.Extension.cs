@@ -6,7 +6,7 @@ using System.Runtime.CompilerServices;
 namespace ProGaudi.MsgPack.Light
 {
     /// <summary>
-    /// Methods for working with binary blobs
+    /// Methods for working with extensions
     /// </summary>
     public static partial class MsgPackBinary
     {
@@ -328,12 +328,7 @@ namespace ProGaudi.MsgPack.Light
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static byte ReadFixExtension1Header(ReadOnlySpan<byte> buffer, out int readSize)
-        {
-            readSize = 2;
-            if (buffer[0] != DataCodes.FixExtension1) throw new InvalidOperationException();
-            return buffer[1];
-        }
+        public static byte ReadFixExtension1Header(ReadOnlySpan<byte> buffer, out int readSize) => ReadExtensionHeader(buffer, DataCodes.FixExtension1, out readSize);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static (byte type, byte extension) ReadFixExtension1(ReadOnlySpan<byte> buffer, out int readSize)
@@ -343,129 +338,125 @@ namespace ProGaudi.MsgPack.Light
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static byte ReadFixExtension2Header(ReadOnlySpan<byte> buffer, out int readSize)
-        {
-            readSize = 2;
-            if (buffer[0] != DataCodes.FixExtension2) throw new InvalidOperationException();
-            return buffer[1];
-        }
+        public static byte ReadFixExtension2Header(ReadOnlySpan<byte> buffer, out int readSize) => ReadExtensionHeader(buffer, DataCodes.FixExtension2, out readSize);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static (byte type, IMemoryOwner<byte> extension) ReadFixExtension2(ReadOnlySpan<byte> buffer, out int readSize)
         {
-            const int size = 2;
-            readSize = size + 2;
-            var owner = MemoryPool<byte>.Shared.Rent(size);
-            buffer.Slice(2, size).CopyTo(owner.Memory.Span);
-            return (ReadFixExtension2Header(buffer, out _), owner);
+            var type = ReadFixExtension2Header(buffer, out readSize);
+            return ReadExtension(buffer, type, 2, ref readSize);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static byte ReadFixExtension4Header(ReadOnlySpan<byte> buffer, out int readSize)
-        {
-            readSize = 2;
-            if (buffer[0] != DataCodes.FixExtension4) throw new InvalidOperationException();
-            return buffer[1];
-        }
+        public static byte ReadFixExtension4Header(ReadOnlySpan<byte> buffer, out int readSize) => ReadExtensionHeader(buffer, DataCodes.FixExtension4, out readSize);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static (byte type, IMemoryOwner<byte> extension) ReadFixExtension4(ReadOnlySpan<byte> buffer, out int readSize)
         {
-            const int size = 4;
-            readSize = size + 2;
-            var owner = MemoryPool<byte>.Shared.Rent(size);
-            buffer.Slice(2, size).CopyTo(owner.Memory.Span);
-            return (ReadFixExtension4Header(buffer, out _), owner);
+            var type = ReadFixExtension4Header(buffer, out readSize);
+            return ReadExtension(buffer, type, 4, ref readSize);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static byte ReadFixExtension8Header(ReadOnlySpan<byte> buffer, out int readSize)
-        {
-            readSize = 2;
-            if (buffer[0] != DataCodes.FixExtension8) throw new InvalidOperationException();
-            return buffer[1];
-        }
+        public static byte ReadFixExtension8Header(ReadOnlySpan<byte> buffer, out int readSize) => ReadExtensionHeader(buffer, DataCodes.FixExtension8, out readSize);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static (byte type, IMemoryOwner<byte> extension) ReadFixExtension8(ReadOnlySpan<byte> buffer, out int readSize)
         {
-            const int size = 8;
-            readSize = size + 2;
-            var owner = MemoryPool<byte>.Shared.Rent(size);
-            buffer.Slice(2, size).CopyTo(owner.Memory.Span);
-            return (ReadFixExtension8Header(buffer, out _), owner);
+            var type = ReadFixExtension8Header(buffer, out readSize);
+            return ReadExtension(buffer, type, 8, ref readSize);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static byte ReadFixExtension16Header(ReadOnlySpan<byte> buffer, out int readSize)
-        {
-            readSize = 2;
-            if (buffer[0] != DataCodes.FixExtension16) throw new InvalidOperationException();
-            return buffer[1];
-        }
+        public static byte ReadFixExtension16Header(ReadOnlySpan<byte> buffer, out int readSize) => ReadExtensionHeader(buffer, DataCodes.FixExtension16, out readSize);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static (byte type, IMemoryOwner<byte> extension) ReadFixExtension16(ReadOnlySpan<byte> buffer, out int readSize)
         {
-            const int size = 16;
-            readSize = size + 2;
-            var owner = MemoryPool<byte>.Shared.Rent(size);
-            buffer.Slice(2, size).CopyTo(owner.Memory.Span);
-            return (ReadFixExtension8Header(buffer, out _), owner);
+            var type = ReadFixExtension16Header(buffer, out readSize);
+            return ReadExtension(buffer, type, 16, ref readSize);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static (byte type, byte length) ReadExtension8Header(ReadOnlySpan<byte> buffer, out int readSize)
         {
             readSize = 3;
-            if (buffer[0] != DataCodes.Extension8) throw new InvalidOperationException();
-            return (buffer[1], buffer[2]);
+            return (ReadExtensionHeader(buffer, DataCodes.Extension8, out _), buffer[2]);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static (byte type, IMemoryOwner<byte> extension) ReadExtension8(ReadOnlySpan<byte> buffer, out int readSize)
         {
             var (type, size) = ReadExtension8Header(buffer, out readSize);
-            var owner = MemoryPool<byte>.Shared.Rent(size);
-            buffer.Slice(readSize, size).CopyTo(owner.Memory.Span);
-            readSize += size;
-            return (type, owner);
+            return ReadExtension(buffer, type, size, ref readSize);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static (byte type, ushort length) ReadExtension16Header(ReadOnlySpan<byte> buffer, out int readSize)
         {
             readSize = 4;
-            if (buffer[0] != DataCodes.Extension16) throw new InvalidOperationException();
-            return (buffer[1], BinaryPrimitives.ReadUInt16BigEndian(buffer.Slice(2)));
+            return (ReadExtensionHeader(buffer, DataCodes.Extension16, out _), BinaryPrimitives.ReadUInt16BigEndian(buffer.Slice(2)));
         }
 
         public static (byte type, IMemoryOwner<byte> extension) ReadExtension16(ReadOnlySpan<byte> buffer, out int readSize)
         {
             var (type, size) = ReadExtension16Header(buffer, out readSize);
-            var owner = MemoryPool<byte>.Shared.Rent(size);
-            buffer.Slice(readSize, size).CopyTo(owner.Memory.Span);
-            readSize += size;
-            return (type, owner);
+            return ReadExtension(buffer, type, size, ref readSize);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static (byte type, uint length) ReadExtension32Header(ReadOnlySpan<byte> buffer, out int readSize)
         {
             readSize = 6;
-            if (buffer[0] != DataCodes.Extension16) throw new InvalidOperationException();
-            return (buffer[1], BinaryPrimitives.ReadUInt32BigEndian(buffer.Slice(2)));
+            return (ReadExtensionHeader(buffer, DataCodes.Extension32, out _), BinaryPrimitives.ReadUInt16BigEndian(buffer.Slice(2)));
         }
 
         public static (byte type, IMemoryOwner<byte> extension) ReadExtension32(ReadOnlySpan<byte> buffer, out int readSize)
         {
             var (type, uintSize) = ReadExtension32Header(buffer, out readSize);
             if (uintSize > int.MaxValue) throw new InvalidOperationException();
-            var size = (int) uintSize;
-            var owner = MemoryPool<byte>.Shared.Rent(size);
-            buffer.Slice(readSize, size).CopyTo(owner.Memory.Span);
-            readSize += size;
-            return (type, owner);
+            return ReadExtension(buffer, type, (int) uintSize, ref readSize);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static (byte type, uint length) ReadExtensionHeader(ReadOnlySpan<byte> buffer, out int readSize)
+        {
+            switch (buffer[0])
+            {
+                case DataCodes.FixExtension1:
+                    return (ReadFixExtension1Header(buffer, out readSize), 1);
+
+                case DataCodes.FixExtension2:
+                    return (ReadFixExtension2Header(buffer, out readSize), 2);
+
+                case DataCodes.FixExtension4:
+                    return (ReadFixExtension2Header(buffer, out readSize), 4);
+
+                case DataCodes.FixExtension8:
+                    return (ReadFixExtension2Header(buffer, out readSize), 8);
+
+                case DataCodes.FixExtension16:
+                    return (ReadFixExtension2Header(buffer, out readSize), 16);
+
+                case DataCodes.Extension8:
+                    return ReadExtension8Header(buffer, out readSize);
+
+                case DataCodes.Extension16:
+                    return ReadExtension16Header(buffer, out readSize);
+
+                case DataCodes.Extension32:
+                    return ReadExtension32Header(buffer, out readSize);
+
+                default:
+                    throw new InvalidOperationException();
+            }
+        }
+
+        public static (byte type, IMemoryOwner<byte> extension) ReadExtension(ReadOnlySpan<byte> buffer, out int readSize)
+        {
+            var (type, uintSize) = ReadExtensionHeader(buffer, out readSize);
+            if (uintSize > int.MaxValue) throw new InvalidOperationException();
+            return ReadExtension(buffer, type, (int) uintSize, ref readSize);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -571,6 +562,69 @@ namespace ProGaudi.MsgPack.Light
                 && TryReadExtension(buffer, (int) length, ref extension, ref readSize);
         }
 
+        public static bool TryReadExtensionHeader(ReadOnlySpan<byte> buffer, out byte type, out uint length, out int readSize)
+        {
+            if (buffer.IsEmpty)
+            {
+                type = 0;
+                length = 0;
+                readSize = 0;
+                return false;
+            }
+
+            if (TryReadFixExtension1Header(buffer, out type, out readSize))
+            {
+                length = 1;
+                return true;
+            }
+
+            if (TryReadFixExtension2Header(buffer, out type, out readSize))
+            {
+                length = 2;
+                return true;
+            }
+
+            if (TryReadFixExtension4Header(buffer, out type, out readSize))
+            {
+                length = 4;
+                return true;
+            }
+
+            if (TryReadFixExtension8Header(buffer, out type, out readSize))
+            {
+                length = 8;
+                return true;
+            }
+
+            if (TryReadFixExtension16Header(buffer, out type, out readSize))
+            {
+                length = 16;
+                return true;
+            }
+
+            if (TryReadExtension8Header(buffer, out type, out var byteLength, out readSize))
+            {
+                length = byteLength;
+                return true;
+            }
+
+            if (TryReadExtension16Header(buffer, out type, out var shortLength, out readSize))
+            {
+                length = shortLength;
+                return true;
+            }
+
+            return TryReadExtension32Header(buffer, out type, out length, out readSize);
+        }
+
+        public static bool TryReadExtension(ReadOnlySpan<byte> buffer, out byte type, out IMemoryOwner<byte> extension, out int readSize)
+        {
+            extension = null;
+            return TryReadExtensionHeader(buffer, out type, out var length, out readSize)
+                && length <= int.MaxValue
+                && TryReadExtension(buffer, (int) length, ref extension, ref readSize);
+        }
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static int WriteExtensionHeader(Span<byte> buffer, byte code, byte type)
         {
@@ -591,6 +645,7 @@ namespace ProGaudi.MsgPack.Light
             return true;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static bool TryReadExtension(ReadOnlySpan<byte> buffer, int size, ref IMemoryOwner<byte> extension, ref int readSize)
         {
             if (buffer.Length - readSize < size) return false;
@@ -605,6 +660,7 @@ namespace ProGaudi.MsgPack.Light
             return false;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static bool TryReadExtensionHeader(ReadOnlySpan<byte> buffer, byte code, out byte type, out int readSize)
         {
             type = 0;
@@ -613,6 +669,28 @@ namespace ProGaudi.MsgPack.Light
             if (buffer[0] != code) return false;
             type = buffer[1];
             return true;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static (byte type, IMemoryOwner<byte> extension) ReadExtension(
+            ReadOnlySpan<byte> buffer,
+            byte type,
+            int size,
+            ref int readSize)
+        {
+            var owner = MemoryPool<byte>.Shared.Rent(size);
+            buffer.Slice(readSize, size).CopyTo(owner.Memory.Span);
+            readSize += size;
+            return (type, owner);
+        }
+
+        // ReSharper disable once ParameterOnlyUsedForPreconditionCheck.Local
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static byte ReadExtensionHeader(ReadOnlySpan<byte> buffer, byte code, out int readSize)
+        {
+            readSize = 2;
+            if (buffer[0] != code) throw new InvalidOperationException();
+            return buffer[1];
         }
     }
 }
