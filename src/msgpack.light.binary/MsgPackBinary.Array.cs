@@ -35,10 +35,10 @@ namespace ProGaudi.MsgPack.Light
         /// <param name="length">Length of array. Should be less or equal to <see cref="DataCodes.FixArrayMaxLength"/>.</param>
         /// <param name="wroteSize">Count of bytes, written to <paramref name="buffer"/>. If return value is <c>false</c>, value is unspecified.</param>
         /// <returns><c>true</c>, if everything is ok, <c>false</c> if:
-        /// <ul>
-        ///     <li><paramref name="buffer"/> is too small or</li>
-        ///     <li><paramref name="length"/> is greater <see cref="DataCodes.FixArrayMaxLength"/>.</li>
-        /// </ul>
+        /// <list type="bullet">
+        ///     <item><description><paramref name="buffer"/> is too small or</description></item>
+        ///     <item><description><paramref name="length"/> is greater <see cref="DataCodes.FixArrayMaxLength"/>.</description></item>
+        /// </list>
         /// </returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool TryWriteFixArrayHeader(Span<byte> buffer, byte length, out int wroteSize)
@@ -134,11 +134,11 @@ namespace ProGaudi.MsgPack.Light
         /// <param name="length">Length of array. Should be less or equal to <see cref="DataCodes.FixArrayMaxLength"/>.</param>
         /// <param name="readSize">Count of bytes read from <paramref name="buffer"/>. If return value is <c>false</c>, value is unspecified.</param>
         /// <returns><c>true</c>, if everything is ok, <c>false</c> if:
-        /// <ul>
-        ///     <li><paramref name="buffer"/> is too small or</li>
-        ///     <li><paramref name="buffer"/>[0] contains wrong data code or</li>
-        ///     <li><paramref name="length"/> is greater <see cref="DataCodes.FixArrayMaxLength"/>.</li>
-        /// </ul>
+        /// <list type="bullet">
+        ///     <item><description><paramref name="buffer"/> is too small or</description></item>
+        ///     <item><description><paramref name="buffer"/>[0] contains wrong data code or</description></item>
+        ///     <item><description><paramref name="length"/> is greater <see cref="DataCodes.FixArrayMaxLength"/>.</description></item>
+        /// </list>
         /// </returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool TryReadFixArrayHeader(ReadOnlySpan<byte> buffer, out byte length, out int readSize)
@@ -173,10 +173,10 @@ namespace ProGaudi.MsgPack.Light
         /// <param name="length">Length of array.</param>
         /// <param name="readSize">Count of bytes read from <paramref name="buffer"/>. If return value is <c>false</c>, value is unspecified.</param>
         /// <returns><c>true</c>, if everything is ok, <c>false</c> if:
-        /// <ul>
-        ///     <li><paramref name="buffer"/> is too small or</li>
-        ///     <li><paramref name="buffer"/>[0] contains wrong data code.</li>
-        /// </ul>
+        /// <list type="bullet">
+        ///     <item><description><paramref name="buffer"/> is too small or</description></item>
+        ///     <item><description><paramref name="buffer"/>[0] contains wrong data code.</description></item>
+        /// </list>
         /// </returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool TryReadArray16Header(ReadOnlySpan<byte> buffer, out ushort length, out int readSize)
@@ -209,10 +209,10 @@ namespace ProGaudi.MsgPack.Light
         /// <param name="length">Length of array.</param>
         /// <param name="readSize">Count of bytes read from <paramref name="buffer"/>. If return value is <c>false</c>, value is unspecified.</param>
         /// <returns><c>true</c>, if everything is ok, <c>false</c> if:
-        /// <ul>
-        ///     <li><paramref name="buffer"/> is too small or</li>
-        ///     <li><paramref name="buffer"/>[0] contains wrong data code.</li>
-        /// </ul>
+        /// <list type="bullet">
+        ///     <item><description><paramref name="buffer"/> is too small or</description></item>
+        ///     <item><description><paramref name="buffer"/>[0] contains wrong data code.</description></item>
+        /// </list>
         /// </returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool TryReadArray32Header(ReadOnlySpan<byte> buffer, out uint length, out int readSize)
@@ -320,11 +320,11 @@ namespace ProGaudi.MsgPack.Light
         /// <param name="length">Length of array.</param>
         /// <param name="readSize">Count of bytes read from <paramref name="buffer"/>. If return value is <c>false</c>, value is unspecified.</param>
         /// <returns><c>true</c>, if everything is ok, <c>false</c> if:
-        /// <ul>
-        ///     <li><paramref name="buffer"/> is too small or</li>
-        ///     <li><paramref name="buffer"/>[0] contains wrong data code or</li>
-        ///     <li>length of array is greater than <see cref="int.MaxValue"/></li>
-        /// </ul>
+        /// <list type="bullet">
+        ///     <item><description><paramref name="buffer"/> is too small or</description></item>
+        ///     <item><description><paramref name="buffer"/>[0] contains wrong data code or</description></item>
+        ///     <item><description>length of array is greater than <see cref="int.MaxValue"/></description></item>
+        /// </list>
         /// </returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool TryReadArrayHeader(ReadOnlySpan<byte> buffer, out int length, out int readSize)
