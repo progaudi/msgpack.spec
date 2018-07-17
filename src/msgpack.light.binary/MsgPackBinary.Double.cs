@@ -2,6 +2,10 @@ using System;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
+using static System.BitConverter;
+
+using static ProGaudi.MsgPack.Light.DataCodes;
+
 namespace ProGaudi.MsgPack.Light
 {
     /// <summary>
@@ -9,19 +13,17 @@ namespace ProGaudi.MsgPack.Light
     /// </summary>
     public static partial class MsgPackBinary
     {
+        /// <summary>
+        /// Write double <paramref name="value"/> into <paramref name="buffer"/>.
+        /// </summary>
+        /// <returns>Count of bytes, written to <paramref name="buffer"/>.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int WriteFixFloat64(Span<byte> buffer, double value) => TryWriteFixFloat64(buffer, value, out var wroteSize)
-            ? wroteSize
-            : throw new InvalidOperationException();
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool TryWriteFixFloat64(Span<byte> buffer, double value, out int wroteSize)
+        public static int WriteFixFloat64(Span<byte> buffer, double value)
         {
-            wroteSize = 9;
-            buffer[0] = DataCodes.Float64;
+            buffer[0] = Float64;
             var binary = new DoubleBinary(value);
 
-            if (BitConverter.IsLittleEndian)
+            if (IsLittleEndian)
             {
                 buffer[1] = binary.Byte7;
                 buffer[2] = binary.Byte6;
@@ -44,46 +46,117 @@ namespace ProGaudi.MsgPack.Light
                 buffer[8] = binary.Byte7;
             }
 
+            return 9;
+        }
+
+        /// <summary>
+        /// Tries to write double value into <paramref name="buffer"/>.
+        /// </summary>
+        /// <param name="buffer">Buffer to write.</param>
+        /// <param name="value">Value to write</param>
+        /// <param name="wroteSize">Count of bytes, written to <paramref name="buffer"/>. If return value is <c>false</c>, value is unspecified.</param>
+        /// <returns><c>true</c>, if everything is ok, <c>false</c> if <paramref name="buffer"/> is too small.</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool TryWriteFixFloat64(Span<byte> buffer, double value, out int wroteSize)
+        {
+            wroteSize = 9;
+            if (buffer.Length < wroteSize) return false;
+
+            WriteFixFloat64(buffer, value);
+
             return true;
         }
 
+        /// <summary>
+        /// Reads double value from <paramref name="buffer"/>.
+        /// </summary>
+        /// <param name="buffer">Buffer to read from.</param>
+        /// <param name="readSize">Count of bytes, read from <paramref name="buffer"/>.</param>
+        /// <returns>Double value.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static double ReadFixFloat64(ReadOnlySpan<byte> buffer, out int readSize) => TryReadFixFloat64(buffer, out var result, out readSize)
-            ? result
-            : throw new InvalidOperationException();
+        public static double ReadFixFloat64(ReadOnlySpan<byte> buffer, out int readSize)
+        {
+            readSize = 9;
+            if (buffer[0] != Float64) throw WrongCode(buffer[0], Float64);
+            return new DoubleBinary(buffer.Slice(1, 8)).Value;
+        }
 
+        /// <summary>
+        /// Tries to read from <paramref name="buffer"/>
+        /// </summary>
+        /// <param name="buffer">Buffer to read from.</param>
+        /// <param name="value">Value, read from <paramref name="buffer"/>. If return value is false, value is unspecified.</param>
+        /// <param name="readSize">Count of bytes, read from <paramref name="buffer"/>. If return value is false, value is unspecified.</param>
+        /// <returns><c>true</c>, if everything is ok, <c>false</c> if <paramref name="buffer"/> is too small or <paramref name="buffer"/>[0] is not <see cref="DataCodes.Float64"/>.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool TryReadFixFloat64(ReadOnlySpan<byte> buffer, out double value, out int readSize)
         {
             readSize = 9;
-            var result = buffer[0] == DataCodes.Float64;
-            var binary = new DoubleBinary(buffer.Slice(1));
-            value = binary.Value;
-            return result;
+            value = default;
+            if (buffer.Length < readSize) return false;
+            if (buffer[0] != Float64) return false;
+            value = new DoubleBinary(buffer.Slice(1, 8)).Value;
+            return true;
         }
 
+        /// <summary>
+        /// <see cref="WriteFixFloat64"/>. Method provided for consistency with other types.
+        /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int WriteDouble(Span<byte> buffer, double value) => WriteFixFloat64(buffer, value);
 
+        /// <summary>
+        /// <see cref="TryWriteFixFloat64"/>. Method provided for consistency with other types.
+        /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool TryWriteDouble(Span<byte> buffer, double value, out int wroteSize) => TryWriteFixFloat64(buffer, value, out wroteSize);
 
+        /// <summary>
+        /// Read double from <paramref name="buffer"/>.
+        /// </summary>
+        /// <param name="buffer">Buffer to read from.</param>
+        /// <param name="readSize">Count of bytes, read from <paramref name="buffer"/>.</param>
+        /// <returns>Double value.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static double ReadDouble(ReadOnlySpan<byte> buffer, out int readSize) => TryReadDouble(buffer, out var value, out readSize)
-            ? value
-            : throw new InvalidOperationException();
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool TryReadDouble(ReadOnlySpan<byte> buffer, out double value, out int readSize)
+        public static double ReadDouble(ReadOnlySpan<byte> buffer, out int readSize)
         {
             var code = buffer[0];
             switch (code)
             {
-                case DataCodes.Float32:
+                case Float32:
+                    return ReadFixFloat32(buffer, out readSize);
+                case Float64:
+                    return ReadFixFloat64(buffer, out readSize);
+                default:
+                    throw WrongCode(code, Float64, Float32);
+            }
+        }
+
+        /// <summary>
+        /// Tries to read double value from <paramref name="buffer"/>.
+        /// </summary>
+        /// <param name="buffer">Buffer to read from.</param>
+        /// <param name="value">Value read from <paramref name="buffer"/>. If return value is false, value is unspecified.</param>
+        /// <param name="readSize">Count of bytes, read from <paramref name="buffer"/>. If return value is false, value is unspecified.</param>
+        /// <returns><c>true</c>, if everything is ok. <c>false</c> if buffer is too small, or <paramref name="buffer[0]"/> is not <see cref="Float32"/> or <see cref="Float64"/></returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool TryReadDouble(ReadOnlySpan<byte> buffer, out double value, out int readSize)
+        {
+            if (buffer.Length < 1)
+            {
+                value = default;
+                readSize = default;
+                return false;
+            }
+
+            var code = buffer[0];
+            switch (code)
+            {
+                case Float32:
                     var result = TryReadFixFloat32(buffer, out var floatValue, out readSize);
                     value = floatValue;
                     return result;
-                case DataCodes.Float64:
+                case Float64:
                     return TryReadFixFloat64(buffer, out value, out readSize);
                 default:
                     value = default;
@@ -131,7 +204,7 @@ namespace ProGaudi.MsgPack.Light
             public DoubleBinary(ReadOnlySpan<byte> bytes)
             {
                 Value = 0;
-                if (BitConverter.IsLittleEndian)
+                if (IsLittleEndian)
                 {
                     Byte0 = bytes[7];
                     Byte1 = bytes[6];
