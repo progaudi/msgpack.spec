@@ -48,7 +48,7 @@ namespace ProGaudi.MsgPack.Light
         {
             readSize = 1;
             var result = buffer[0];
-            if (result != True && result != False) throw WrongCode(result, True, False);
+            if (result != True && result != False) throw WrongCodeException(result, True, False);
             return result == True;
         }
 

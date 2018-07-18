@@ -119,7 +119,7 @@ namespace ProGaudi.MsgPack.Light
             if (buffer[0] == Binary8)
                 return buffer[1];
 
-            throw WrongCode(buffer[0], Binary8);
+            throw WrongCodeException(buffer[0], Binary8);
         }
 
         /// <summary>
@@ -157,7 +157,7 @@ namespace ProGaudi.MsgPack.Light
             if (buffer[0] == Binary16)
                 return BinaryPrimitives.ReadUInt16BigEndian(buffer.Slice(1));
 
-            throw WrongCode(buffer[0], Binary16);
+            throw WrongCodeException(buffer[0], Binary16);
         }
 
         /// <summary>
@@ -195,7 +195,7 @@ namespace ProGaudi.MsgPack.Light
             if (buffer[0] == Binary32)
                 return BinaryPrimitives.ReadUInt32BigEndian(buffer.Slice(1));
 
-            throw WrongCode(buffer[0], Binary32);
+            throw WrongCodeException(buffer[0], Binary32);
         }
 
         /// <summary>
@@ -300,7 +300,7 @@ namespace ProGaudi.MsgPack.Light
 
                     throw TooLargeArray(uint32Value);
                 default:
-                    throw WrongCode(buffer[0], Binary8, Binary16, Binary32);
+                    throw WrongCodeException(buffer[0], Binary8, Binary16, Binary32);
             }
         }
 

@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Runtime.CompilerServices;
 
 using static ProGaudi.MsgPack.Light.DataCodes;
@@ -13,22 +14,27 @@ namespace ProGaudi.MsgPack.Light
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static InvalidOperationException WrongRangeCodeException(byte code, byte min, byte max) => new InvalidOperationException(
-            $"Wrong data code: {code}. Expected: {min} <= code <= {max}."
+            $"Wrong data code: {code:x2}. Expected: {min:x2} <= code <= {max:x2}."
         );
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static InvalidOperationException WrongCode(byte code, byte expected) => new InvalidOperationException(
-            $"Wrong data code: {code}. Expected: {expected}."
+        private static InvalidOperationException WrongCodeException(byte code, byte expected) => new InvalidOperationException(
+            $"Wrong data code: {code:x2}. Expected: {expected:x2}."
         );
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static Exception WrongCode(byte code, byte a, byte b) => new InvalidOperationException(
-            $"Wrong data code: {code}. Expected: {a} or {b}."
+        private static Exception WrongCodeException(byte code, byte a, byte b) => new InvalidOperationException(
+            $"Wrong data code: {code:x2}. Expected: {a:x2} or {b:x2}."
         );
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static Exception WrongCode(byte code, byte a, byte b, byte c) => new InvalidOperationException(
-            $"Wrong data code: {code}. Expected: {a}, {b} or {c}."
+        private static Exception WrongCodeException(byte code, byte a, byte b, byte c) => new InvalidOperationException(
+            $"Wrong data code: {code:x2}. Expected: {a:x2}, {b:x2} or {c:x2}."
+        );
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static Exception WrongCodeException(byte code, params byte[] expected) => new InvalidOperationException(
+            $"Wrong data code: {code:x2}. Expected: {string.Join(", ", expected.Select(x => x.ToString("x2")))}."
         );
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -54,7 +60,7 @@ See https://blogs.msdn.microsoft.com/joshwil/2005/08/10/bigarrayt-getting-around
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static Exception WrongArrayHeader(byte code) => new InvalidOperationException(
-            $"Wrong array data code: {code}. Expected: {FixArrayMin} <= code <= {FixArrayMax} or {Array16} or {Array32}."
+            $"Wrong array data code: {code:x2}. Expected: {FixArrayMin:x2} <= code <= {FixArrayMax:x2} or {Array16:x2} or {Array32:x2}."
         );
 
     }

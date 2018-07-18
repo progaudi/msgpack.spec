@@ -77,7 +77,7 @@ namespace ProGaudi.MsgPack.Light
         public static double ReadFixFloat64(ReadOnlySpan<byte> buffer, out int readSize)
         {
             readSize = 9;
-            if (buffer[0] != Float64) throw WrongCode(buffer[0], Float64);
+            if (buffer[0] != Float64) throw WrongCodeException(buffer[0], Float64);
             return new DoubleBinary(buffer.Slice(1, 8)).Value;
         }
 
@@ -128,7 +128,7 @@ namespace ProGaudi.MsgPack.Light
                 case Float64:
                     return ReadFixFloat64(buffer, out readSize);
                 default:
-                    throw WrongCode(code, Float64, Float32);
+                    throw WrongCodeException(code, Float64, Float32);
             }
         }
 

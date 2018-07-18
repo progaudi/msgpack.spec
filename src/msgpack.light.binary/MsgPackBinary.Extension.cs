@@ -3,6 +3,8 @@ using System.Buffers;
 using System.Buffers.Binary;
 using System.Runtime.CompilerServices;
 
+using static ProGaudi.MsgPack.Light.DataCodes;
+
 namespace ProGaudi.MsgPack.Light
 {
     /// <summary>
@@ -10,32 +12,71 @@ namespace ProGaudi.MsgPack.Light
     /// </summary>
     public static partial class MsgPackBinary
     {
+        /// <summary>
+        /// Writes extension header. Extension length is 1 byte.
+        /// </summary>
+        /// <param name="buffer">Buffer to write.</param>
+        /// <param name="type">Type code of extension.</param>
+        /// <returns>Count of bytes, written into <paramref name="buffer"/>.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int WriteFixExtension1Header(Span<byte> buffer, byte type) => WriteExtensionHeader(buffer, DataCodes.FixExtension1, type);
+        public static int WriteFixExtension1Header(Span<byte> buffer, sbyte type) => WriteExtensionHeader(buffer, FixExtension1, type);
 
+        /// <summary>
+        /// Writes 1-byte extension.
+        /// </summary>
+        /// <param name="buffer">Buffer to write.</param>
+        /// <param name="type">Type code of extension.</param>
+        /// <param name="extension">Extension value.</param>
+        /// <returns>Count of bytes, written into <paramref name="buffer"/>.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int WriteFixExtension1(Span<byte> buffer, byte type, byte extension)
+        public static int WriteFixExtension1(Span<byte> buffer, sbyte type, byte extension)
         {
             buffer[2] = extension;
             return WriteFixExtension1Header(buffer, type) + 1;
         }
 
+        /// <summary>
+        /// Writes extension header. Extension length is 2 bytes.
+        /// </summary>
+        /// <param name="buffer">Buffer to write.</param>
+        /// <param name="type">Type code of extension.</param>
+        /// <returns>Count of bytes, written into <paramref name="buffer"/>.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int WriteFixExtension2Header(Span<byte> buffer, byte type) => WriteExtensionHeader(buffer, DataCodes.FixExtension2, type);
+        public static int WriteFixExtension2Header(Span<byte> buffer, sbyte type) => WriteExtensionHeader(buffer, FixExtension2, type);
 
+        /// <summary>
+        /// Writes 2-bytes extension.
+        /// </summary>
+        /// <param name="buffer">Buffer to write.</param>
+        /// <param name="type">Type code of extension.</param>
+        /// <param name="extension">Extension value.</param>
+        /// <returns>Count of bytes, written into <paramref name="buffer"/>.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int WriteFixExtension2(Span<byte> buffer, byte type, ReadOnlySpan<byte> extension)
+        public static int WriteFixExtension2(Span<byte> buffer, sbyte type, ReadOnlySpan<byte> extension)
         {
             buffer[2] = extension[0];
             buffer[3] = extension[1];
             return WriteFixExtension2Header(buffer, type) + 2;
         }
 
+        /// <summary>
+        /// Writes extension header. Extension length is 4 bytes.
+        /// </summary>
+        /// <param name="buffer">Buffer to write.</param>
+        /// <param name="type">Type code of extension.</param>
+        /// <returns>Count of bytes, written into <paramref name="buffer"/>.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int WriteFixExtension4Header(Span<byte> buffer, byte type) => WriteExtensionHeader(buffer, DataCodes.FixExtension4, type);
+        public static int WriteFixExtension4Header(Span<byte> buffer, sbyte type) => WriteExtensionHeader(buffer, FixExtension4, type);
 
+        /// <summary>
+        /// Writes 4-bytes extension.
+        /// </summary>
+        /// <param name="buffer">Buffer to write.</param>
+        /// <param name="type">Type code of extension.</param>
+        /// <param name="extension">Extension value.</param>
+        /// <returns>Count of bytes, written into <paramref name="buffer"/>.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int WriteFixExtension4(Span<byte> buffer, byte type, ReadOnlySpan<byte> extension)
+        public static int WriteFixExtension4(Span<byte> buffer, sbyte type, ReadOnlySpan<byte> extension)
         {
             var result = WriteFixExtension4Header(buffer, type);
             const int extLength = 4;
@@ -43,11 +84,24 @@ namespace ProGaudi.MsgPack.Light
             return result + extLength;
         }
 
+        /// <summary>
+        /// Writes extension header. Extension length is 8 bytes.
+        /// </summary>
+        /// <param name="buffer">Buffer to write.</param>
+        /// <param name="type">Type code of extension.</param>
+        /// <returns>Count of bytes, written into <paramref name="buffer"/>.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int WriteFixExtension8Header(Span<byte> buffer, byte type) => WriteExtensionHeader(buffer, DataCodes.FixExtension8, type);
+        public static int WriteFixExtension8Header(Span<byte> buffer, sbyte type) => WriteExtensionHeader(buffer, FixExtension8, type);
 
+        /// <summary>
+        /// Writes 8-bytes extension.
+        /// </summary>
+        /// <param name="buffer">Buffer to write.</param>
+        /// <param name="type">Type code of extension.</param>
+        /// <param name="extension">Extension value.</param>
+        /// <returns>Count of bytes, written into <paramref name="buffer"/>.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int WriteFixExtension8(Span<byte> buffer, byte type, ReadOnlySpan<byte> extension)
+        public static int WriteFixExtension8(Span<byte> buffer, sbyte type, ReadOnlySpan<byte> extension)
         {
             var result = WriteFixExtension8Header(buffer, type);
             const int extLength = 8;
@@ -55,11 +109,24 @@ namespace ProGaudi.MsgPack.Light
             return result + extLength;
         }
 
+        /// <summary>
+        /// Writes extension header. Extension length is 16 bytes.
+        /// </summary>
+        /// <param name="buffer">Buffer to write.</param>
+        /// <param name="type">Type code of extension.</param>
+        /// <returns>Count of bytes, written into <paramref name="buffer"/>.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int WriteFixExtension16Header(Span<byte> buffer, byte type) => WriteExtensionHeader(buffer, DataCodes.FixExtension16, type);
+        public static int WriteFixExtension16Header(Span<byte> buffer, sbyte type) => WriteExtensionHeader(buffer, FixExtension16, type);
 
+        /// <summary>
+        /// Writes 16-bytes extension.
+        /// </summary>
+        /// <param name="buffer">Buffer to write.</param>
+        /// <param name="type">Type code of extension.</param>
+        /// <param name="extension">Extension value.</param>
+        /// <returns>Count of bytes, written into <paramref name="buffer"/>.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int WriteFixExtension16(Span<byte> buffer, byte type, ReadOnlySpan<byte> extension)
+        public static int WriteFixExtension16(Span<byte> buffer, sbyte type, ReadOnlySpan<byte> extension)
         {
             var result = WriteFixExtension16Header(buffer, type);
             const int extLength = 16;
@@ -67,16 +134,30 @@ namespace ProGaudi.MsgPack.Light
             return result + extLength;
         }
 
+        /// <summary>
+        /// Writes extension header. Extension length is 8-bits uint.
+        /// </summary>
+        /// <param name="buffer">Buffer to write.</param>
+        /// <param name="type">Type code of extension.</param>
+        /// <param name="length">Length of extension</param>
+        /// <returns>Count of bytes, written into <paramref name="buffer"/>.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int WriteExtension8Header(Span<byte> buffer, byte type, byte length)
+        public static int WriteExtension8Header(Span<byte> buffer, sbyte type, byte length)
         {
-            WriteExtensionHeader(buffer, DataCodes.Extension8, type);
+            WriteExtensionHeader(buffer, Extension8, type);
             buffer[2] = length;
             return 3;
         }
 
+        /// <summary>
+        /// Writes extension. Extension length is 8-bits uint.
+        /// </summary>
+        /// <param name="buffer">Buffer to write.</param>
+        /// <param name="type">Type code of extension.</param>
+        /// <param name="extension">Extension value.</param>
+        /// <returns>Count of bytes, written into <paramref name="buffer"/>.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int WriteExtension8(Span<byte> buffer, byte type, ReadOnlySpan<byte> extension)
+        public static int WriteExtension8(Span<byte> buffer, sbyte type, ReadOnlySpan<byte> extension)
         {
             if (extension.Length > byte.MaxValue) throw new InvalidOperationException();
             var result = WriteExtension8Header(buffer, type, (byte)extension.Length);
@@ -84,15 +165,29 @@ namespace ProGaudi.MsgPack.Light
             return result + extension.Length;
         }
 
+        /// <summary>
+        /// Writes extension header. Extension length is 16-bits uint.
+        /// </summary>
+        /// <param name="buffer">Buffer to write.</param>
+        /// <param name="type">Type code of extension.</param>
+        /// <param name="length">Length of extension</param>
+        /// <returns>Count of bytes, written into <paramref name="buffer"/>.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int WriteExtension16Header(Span<byte> buffer, byte type, ushort length)
+        public static int WriteExtension16Header(Span<byte> buffer, sbyte type, ushort length)
         {
-            WriteExtensionHeader(buffer, DataCodes.Extension16, type);
+            WriteExtensionHeader(buffer, Extension16, type);
             BinaryPrimitives.WriteUInt16BigEndian(buffer.Slice(2), length);
             return 4;
         }
 
-        public static int WriteExtension16(Span<byte> buffer, byte type, ReadOnlySpan<byte> extension)
+        /// <summary>
+        /// Writes extension. Extension length is 16-bits uint.
+        /// </summary>
+        /// <param name="buffer">Buffer to write.</param>
+        /// <param name="type">Type code of extension.</param>
+        /// <param name="extension">Extension value.</param>
+        /// <returns>Count of bytes, written into <paramref name="buffer"/>.</returns>
+        public static int WriteExtension16(Span<byte> buffer, sbyte type, ReadOnlySpan<byte> extension)
         {
             if (extension.Length > ushort.MaxValue) throw new InvalidOperationException();
             var result = WriteExtension16Header(buffer, type, (ushort)extension.Length);
@@ -100,23 +195,44 @@ namespace ProGaudi.MsgPack.Light
             return result + extension.Length;
         }
 
+        /// <summary>
+        /// Writes extension header. Extension length is 32-bits uint.
+        /// </summary>
+        /// <param name="buffer">Buffer to write.</param>
+        /// <param name="type">Type code of extension.</param>
+        /// <param name="length">Length of extension</param>
+        /// <returns>Count of bytes, written into <paramref name="buffer"/>.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int WriteExtension32Header(Span<byte> buffer, byte type, uint length)
+        public static int WriteExtension32Header(Span<byte> buffer, sbyte type, uint length)
         {
-            WriteExtensionHeader(buffer, DataCodes.Extension32, type);
+            WriteExtensionHeader(buffer, Extension32, type);
             BinaryPrimitives.WriteUInt32BigEndian(buffer.Slice(2), length);
             return 6;
         }
 
-        public static int WriteExtension32(Span<byte> buffer, byte type, ReadOnlySpan<byte> extension)
+        /// <summary>
+        /// Writes extension. Extension length is 32-bits uint.
+        /// </summary>
+        /// <param name="buffer">Buffer to write.</param>
+        /// <param name="type">Type code of extension.</param>
+        /// <param name="extension">Extension value.</param>
+        /// <returns>Count of bytes, written into <paramref name="buffer"/>.</returns>
+        public static int WriteExtension32(Span<byte> buffer, sbyte type, ReadOnlySpan<byte> extension)
         {
             var result = WriteExtension32Header(buffer, type, (ushort)extension.Length);
             extension.CopyTo(buffer.Slice(result));
             return result + extension.Length;
         }
 
+        /// <summary>
+        /// Writes smallest possible extension header.
+        /// </summary>
+        /// <param name="buffer">Buffer to write.</param>
+        /// <param name="type">Type code of extension.</param>
+        /// <param name="length">Length of extension.</param>
+        /// <returns>Count of bytes, written into <paramref name="buffer"/>.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int WriteExtensionHeader(Span<byte> buffer, byte type, uint length)
+        public static int WriteExtensionHeader(Span<byte> buffer, sbyte type, uint length)
         {
             switch (length)
             {
@@ -141,18 +257,40 @@ namespace ProGaudi.MsgPack.Light
             return WriteExtension32Header(buffer, type, length);
         }
 
-        public static int WriteExtension(Span<byte> buffer, byte type, ReadOnlySpan<byte> extension)
+        /// <summary>
+        /// Writes smallest possible extension.
+        /// </summary>
+        /// <param name="buffer">Buffer to write.</param>
+        /// <param name="type">Type code of extension.</param>
+        /// <param name="extension">Extension.</param>
+        /// <returns>Count of bytes, written into <paramref name="buffer"/>.</returns>
+        public static int WriteExtension(Span<byte> buffer, sbyte type, ReadOnlySpan<byte> extension)
         {
             var result = WriteExtensionHeader(buffer, type, (uint) extension.Length);
             extension.CopyTo(buffer.Slice(result));
             return result + extension.Length;
         }
 
+        /// <summary>
+        /// Tries to write extension header. Extension length is 1 byte.
+        /// </summary>
+        /// <param name="buffer">Buffer to write.</param>
+        /// <param name="type">Type code of extension.</param>
+        /// <param name="wroteSize">Count of bytes, written into <paramref name="buffer"/>.</param>
+        /// <returns><c>true</c> if everything is ok, <c>false</c> if <paramref name="buffer"/> is too small.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool TryWriteFixExtension1Header(Span<byte> buffer, byte type, out int wroteSize) => TryWriteExtensionHeader(buffer, DataCodes.FixExtension1, type, out wroteSize);
+        public static bool TryWriteFixExtension1Header(Span<byte> buffer, sbyte type, out int wroteSize) => TryWriteExtensionHeader(buffer, FixExtension1, type, out wroteSize);
 
+        /// <summary>
+        /// Tries to write extension. Extension length is 1 byte.
+        /// </summary>
+        /// <param name="buffer">Buffer to write.</param>
+        /// <param name="type">Type code of extension.</param>
+        /// <param name="extension">Extension data.</param>
+        /// <param name="wroteSize">Count of bytes, written into <paramref name="buffer"/>.</param>
+        /// <returns><c>true</c> if everything is ok, <c>false</c> if <paramref name="buffer"/> is too small.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool TryWriteFixExtension1(Span<byte> buffer, byte type, byte extension, out int wroteSize)
+        public static bool TryWriteFixExtension1(Span<byte> buffer, sbyte type, byte extension, out int wroteSize)
         {
             wroteSize = 0;
             const int size = 3;
@@ -163,11 +301,26 @@ namespace ProGaudi.MsgPack.Light
             return true;
         }
 
+        /// <summary>
+        /// Tries to write extension header. Extension length is 2 bytes.
+        /// </summary>
+        /// <param name="buffer">Buffer to write.</param>
+        /// <param name="type">Type code of extension.</param>
+        /// <param name="wroteSize">Count of bytes, written into <paramref name="buffer"/>.</param>
+        /// <returns><c>true</c> if everything is ok, <c>false</c> if <paramref name="buffer"/> is too small.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool TryWriteFixExtension2Header(Span<byte> buffer, byte type, out int wroteSize) => TryWriteExtensionHeader(buffer, DataCodes.FixExtension2, type, out wroteSize);
+        public static bool TryWriteFixExtension2Header(Span<byte> buffer, sbyte type, out int wroteSize) => TryWriteExtensionHeader(buffer, FixExtension2, type, out wroteSize);
 
+        /// <summary>
+        /// Tries to write extension. Extension length is 2 bytes.
+        /// </summary>
+        /// <param name="buffer">Buffer to write.</param>
+        /// <param name="type">Type code of extension.</param>
+        /// <param name="extension">Extension data.</param>
+        /// <param name="wroteSize">Count of bytes, written into <paramref name="buffer"/>.</param>
+        /// <returns><c>true</c> if everything is ok, <c>false</c> if <paramref name="buffer"/> is too small or <paramref name="extension"/> length is not 2.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool TryWriteFixExtension2(Span<byte> buffer, byte type, ReadOnlySpan<byte> extension, out int wroteSize)
+        public static bool TryWriteFixExtension2(Span<byte> buffer, sbyte type, ReadOnlySpan<byte> extension, out int wroteSize)
         {
             wroteSize = 0;
             if (extension.Length != 2) return false;
@@ -179,11 +332,26 @@ namespace ProGaudi.MsgPack.Light
             return true;
         }
 
+        /// <summary>
+        /// Tries to write extension header. Extension length is 4 bytes.
+        /// </summary>
+        /// <param name="buffer">Buffer to write.</param>
+        /// <param name="type">Type code of extension.</param>
+        /// <param name="wroteSize">Count of bytes, written into <paramref name="buffer"/>.</param>
+        /// <returns><c>true</c> if everything is ok, <c>false</c> if <paramref name="buffer"/> is too small.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool TryWriteFixExtension4Header(Span<byte> buffer, byte type, out int wroteSize) => TryWriteExtensionHeader(buffer, DataCodes.FixExtension4, type, out wroteSize);
+        public static bool TryWriteFixExtension4Header(Span<byte> buffer, sbyte type, out int wroteSize) => TryWriteExtensionHeader(buffer, FixExtension4, type, out wroteSize);
 
+        /// <summary>
+        /// Tries to write extension. Extension length is 4 bytes.
+        /// </summary>
+        /// <param name="buffer">Buffer to write.</param>
+        /// <param name="type">Type code of extension.</param>
+        /// <param name="extension">Extension data.</param>
+        /// <param name="wroteSize">Count of bytes, written into <paramref name="buffer"/>.</param>
+        /// <returns><c>true</c> if everything is ok, <c>false</c> if <paramref name="buffer"/> is too small or <paramref name="extension"/> length is not 4.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool TryWriteFixExtension4(Span<byte> buffer, byte type, ReadOnlySpan<byte> extension, out int wroteSize)
+        public static bool TryWriteFixExtension4(Span<byte> buffer, sbyte type, ReadOnlySpan<byte> extension, out int wroteSize)
         {
             wroteSize = 0;
             if (extension.Length != 4) return false;
@@ -195,11 +363,26 @@ namespace ProGaudi.MsgPack.Light
             return true;
         }
 
+        /// <summary>
+        /// Tries to write extension header. Extension length is 8 bytes.
+        /// </summary>
+        /// <param name="buffer">Buffer to write.</param>
+        /// <param name="type">Type code of extension.</param>
+        /// <param name="wroteSize">Count of bytes, written into <paramref name="buffer"/>.</param>
+        /// <returns><c>true</c> if everything is ok, <c>false</c> if <paramref name="buffer"/> is too small.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool TryWriteFixExtension8Header(Span<byte> buffer, byte type, out int wroteSize) => TryWriteExtensionHeader(buffer, DataCodes.FixExtension8, type, out wroteSize);
+        public static bool TryWriteFixExtension8Header(Span<byte> buffer, sbyte type, out int wroteSize) => TryWriteExtensionHeader(buffer, FixExtension8, type, out wroteSize);
 
+        /// <summary>
+        /// Tries to write extension. Extension length is 8 bytes.
+        /// </summary>
+        /// <param name="buffer">Buffer to write.</param>
+        /// <param name="type">Type code of extension.</param>
+        /// <param name="extension">Extension data.</param>
+        /// <param name="wroteSize">Count of bytes, written into <paramref name="buffer"/>.</param>
+        /// <returns><c>true</c> if everything is ok, <c>false</c> if <paramref name="buffer"/> is too small or <paramref name="extension"/> length is not 8.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool TryWriteFixExtension8(Span<byte> buffer, byte type, ReadOnlySpan<byte> extension, out int wroteSize)
+        public static bool TryWriteFixExtension8(Span<byte> buffer, sbyte type, ReadOnlySpan<byte> extension, out int wroteSize)
         {
             wroteSize = 0;
             if (extension.Length != 8) return false;
@@ -211,11 +394,26 @@ namespace ProGaudi.MsgPack.Light
             return true;
         }
 
+        /// <summary>
+        /// Tries to write extension header. Extension length is 16 bytes.
+        /// </summary>
+        /// <param name="buffer">Buffer to write.</param>
+        /// <param name="type">Type code of extension.</param>
+        /// <param name="wroteSize">Count of bytes, written into <paramref name="buffer"/>.</param>
+        /// <returns><c>true</c> if everything is ok, <c>false</c> if <paramref name="buffer"/> is too small.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool TryWriteFixExtension16Header(Span<byte> buffer, byte type, out int wroteSize) => TryWriteExtensionHeader(buffer, DataCodes.FixExtension16, type, out wroteSize);
+        public static bool TryWriteFixExtension16Header(Span<byte> buffer, sbyte type, out int wroteSize) => TryWriteExtensionHeader(buffer, FixExtension16, type, out wroteSize);
 
+        /// <summary>
+        /// Tries to write extension. Extension length is 16 bytes.
+        /// </summary>
+        /// <param name="buffer">Buffer to write.</param>
+        /// <param name="type">Type code of extension.</param>
+        /// <param name="extension">Extension data.</param>
+        /// <param name="wroteSize">Count of bytes, written into <paramref name="buffer"/>.</param>
+        /// <returns><c>true</c> if everything is ok, <c>false</c> if <paramref name="buffer"/> is too small or <paramref name="extension"/> length is not 16.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool TryWriteFixExtension16(Span<byte> buffer, byte type, ReadOnlySpan<byte> extension, out int wroteSize)
+        public static bool TryWriteFixExtension16(Span<byte> buffer, sbyte type, ReadOnlySpan<byte> extension, out int wroteSize)
         {
             wroteSize = 0;
             if (extension.Length != 16) return false;
@@ -227,8 +425,16 @@ namespace ProGaudi.MsgPack.Light
             return true;
         }
 
+        /// <summary>
+        /// Tries to write extension header. Extension length is 8 bits uint.
+        /// </summary>
+        /// <param name="buffer">Buffer to write.</param>
+        /// <param name="type">Type code of extension.</param>
+        /// <param name="length">Length of extensions.</param>
+        /// <param name="wroteSize">Count of bytes, written into <paramref name="buffer"/>.</param>
+        /// <returns><c>true</c> if everything is ok, <c>false</c> if <paramref name="buffer"/> is too small.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool TryWriteExtension8Header(Span<byte> buffer, byte type, byte length, out int wroteSize)
+        public static bool TryWriteExtension8Header(Span<byte> buffer, sbyte type, byte length, out int wroteSize)
         {
             wroteSize = 0;
             const int size = 3;
@@ -239,8 +445,16 @@ namespace ProGaudi.MsgPack.Light
             return true;
         }
 
+        /// <summary>
+        /// Tries to write extension. Extension length is 8 bits uint.
+        /// </summary>
+        /// <param name="buffer">Buffer to write.</param>
+        /// <param name="type">Type code of extension.</param>
+        /// <param name="extension">Extension data.</param>
+        /// <param name="wroteSize">Count of bytes, written into <paramref name="buffer"/>.</param>
+        /// <returns><c>true</c> if everything is ok, <c>false</c> if <paramref name="buffer"/> is too small or <paramref name="extension"/> length is greater than <see cref="byte.MaxValue"/>.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool TryWriteExtension8(Span<byte> buffer, byte type, ReadOnlySpan<byte> extension, out int wroteSize)
+        public static bool TryWriteExtension8(Span<byte> buffer, sbyte type, ReadOnlySpan<byte> extension, out int wroteSize)
         {
             wroteSize = 0;
             if (extension.Length > byte.MaxValue) return false;
@@ -250,8 +464,16 @@ namespace ProGaudi.MsgPack.Light
             return true;
         }
 
+        /// <summary>
+        /// Tries to write extension header. Extension length is 16 bits uint.
+        /// </summary>
+        /// <param name="buffer">Buffer to write.</param>
+        /// <param name="type">Type code of extension.</param>
+        /// <param name="length">Length of extension.</param>
+        /// <param name="wroteSize">Count of bytes, written into <paramref name="buffer"/>.</param>
+        /// <returns><c>true</c> if everything is ok, <c>false</c> if <paramref name="buffer"/> is too small.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool TryWriteExtension16Header(Span<byte> buffer, byte type, ushort length, out int wroteSize)
+        public static bool TryWriteExtension16Header(Span<byte> buffer, sbyte type, ushort length, out int wroteSize)
         {
             wroteSize = 0;
             const int size = 4;
@@ -262,7 +484,15 @@ namespace ProGaudi.MsgPack.Light
             return true;
         }
 
-        public static bool TryWriteExtension16(Span<byte> buffer, byte type, ReadOnlySpan<byte> extension, out int wroteSize)
+        /// <summary>
+        /// Tries to write extension. Extension length is 16 bits uint.
+        /// </summary>
+        /// <param name="buffer">Buffer to write.</param>
+        /// <param name="type">Type code of extension.</param>
+        /// <param name="extension">Extension data.</param>
+        /// <param name="wroteSize">Count of bytes, written into <paramref name="buffer"/>.</param>
+        /// <returns><c>true</c> if everything is ok, <c>false</c> if <paramref name="buffer"/> is too small or <paramref name="extension"/> length is greater than <see cref="ushort.MaxValue"/>.</returns>
+        public static bool TryWriteExtension16(Span<byte> buffer, sbyte type, ReadOnlySpan<byte> extension, out int wroteSize)
         {
             wroteSize = 0;
             if (extension.Length > ushort.MaxValue) return false;
@@ -272,8 +502,16 @@ namespace ProGaudi.MsgPack.Light
             return true;
         }
 
+        /// <summary>
+        /// Tries to write extension header. Extension length is 32bits uint.
+        /// </summary>
+        /// <param name="buffer">Buffer to write.</param>
+        /// <param name="type">Type code of extension.</param>
+        /// <param name="length">Length of extension.</param>
+        /// <param name="wroteSize">Count of bytes, written into <paramref name="buffer"/>.</param>
+        /// <returns><c>true</c> if everything is ok, <c>false</c> if <paramref name="buffer"/> is too small.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool TryWriteExtension32Header(Span<byte> buffer, byte type, uint length, out int wroteSize)
+        public static bool TryWriteExtension32Header(Span<byte> buffer, sbyte type, uint length, out int wroteSize)
         {
             wroteSize = 0;
             const int size = 6;
@@ -284,7 +522,15 @@ namespace ProGaudi.MsgPack.Light
             return true;
         }
 
-        public static bool TryWriteExtension32(Span<byte> buffer, byte type, ReadOnlySpan<byte> extension, out int wroteSize)
+        /// <summary>
+        /// Tries to write extension. Extension length is 32 bits.
+        /// </summary>
+        /// <param name="buffer">Buffer to write.</param>
+        /// <param name="type">Type code of extension.</param>
+        /// <param name="extension">Extension data.</param>
+        /// <param name="wroteSize">Count of bytes, written into <paramref name="buffer"/>.</param>
+        /// <returns><c>true</c> if everything is ok, <c>false</c> if <paramref name="buffer"/> is too small.</returns>
+        public static bool TryWriteExtension32(Span<byte> buffer, sbyte type, ReadOnlySpan<byte> extension, out int wroteSize)
         {
             wroteSize = 0;
             if (buffer.Length < extension.Length + 6) return false;
@@ -293,8 +539,16 @@ namespace ProGaudi.MsgPack.Light
             return true;
         }
 
+        /// <summary>
+        /// Tries to write smallest possible extension header.
+        /// </summary>
+        /// <param name="buffer">Buffer to write.</param>
+        /// <param name="type">Type code of extension.</param>
+        /// <param name="length">Length of extension.</param>
+        /// <param name="wroteSize">Count of bytes, written into <paramref name="buffer"/>.</param>
+        /// <returns><c>true</c> if everything is ok, <c>false</c> if <paramref name="buffer"/> is too small.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool TryWriteExtensionHeader(Span<byte> buffer, byte type, uint length, out int wroteSize)
+        public static bool TryWriteExtensionHeader(Span<byte> buffer, sbyte type, uint length, out int wroteSize)
         {
             switch (length)
             {
@@ -319,7 +573,15 @@ namespace ProGaudi.MsgPack.Light
             return TryWriteExtension32Header(buffer, type, length, out wroteSize);
         }
 
-        public static bool TryWriteExtension(Span<byte> buffer, byte type, ReadOnlySpan<byte> extension, out int wroteSize)
+        /// <summary>
+        /// Tries to write smallest possible extension.
+        /// </summary>
+        /// <param name="buffer">Buffer to write.</param>
+        /// <param name="type">Type code of extension.</param>
+        /// <param name="extension">Extension.</param>
+        /// <param name="wroteSize">Count of bytes, written into <paramref name="buffer"/>.</param>
+        /// <returns><c>true</c> if everything is ok, <c>false</c> if <paramref name="buffer"/> is too small.</returns>
+        public static bool TryWriteExtension(Span<byte> buffer, sbyte type, ReadOnlySpan<byte> extension, out int wroteSize)
         {
             if (!TryWriteExtensionHeader(buffer, type, (uint) extension.Length, out wroteSize)) return false;
             if (wroteSize + extension.Length > buffer.Length) return false;
@@ -327,143 +589,275 @@ namespace ProGaudi.MsgPack.Light
             return true;
         }
 
+        /// <summary>
+        /// Reads extension header. Length of extension should be 1 byte.
+        /// </summary>
+        /// <param name="buffer">Buffer to read from.</param>
+        /// <param name="readSize">Count of bytes read from <paramref name="buffer"/>.</param>
+        /// <returns>Extension code type.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static byte ReadFixExtension1Header(ReadOnlySpan<byte> buffer, out int readSize) => ReadExtensionHeader(buffer, DataCodes.FixExtension1, out readSize);
+        public static sbyte ReadFixExtension1Header(ReadOnlySpan<byte> buffer, out int readSize) => ReadExtensionHeader(buffer, FixExtension1, out readSize);
 
+        /// <summary>
+        /// Reads extension. Length of extension should be 1 byte.
+        /// </summary>
+        /// <param name="buffer">Buffer to read from.</param>
+        /// <param name="readSize">Count of bytes read from <paramref name="buffer"/>.</param>
+        /// <returns>Extension code type and extension.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static (byte type, byte extension) ReadFixExtension1(ReadOnlySpan<byte> buffer, out int readSize)
+        public static (sbyte type, byte extension) ReadFixExtension1(ReadOnlySpan<byte> buffer, out int readSize)
         {
             readSize = 3;
             return (ReadFixExtension1Header(buffer, out _), buffer[2]);
         }
 
+        /// <summary>
+        /// Reads extension header. Length of extension should be 2 bytes.
+        /// </summary>
+        /// <param name="buffer">Buffer to read from.</param>
+        /// <param name="readSize">Count of bytes read from <paramref name="buffer"/>.</param>
+        /// <returns>Extension code type,</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static byte ReadFixExtension2Header(ReadOnlySpan<byte> buffer, out int readSize) => ReadExtensionHeader(buffer, DataCodes.FixExtension2, out readSize);
+        public static sbyte ReadFixExtension2Header(ReadOnlySpan<byte> buffer, out int readSize) => ReadExtensionHeader(buffer, FixExtension2, out readSize);
 
+        /// <summary>
+        /// Reads extension. Length of extension should be 2 bytes.
+        /// </summary>
+        /// <param name="buffer">Buffer to read from.</param>
+        /// <param name="readSize">Count of bytes read from <paramref name="buffer"/>.</param>
+        /// <returns>Extension code type and extension.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static (byte type, IMemoryOwner<byte> extension) ReadFixExtension2(ReadOnlySpan<byte> buffer, out int readSize)
+        public static (sbyte type, IMemoryOwner<byte> extension) ReadFixExtension2(ReadOnlySpan<byte> buffer, out int readSize)
         {
             var type = ReadFixExtension2Header(buffer, out readSize);
-            return ReadExtension(buffer, type, 2, ref readSize);
+            return (type, ReadExtension(buffer, 2, ref readSize));
         }
 
+        /// <summary>
+        /// Reads extension header. Length of extension should be 4 bytes.
+        /// </summary>
+        /// <param name="buffer">Buffer to read from.</param>
+        /// <param name="readSize">Count of bytes read from <paramref name="buffer"/>.</param>
+        /// <returns>Extension code type.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static byte ReadFixExtension4Header(ReadOnlySpan<byte> buffer, out int readSize) => ReadExtensionHeader(buffer, DataCodes.FixExtension4, out readSize);
+        public static sbyte ReadFixExtension4Header(ReadOnlySpan<byte> buffer, out int readSize) => ReadExtensionHeader(buffer, FixExtension4, out readSize);
 
+        /// <summary>
+        /// Reads extension. Length of extension should be 4 bytes.
+        /// </summary>
+        /// <param name="buffer">Buffer to read from.</param>
+        /// <param name="readSize">Count of bytes read from <paramref name="buffer"/>.</param>
+        /// <returns>Extension code type and extension.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static (byte type, IMemoryOwner<byte> extension) ReadFixExtension4(ReadOnlySpan<byte> buffer, out int readSize)
+        public static (sbyte type, IMemoryOwner<byte> extension) ReadFixExtension4(ReadOnlySpan<byte> buffer, out int readSize)
         {
             var type = ReadFixExtension4Header(buffer, out readSize);
-            return ReadExtension(buffer, type, 4, ref readSize);
+            return (type, ReadExtension(buffer, 4, ref readSize));
         }
 
+        /// <summary>
+        /// Reads extension header. Length of extension should be 8 bytes.
+        /// </summary>
+        /// <param name="buffer">Buffer to read from.</param>
+        /// <param name="readSize">Count of bytes read from <paramref name="buffer"/>.</param>
+        /// <returns>Extension code type.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static byte ReadFixExtension8Header(ReadOnlySpan<byte> buffer, out int readSize) => ReadExtensionHeader(buffer, DataCodes.FixExtension8, out readSize);
+        public static sbyte ReadFixExtension8Header(ReadOnlySpan<byte> buffer, out int readSize) => ReadExtensionHeader(buffer, FixExtension8, out readSize);
 
+        /// <summary>
+        /// Reads extension. Length of extension should be 8 bytes.
+        /// </summary>
+        /// <param name="buffer">Buffer to read from.</param>
+        /// <param name="readSize">Count of bytes read from <paramref name="buffer"/>.</param>
+        /// <returns>Extension code type and extension.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static (byte type, IMemoryOwner<byte> extension) ReadFixExtension8(ReadOnlySpan<byte> buffer, out int readSize)
+        public static (sbyte type, IMemoryOwner<byte> extension) ReadFixExtension8(ReadOnlySpan<byte> buffer, out int readSize)
         {
             var type = ReadFixExtension8Header(buffer, out readSize);
-            return ReadExtension(buffer, type, 8, ref readSize);
+            return (type, ReadExtension(buffer, 8, ref readSize));
         }
 
+        /// <summary>
+        /// Reads extension header. Length of extension should be 16 bytes.
+        /// </summary>
+        /// <param name="buffer">Buffer to read from.</param>
+        /// <param name="readSize">Count of bytes read from <paramref name="buffer"/>.</param>
+        /// <returns>Extension code type.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static byte ReadFixExtension16Header(ReadOnlySpan<byte> buffer, out int readSize) => ReadExtensionHeader(buffer, DataCodes.FixExtension16, out readSize);
+        public static sbyte ReadFixExtension16Header(ReadOnlySpan<byte> buffer, out int readSize) => ReadExtensionHeader(buffer, FixExtension16, out readSize);
 
+        /// <summary>
+        /// Reads extension. Length of extension should be 16 bytes.
+        /// </summary>
+        /// <param name="buffer">Buffer to read from.</param>
+        /// <param name="readSize">Count of bytes read from <paramref name="buffer"/>.</param>
+        /// <returns>Extension code type and extension.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static (byte type, IMemoryOwner<byte> extension) ReadFixExtension16(ReadOnlySpan<byte> buffer, out int readSize)
+        public static (sbyte type, IMemoryOwner<byte> extension) ReadFixExtension16(ReadOnlySpan<byte> buffer, out int readSize)
         {
             var type = ReadFixExtension16Header(buffer, out readSize);
-            return ReadExtension(buffer, type, 16, ref readSize);
+            return (type, ReadExtension(buffer, 16, ref readSize));
         }
 
+        /// <summary>
+        /// Reads extension header. Length of extension should be 8 bits uint.
+        /// </summary>
+        /// <param name="buffer">Buffer to read from.</param>
+        /// <param name="readSize">Count of bytes read from <paramref name="buffer"/>.</param>
+        /// <returns>Extension code type and length</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static (byte type, byte length) ReadExtension8Header(ReadOnlySpan<byte> buffer, out int readSize)
+        public static (sbyte type, byte length) ReadExtension8Header(ReadOnlySpan<byte> buffer, out int readSize)
         {
             readSize = 3;
-            return (ReadExtensionHeader(buffer, DataCodes.Extension8, out _), buffer[2]);
+            return (ReadExtensionHeader(buffer, Extension8, out _), buffer[2]);
         }
 
+        /// <summary>
+        /// Reads extension. Length of extension should be 8 bits uint.
+        /// </summary>
+        /// <param name="buffer">Buffer to read from.</param>
+        /// <param name="readSize">Count of bytes read from <paramref name="buffer"/>.</param>
+        /// <returns>Extension code type, length and extension.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static (byte type, IMemoryOwner<byte> extension) ReadExtension8(ReadOnlySpan<byte> buffer, out int readSize)
+        public static (sbyte type, byte length, IMemoryOwner<byte> extension) ReadExtension8(ReadOnlySpan<byte> buffer, out int readSize)
         {
             var (type, size) = ReadExtension8Header(buffer, out readSize);
-            return ReadExtension(buffer, type, size, ref readSize);
+            return (type, size, ReadExtension(buffer, size, ref readSize));
         }
 
+        /// <summary>
+        /// Reads extension header. Length of extension should be 16 bits uint.
+        /// </summary>
+        /// <param name="buffer">Buffer to read from.</param>
+        /// <param name="readSize">Count of bytes read from <paramref name="buffer"/>.</param>
+        /// <returns>Extension code type and length</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static (byte type, ushort length) ReadExtension16Header(ReadOnlySpan<byte> buffer, out int readSize)
+        public static (sbyte type, ushort length) ReadExtension16Header(ReadOnlySpan<byte> buffer, out int readSize)
         {
             readSize = 4;
-            return (ReadExtensionHeader(buffer, DataCodes.Extension16, out _), BinaryPrimitives.ReadUInt16BigEndian(buffer.Slice(2)));
+            return (ReadExtensionHeader(buffer, Extension16, out _), BinaryPrimitives.ReadUInt16BigEndian(buffer.Slice(2)));
         }
 
-        public static (byte type, IMemoryOwner<byte> extension) ReadExtension16(ReadOnlySpan<byte> buffer, out int readSize)
+        /// <summary>
+        /// Reads extension. Length of extension should be 16 bits uint.
+        /// </summary>
+        /// <param name="buffer">Buffer to read from.</param>
+        /// <param name="readSize">Count of bytes read from <paramref name="buffer"/>.</param>
+        /// <returns>Extension code type, length and extension.</returns>
+        public static (sbyte type, ushort length, IMemoryOwner<byte> extension) ReadExtension16(ReadOnlySpan<byte> buffer, out int readSize)
         {
             var (type, size) = ReadExtension16Header(buffer, out readSize);
-            return ReadExtension(buffer, type, size, ref readSize);
+            return (type, size, ReadExtension(buffer, size, ref readSize));
         }
 
+        /// <summary>
+        /// Reads extension header. Length of extension should be 32 bits uint.
+        /// </summary>
+        /// <param name="buffer">Buffer to read from.</param>
+        /// <param name="readSize">Count of bytes read from <paramref name="buffer"/>.</param>
+        /// <returns>Extension code type and length</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static (byte type, uint length) ReadExtension32Header(ReadOnlySpan<byte> buffer, out int readSize)
+        public static (sbyte type, uint length) ReadExtension32Header(ReadOnlySpan<byte> buffer, out int readSize)
         {
             readSize = 6;
-            return (ReadExtensionHeader(buffer, DataCodes.Extension32, out _), BinaryPrimitives.ReadUInt16BigEndian(buffer.Slice(2)));
+            return (ReadExtensionHeader(buffer, Extension32, out _), BinaryPrimitives.ReadUInt16BigEndian(buffer.Slice(2)));
         }
 
-        public static (byte type, IMemoryOwner<byte> extension) ReadExtension32(ReadOnlySpan<byte> buffer, out int readSize)
+        /// <summary>
+        /// Reads extension. Length of extension should be 32 bits uint.
+        /// </summary>
+        /// <param name="buffer">Buffer to read from.</param>
+        /// <param name="readSize">Count of bytes read from <paramref name="buffer"/>.</param>
+        /// <returns>Extension code type, length and extension.</returns>
+        public static (sbyte type, uint length, IMemoryOwner<byte> extension) ReadExtension32(ReadOnlySpan<byte> buffer, out int readSize)
         {
             var (type, uintSize) = ReadExtension32Header(buffer, out readSize);
             if (uintSize > int.MaxValue) throw new InvalidOperationException();
-            return ReadExtension(buffer, type, (int) uintSize, ref readSize);
+            return (type, uintSize, ReadExtension(buffer, (int) uintSize, ref readSize));
         }
 
+        /// <summary>
+        /// Reads extension header.
+        /// </summary>
+        /// <param name="buffer">Buffer to read from.</param>
+        /// <param name="readSize">Count of bytes read from <paramref name="buffer"/>.</param>
+        /// <returns>Extension code type and length</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static (byte type, uint length) ReadExtensionHeader(ReadOnlySpan<byte> buffer, out int readSize)
+        public static (sbyte type, uint length) ReadExtensionHeader(ReadOnlySpan<byte> buffer, out int readSize)
         {
             switch (buffer[0])
             {
-                case DataCodes.FixExtension1:
+                case FixExtension1:
                     return (ReadFixExtension1Header(buffer, out readSize), 1);
 
-                case DataCodes.FixExtension2:
+                case FixExtension2:
                     return (ReadFixExtension2Header(buffer, out readSize), 2);
 
-                case DataCodes.FixExtension4:
+                case FixExtension4:
                     return (ReadFixExtension2Header(buffer, out readSize), 4);
 
-                case DataCodes.FixExtension8:
+                case FixExtension8:
                     return (ReadFixExtension2Header(buffer, out readSize), 8);
 
-                case DataCodes.FixExtension16:
+                case FixExtension16:
                     return (ReadFixExtension2Header(buffer, out readSize), 16);
 
-                case DataCodes.Extension8:
+                case Extension8:
                     return ReadExtension8Header(buffer, out readSize);
 
-                case DataCodes.Extension16:
+                case Extension16:
                     return ReadExtension16Header(buffer, out readSize);
 
-                case DataCodes.Extension32:
+                case Extension32:
                     return ReadExtension32Header(buffer, out readSize);
 
                 default:
-                    throw new InvalidOperationException();
+                    throw WrongCodeException(
+                        buffer[0],
+                        FixExtension1,
+                        FixExtension2,
+                        FixExtension4,
+                        FixExtension8,
+                        FixExtension16,
+                        Extension8,
+                        Extension16,
+                        Extension32);
             }
         }
 
-        public static (byte type, IMemoryOwner<byte> extension) ReadExtension(ReadOnlySpan<byte> buffer, out int readSize)
+        /// <summary>
+        /// Reads extension.
+        /// </summary>
+        /// <param name="buffer">Buffer to read from.</param>
+        /// <param name="readSize">Count of bytes read from <paramref name="buffer"/>.</param>
+        /// <returns>Extension code type, length and extension.</returns>
+        public static (sbyte type, uint length, IMemoryOwner<byte> extension) ReadExtension(ReadOnlySpan<byte> buffer, out int readSize)
         {
             var (type, uintSize) = ReadExtensionHeader(buffer, out readSize);
             if (uintSize > int.MaxValue) throw new InvalidOperationException();
-            return ReadExtension(buffer, type, (int) uintSize, ref readSize);
+            return (type, uintSize, ReadExtension(buffer, (int) uintSize, ref readSize));
         }
 
+        /// <summary>
+        /// Tries to read header of 1-byte extension.
+        /// </summary>
+        /// <param name="buffer">Buffer to read from.</param>
+        /// <param name="type">Type of extension.</param>
+        /// <param name="readSize">Count of bytes read from <paramref name="buffer"/>.</param>
+        /// <returns><c>true</c> if everything is ok or <c>false</c> if <paramref name="buffer"/> is too short or first byte isn't <see cref="FixExtension1"/></returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool TryReadFixExtension1Header(ReadOnlySpan<byte> buffer, out byte type, out int readSize) => TryReadExtensionHeader(buffer, DataCodes.FixExtension1, out type, out readSize);
+        public static bool TryReadFixExtension1Header(ReadOnlySpan<byte> buffer, out sbyte type, out int readSize) => TryReadExtensionHeader(buffer, FixExtension1, out type, out readSize);
 
+        /// <summary>
+        /// Tries to read 1-byte extension.
+        /// </summary>
+        /// <param name="buffer">Buffer to read from.</param>
+        /// <param name="type">Type of extension.</param>
+        /// <param name="extension">Extension data.</param>
+        /// <param name="readSize">Count of bytes read from <paramref name="buffer"/>.</param>
+        /// <returns><c>true</c> if everything is ok or <c>false</c> if <paramref name="buffer"/> is too short or <see cref="TryReadFixExtension1Header"/> returned false.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool ReadFixExtension1(ReadOnlySpan<byte> buffer, out byte type, out byte extension, out int readSize)
+        public static bool TryReadFixExtension1(ReadOnlySpan<byte> buffer, out sbyte type, out byte extension, out int readSize)
         {
             extension = 0;
             if (!TryReadFixExtension1Header(buffer, out type, out readSize)) return false;
@@ -474,95 +868,214 @@ namespace ProGaudi.MsgPack.Light
             return true;
         }
 
+        /// <summary>
+        /// Tries to read header of 2-bytes extension.
+        /// </summary>
+        /// <param name="buffer">Buffer to read from.</param>
+        /// <param name="type">Type of extension.</param>
+        /// <param name="readSize">Count of bytes read from <paramref name="buffer"/>.</param>
+        /// <returns><c>true</c> if everything is ok or <c>false</c> if <paramref name="buffer"/> is too short or first byte isn't <see cref="FixExtension2"/></returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool TryReadFixExtension2Header(ReadOnlySpan<byte> buffer, out byte type, out int readSize) => TryReadExtensionHeader(buffer, DataCodes.FixExtension2, out type, out readSize);
+        public static bool TryReadFixExtension2Header(ReadOnlySpan<byte> buffer, out sbyte type, out int readSize) => TryReadExtensionHeader(buffer, FixExtension2, out type, out readSize);
 
-        public static bool TryReadFixExtension2(ReadOnlySpan<byte> buffer, out byte type, out IMemoryOwner<byte> extension, out int readSize)
+        /// <summary>
+        /// Tries to read 2-bytes extension.
+        /// </summary>
+        /// <param name="buffer">Buffer to read from.</param>
+        /// <param name="type">Type of extension.</param>
+        /// <param name="extension">Extension data.</param>
+        /// <param name="readSize">Count of bytes read from <paramref name="buffer"/>.</param>
+        /// <returns><c>true</c> if everything is ok or <c>false</c> if <paramref name="buffer"/> is too short or <see cref="TryReadFixExtension2Header"/> returned false.</returns>
+        public static bool TryReadFixExtension2(ReadOnlySpan<byte> buffer, out sbyte type, out IMemoryOwner<byte> extension, out int readSize)
         {
             extension = null;
             return TryReadFixExtension2Header(buffer, out type, out readSize) && TryReadExtension(buffer, 2, ref extension, ref readSize);
         }
 
+        /// <summary>
+        /// Tries to read header of 4-bytes extension.
+        /// </summary>
+        /// <param name="buffer">Buffer to read from.</param>
+        /// <param name="type">Type of extension.</param>
+        /// <param name="readSize">Count of bytes read from <paramref name="buffer"/>.</param>
+        /// <returns><c>true</c> if everything is ok or <c>false</c> if <paramref name="buffer"/> is too short or first byte isn't <see cref="FixExtension4"/></returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool TryReadFixExtension4Header(ReadOnlySpan<byte> buffer, out byte type, out int readSize) => TryReadExtensionHeader(buffer, DataCodes.FixExtension4, out type, out readSize);
+        public static bool TryReadFixExtension4Header(ReadOnlySpan<byte> buffer, out sbyte type, out int readSize) => TryReadExtensionHeader(buffer, FixExtension4, out type, out readSize);
 
-        public static bool TryReadFixExtension4(ReadOnlySpan<byte> buffer, out byte type, out IMemoryOwner<byte> extension, out int readSize)
+        /// <summary>
+        /// Tries to read 4-bytes extension.
+        /// </summary>
+        /// <param name="buffer">Buffer to read from.</param>
+        /// <param name="type">Type of extension.</param>
+        /// <param name="extension">Extension data.</param>
+        /// <param name="readSize">Count of bytes read from <paramref name="buffer"/>.</param>
+        /// <returns><c>true</c> if everything is ok or <c>false</c> if <paramref name="buffer"/> is too short or <see cref="TryReadFixExtension4Header"/> returned false.</returns>
+        public static bool TryReadFixExtension4(ReadOnlySpan<byte> buffer, out sbyte type, out IMemoryOwner<byte> extension, out int readSize)
         {
             extension = null;
             return TryReadFixExtension4Header(buffer, out type, out readSize) && TryReadExtension(buffer, 4, ref extension, ref readSize);
         }
 
+        /// <summary>
+        /// Tries to read header of 8-bytes extension.
+        /// </summary>
+        /// <param name="buffer">Buffer to read from.</param>
+        /// <param name="type">Type of extension.</param>
+        /// <param name="readSize">Count of bytes read from <paramref name="buffer"/>.</param>
+        /// <returns><c>true</c> if everything is ok or <c>false</c> if <paramref name="buffer"/> is too short or first byte isn't <see cref="FixExtension8"/></returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool TryReadFixExtension8Header(ReadOnlySpan<byte> buffer, out byte type, out int readSize) => TryReadExtensionHeader(buffer, DataCodes.FixExtension8, out type, out readSize);
+        public static bool TryReadFixExtension8Header(ReadOnlySpan<byte> buffer, out sbyte type, out int readSize) => TryReadExtensionHeader(buffer, FixExtension8, out type, out readSize);
 
-        public static bool TryReadFixExtension8(ReadOnlySpan<byte> buffer, out byte type, out IMemoryOwner<byte> extension, out int readSize)
+        /// <summary>
+        /// Tries to read 8-bytes extension.
+        /// </summary>
+        /// <param name="buffer">Buffer to read from.</param>
+        /// <param name="type">Type of extension.</param>
+        /// <param name="extension">Extension data.</param>
+        /// <param name="readSize">Count of bytes read from <paramref name="buffer"/>.</param>
+        /// <returns><c>true</c> if everything is ok or <c>false</c> if <paramref name="buffer"/> is too short or <see cref="TryReadFixExtension8Header"/> returned false.</returns>
+        public static bool TryReadFixExtension8(ReadOnlySpan<byte> buffer, out sbyte type, out IMemoryOwner<byte> extension, out int readSize)
         {
             extension = null;
             return TryReadFixExtension8Header(buffer, out type, out readSize) && TryReadExtension(buffer, 8, ref extension, ref readSize);
         }
 
+        /// <summary>
+        /// Tries to read header of 16-bytes extension.
+        /// </summary>
+        /// <param name="buffer">Buffer to read from.</param>
+        /// <param name="type">Type of extension.</param>
+        /// <param name="readSize">Count of bytes read from <paramref name="buffer"/>.</param>
+        /// <returns><c>true</c> if everything is ok or <c>false</c> if <paramref name="buffer"/> is too short or first byte isn't <see cref="FixExtension16"/></returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool TryReadFixExtension16Header(ReadOnlySpan<byte> buffer, out byte type, out int readSize) => TryReadExtensionHeader(buffer, DataCodes.FixExtension16, out type, out readSize);
+        public static bool TryReadFixExtension16Header(ReadOnlySpan<byte> buffer, out sbyte type, out int readSize) => TryReadExtensionHeader(buffer, FixExtension16, out type, out readSize);
 
-        public static bool TryReadFixExtension16(ReadOnlySpan<byte> buffer, out byte type, out IMemoryOwner<byte> extension, out int readSize)
+        /// <summary>
+        /// Tries to read 16-bytes extension.
+        /// </summary>
+        /// <param name="buffer">Buffer to read from.</param>
+        /// <param name="type">Type of extension.</param>
+        /// <param name="extension">Extension data.</param>
+        /// <param name="readSize">Count of bytes read from <paramref name="buffer"/>.</param>
+        /// <returns><c>true</c> if everything is ok or <c>false</c> if <paramref name="buffer"/> is too short or <see cref="TryReadFixExtension16Header"/> returned false.</returns>
+        public static bool TryReadFixExtension16(ReadOnlySpan<byte> buffer, out sbyte type, out IMemoryOwner<byte> extension, out int readSize)
         {
             extension = null;
             return TryReadFixExtension16Header(buffer, out type, out readSize) && TryReadExtension(buffer, 16, ref extension, ref readSize);
         }
 
-        public static bool TryReadExtension8Header(ReadOnlySpan<byte> buffer, out byte type, out byte length, out int readSize)
+        /// <summary>
+        /// Tries to read header of 8 bit length extension.
+        /// </summary>
+        /// <param name="buffer">Buffer to read from.</param>
+        /// <param name="type">Type of extension.</param>
+        /// <param name="length">Length of extension.</param>
+        /// <param name="readSize">Count of bytes read from <paramref name="buffer"/>.</param>
+        /// <returns><c>true</c> if everything is ok or <c>false</c> if <paramref name="buffer"/> is too short or first byte isn't <see cref="Extension8"/></returns>
+        public static bool TryReadExtension8Header(ReadOnlySpan<byte> buffer, out sbyte type, out byte length, out int readSize)
         {
             length = 0;
-            if (!TryReadExtensionHeader(buffer, DataCodes.Extension8, out type, out readSize)) return false;
+            if (!TryReadExtensionHeader(buffer, Extension8, out type, out readSize)) return false;
             if (buffer.Length < 3) return false;
             readSize = 3;
             length = buffer[2];
             return true;
         }
 
-        public static bool TryReadExtension8(ReadOnlySpan<byte> buffer, out byte type, out IMemoryOwner<byte> extension, out int readSize)
+        /// <summary>
+        /// Tries to read 8 bit extension.
+        /// </summary>
+        /// <param name="buffer">Buffer to read from.</param>
+        /// <param name="type">Type of extension.</param>
+        /// <param name="length">Length of extension.</param>
+        /// <param name="extension">Extension data.</param>
+        /// <param name="readSize">Count of bytes read from <paramref name="buffer"/>.</param>
+        /// <returns><c>true</c> if everything is ok or <c>false</c> if <paramref name="buffer"/> is too short or <see cref="TryReadExtension8Header"/> returned false.</returns>
+        public static bool TryReadExtension8(ReadOnlySpan<byte> buffer, out sbyte type, out byte length, out IMemoryOwner<byte> extension, out int readSize)
         {
             extension = null;
-            return TryReadExtension8Header(buffer, out type, out var length, out readSize)
+            return TryReadExtension8Header(buffer, out type, out length, out readSize)
                 && TryReadExtension(buffer, length, ref extension, ref readSize);
         }
 
-        public static bool TryReadExtension16Header(ReadOnlySpan<byte> buffer, out byte type, out ushort length, out int readSize)
+        /// <summary>
+        /// Tries to read header of 16 bit length extension.
+        /// </summary>
+        /// <param name="buffer">Buffer to read from.</param>
+        /// <param name="type">Type of extension.</param>
+        /// <param name="length">Length of extension.</param>
+        /// <param name="readSize">Count of bytes read from <paramref name="buffer"/>.</param>
+        /// <returns><c>true</c> if everything is ok or <c>false</c> if <paramref name="buffer"/> is too short or first byte isn't <see cref="Extension16"/></returns>
+        public static bool TryReadExtension16Header(ReadOnlySpan<byte> buffer, out sbyte type, out ushort length, out int readSize)
         {
             length = 0;
-            if (!TryReadExtensionHeader(buffer, DataCodes.Extension16, out type, out readSize)) return false;
+            if (!TryReadExtensionHeader(buffer, Extension16, out type, out readSize)) return false;
             if (buffer.Length < 4) return false;
             length = BinaryPrimitives.ReadUInt16BigEndian(buffer.Slice(readSize));
             readSize = 4;
             return true;
         }
 
-        public static bool TryReadExtension16(ReadOnlySpan<byte> buffer, out byte type, out IMemoryOwner<byte> extension, out int readSize)
+        /// <summary>
+        /// Tries to read 16 bit extension.
+        /// </summary>
+        /// <param name="buffer">Buffer to read from.</param>
+        /// <param name="type">Type of extension.</param>
+        /// <param name="length">Length of extension.</param>
+        /// <param name="extension">Extension data.</param>
+        /// <param name="readSize">Count of bytes read from <paramref name="buffer"/>.</param>
+        /// <returns><c>true</c> if everything is ok or <c>false</c> if <paramref name="buffer"/> is too short or <see cref="TryReadExtension16Header"/> returned false.</returns>
+        public static bool TryReadExtension16(ReadOnlySpan<byte> buffer, out sbyte type, out ushort length, out IMemoryOwner<byte> extension, out int readSize)
         {
             extension = null;
-            return TryReadExtension16Header(buffer, out type, out var length, out readSize)
+            return TryReadExtension16Header(buffer, out type, out length, out readSize)
                 && TryReadExtension(buffer, length, ref extension, ref readSize);
         }
 
-        public static bool TryReadExtension32Header(ReadOnlySpan<byte> buffer, out byte type, out uint length, out int readSize)
+        /// <summary>
+        /// Tries to read header of 16 bit length extension.
+        /// </summary>
+        /// <param name="buffer">Buffer to read from.</param>
+        /// <param name="type">Type of extension.</param>
+        /// <param name="length">Length of extension.</param>
+        /// <param name="readSize">Count of bytes read from <paramref name="buffer"/>.</param>
+        /// <returns><c>true</c> if everything is ok or <c>false</c> if <paramref name="buffer"/> is too short or first byte isn't <see cref="Extension16"/></returns>
+        public static bool TryReadExtension32Header(ReadOnlySpan<byte> buffer, out sbyte type, out uint length, out int readSize)
         {
             length = 0;
-            if (!TryReadExtensionHeader(buffer, DataCodes.Extension8, out type, out readSize)) return false;
+            if (!TryReadExtensionHeader(buffer, Extension8, out type, out readSize)) return false;
             if (buffer.Length < 6) return false;
             length = BinaryPrimitives.ReadUInt32BigEndian(buffer.Slice(readSize));
             readSize = 6;
             return true;
         }
 
-        public static bool TryReadExtension32(ReadOnlySpan<byte> buffer, out byte type, out IMemoryOwner<byte> extension, out int readSize)
+        /// <summary>
+        /// Tries to read 32 bit extension.
+        /// </summary>
+        /// <param name="buffer">Buffer to read from.</param>
+        /// <param name="type">Type of extension.</param>
+        /// <param name="length">Length of extension.</param>
+        /// <param name="extension">Extension data.</param>
+        /// <param name="readSize">Count of bytes read from <paramref name="buffer"/>.</param>
+        /// <returns><c>true</c> if everything is ok or <c>false</c> if <paramref name="buffer"/> is too short or <see cref="TryReadExtension32Header"/> returned false.</returns>
+        public static bool TryReadExtension32(ReadOnlySpan<byte> buffer, out sbyte type, out uint length, out IMemoryOwner<byte> extension, out int readSize)
         {
             extension = null;
-            return TryReadExtension32Header(buffer, out type, out var length, out readSize)
+            return TryReadExtension32Header(buffer, out type, out length, out readSize)
                 && length <= int.MaxValue
                 && TryReadExtension(buffer, (int) length, ref extension, ref readSize);
         }
 
-        public static bool TryReadExtensionHeader(ReadOnlySpan<byte> buffer, out byte type, out uint length, out int readSize)
+        /// <summary>
+        /// Tries to read header of extension.
+        /// </summary>
+        /// <param name="buffer">Buffer to read from.</param>
+        /// <param name="type">Type of extension.</param>
+        /// <param name="length">Length of extension.</param>
+        /// <param name="readSize">Count of bytes read from <paramref name="buffer"/>.</param>
+        /// <returns><c>true</c> if everything is ok or <c>false</c> if <paramref name="buffer"/> is too short or first byte isn't one of extension codes.</returns>
+        public static bool TryReadExtensionHeader(ReadOnlySpan<byte> buffer, out sbyte type, out uint length, out int readSize)
         {
             if (buffer.IsEmpty)
             {
@@ -617,24 +1130,37 @@ namespace ProGaudi.MsgPack.Light
             return TryReadExtension32Header(buffer, out type, out length, out readSize);
         }
 
-        public static bool TryReadExtension(ReadOnlySpan<byte> buffer, out byte type, out IMemoryOwner<byte> extension, out int readSize)
+        /// <summary>
+        /// Tries to read extension.
+        /// </summary>
+        /// <param name="buffer">Buffer to read from.</param>
+        /// <param name="type">Type of extension.</param>
+        /// <param name="length">Length of extension</param>
+        /// <param name="extension">Extension data.</param>
+        /// <param name="readSize">Count of bytes read from <paramref name="buffer"/>.</param>
+        /// <returns><c>true</c> if everything is ok or <c>false</c> if <paramref name="buffer"/> is too short or <see cref="TryReadExtensionHeader"/> returned false, or length is greater than <see cref="int.MaxValue"/>.</returns>
+        public static bool TryReadExtension(ReadOnlySpan<byte> buffer, out sbyte type, out uint length, out IMemoryOwner<byte> extension, out int readSize)
         {
             extension = null;
-            return TryReadExtensionHeader(buffer, out type, out var length, out readSize)
+            return TryReadExtensionHeader(buffer, out type, out length, out readSize)
                 && length <= int.MaxValue
                 && TryReadExtension(buffer, (int) length, ref extension, ref readSize);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static int WriteExtensionHeader(Span<byte> buffer, byte code, byte type)
+        private static int WriteExtensionHeader(Span<byte> buffer, byte code, sbyte type)
         {
             buffer[0] = code;
-            buffer[1] = type;
+            unchecked
+            {
+                buffer[1] = (byte) type;
+            }
+
             return 2;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static bool TryWriteExtensionHeader(Span<byte> buffer, byte code, byte type, out int wroteSize)
+        private static bool TryWriteExtensionHeader(Span<byte> buffer, byte code, sbyte type, out int wroteSize)
         {
             wroteSize = 0;
             const int size = 2;
@@ -661,36 +1187,41 @@ namespace ProGaudi.MsgPack.Light
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static bool TryReadExtensionHeader(ReadOnlySpan<byte> buffer, byte code, out byte type, out int readSize)
+        private static bool TryReadExtensionHeader(ReadOnlySpan<byte> buffer, byte code, out sbyte type, out int readSize)
         {
             type = 0;
             readSize = 2;
             if (buffer.Length < 2) return false;
             if (buffer[0] != code) return false;
-            type = buffer[1];
+            unchecked
+            {
+                type = (sbyte) buffer[1];
+            }
             return true;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static (byte type, IMemoryOwner<byte> extension) ReadExtension(
+        private static IMemoryOwner<byte> ReadExtension(
             ReadOnlySpan<byte> buffer,
-            byte type,
             int size,
             ref int readSize)
         {
             var owner = MemoryPool<byte>.Shared.Rent(size);
             buffer.Slice(readSize, size).CopyTo(owner.Memory.Span);
             readSize += size;
-            return (type, owner);
+            return owner;
         }
 
         // ReSharper disable once ParameterOnlyUsedForPreconditionCheck.Local
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static byte ReadExtensionHeader(ReadOnlySpan<byte> buffer, byte code, out int readSize)
+        private static sbyte ReadExtensionHeader(ReadOnlySpan<byte> buffer, byte code, out int readSize)
         {
             readSize = 2;
             if (buffer[0] != code) throw new InvalidOperationException();
-            return buffer[1];
+            unchecked
+            {
+                return (sbyte)buffer[1];
+            }
         }
     }
 }

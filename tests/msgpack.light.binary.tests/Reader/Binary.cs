@@ -83,12 +83,12 @@ namespace ProGaudi.MsgPack.Light.Tests.Reader
         })]
         public void Test(byte[] value, byte[] data)
         {
-            MsgPackBinary.TryReadBinary(data, out var owner, out var readSize).ShouldBeTrue();
+            MsgPackBinary.TryReadBinary(data, out var owner, out var length, out var readSize).ShouldBeTrue();
 
             using (owner)
             {
                 readSize.ShouldBe(data.Length);
-                owner.Memory.Slice(0, value.Length).ToArray().ShouldBe(value);
+                owner.Memory.Slice(0, length).ToArray().ShouldBe(value);
             }
         }
     }

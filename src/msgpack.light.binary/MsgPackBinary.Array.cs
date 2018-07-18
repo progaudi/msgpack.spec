@@ -163,7 +163,7 @@ namespace ProGaudi.MsgPack.Light
             readSize = 3;
             if (buffer[0] == Array16)
                 return BinaryPrimitives.ReadUInt16BigEndian(buffer.Slice(1));
-            throw WrongCode(buffer[0], Array16);
+            throw WrongCodeException(buffer[0], Array16);
         }
 
         /// <summary>
@@ -199,7 +199,7 @@ namespace ProGaudi.MsgPack.Light
             readSize = 5;
             if (buffer[0] == Array32)
                 return BinaryPrimitives.ReadUInt32BigEndian(buffer.Slice(1));
-            throw WrongCode(buffer[0], Array32);
+            throw WrongCodeException(buffer[0], Array32);
         }
 
         /// <summary>
