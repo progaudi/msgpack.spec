@@ -87,7 +87,7 @@ namespace ProGaudi.MsgPack.Light
         /// <param name="buffer">Buffer to read from.</param>
         /// <param name="value">Value, read from <paramref name="buffer"/>. If return value is false, value is unspecified.</param>
         /// <param name="readSize">Count of bytes, read from <paramref name="buffer"/>. If return value is false, value is unspecified.</param>
-        /// <returns><c>true</c>, if everything is ok, <c>false</c> if <paramref name="buffer"/> is too small or <paramref name="buffer"/>[0] is not <see cref="DataCodes.Float64"/>.</returns>
+        /// <returns><c>true</c>, if everything is ok, <c>false</c> if <paramref name="buffer"/> is too small or <paramref name="buffer"/>[0] is not <see cref="Float64"/>.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool TryReadFixFloat64(ReadOnlySpan<byte> buffer, out double value, out int readSize)
         {

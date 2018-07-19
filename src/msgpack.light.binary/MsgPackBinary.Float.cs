@@ -2,6 +2,8 @@ using System;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
+using static ProGaudi.MsgPack.Light.DataCodes;
+
 namespace ProGaudi.MsgPack.Light
 {
     /// <summary>
@@ -9,16 +11,14 @@ namespace ProGaudi.MsgPack.Light
     /// </summary>
     public static partial class MsgPackBinary
     {
+        /// <summary>
+        /// Write float <paramref name="value"/> into <paramref name="buffer"/>.
+        /// </summary>
+        /// <returns>Count of bytes, written to <paramref name="buffer"/>.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int WriteFixFloat32(Span<byte> buffer, float value) => TryWriteFixFloat32(buffer, value, out var wroteSize)
-            ? wroteSize
-            : throw new InvalidOperationException();
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool TryWriteFixFloat32(Span<byte> buffer, float value, out int wroteSize)
+        public static int WriteFixFloat32(Span<byte> buffer, float value)
         {
-            wroteSize = 5;
-            buffer[0] = DataCodes.Float32;
+            buffer[0] = Float32;
             var binary = new FloatBinary(value);
 
             if (BitConverter.IsLittleEndian)
@@ -36,33 +36,79 @@ namespace ProGaudi.MsgPack.Light
                 buffer[4] = binary.Byte3;
             }
 
+            return 5;
+        }
+
+        /// <summary>
+        /// Tries to write float value into <paramref name="buffer"/>.
+        /// </summary>
+        /// <param name="buffer">Buffer to write.</param>
+        /// <param name="value">Value to write</param>
+        /// <param name="wroteSize">Count of bytes, written to <paramref name="buffer"/>. If return value is <c>false</c>, value is unspecified.</param>
+        /// <returns><c>true</c>, if everything is ok, <c>false</c> if <paramref name="buffer"/> is too small.</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool TryWriteFixFloat32(Span<byte> buffer, float value, out int wroteSize)
+        {
+            wroteSize = 5;
+            if (buffer.Length < wroteSize) return false;
+
+            WriteFixFloat32(buffer, value);
+
             return true;
         }
 
+        /// <summary>
+        /// Reads float value from <paramref name="buffer"/>.
+        /// </summary>
+        /// <param name="buffer">Buffer to read from.</param>
+        /// <param name="readSize">Count of bytes, read from <paramref name="buffer"/>.</param>
+        /// <returns>Float value.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static float ReadFixFloat32(ReadOnlySpan<byte> buffer, out int readSize) => TryReadFixFloat32(buffer, out var result, out readSize)
-            ? result
-            : throw new InvalidOperationException();
+        public static float ReadFixFloat32(ReadOnlySpan<byte> buffer, out int readSize)
+        {
+            readSize = 5;
+            if (buffer[0] == Float32) throw WrongCodeException(buffer[0], Float32);
+            return new FloatBinary(buffer.Slice(1)).Value;
+        }
 
+        /// <summary>
+        /// Tries to read from <paramref name="buffer"/>
+        /// </summary>
+        /// <param name="buffer">Buffer to read from.</param>
+        /// <param name="value">Value, read from <paramref name="buffer"/>. If return value is false, value is unspecified.</param>
+        /// <param name="readSize">Count of bytes, read from <paramref name="buffer"/>. If return value is false, value is unspecified.</param>
+        /// <returns><c>true</c>, if everything is ok, <c>false</c> if <paramref name="buffer"/> is too small or <paramref name="buffer"/>[0] is not <see cref="Float32"/>.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool TryReadFixFloat32(ReadOnlySpan<byte> buffer, out float value, out int readSize)
         {
             readSize = 5;
-            var result = buffer[0] == DataCodes.Float32;
+            var result = buffer[0] == Float32;
             var binary = new FloatBinary(buffer.Slice(1));
             value = binary.Value;
             return result;
         }
 
+        /// <summary>
+        /// Calls <see cref="WriteFixFloat32"/>. Provided for consistency with other types.
+        /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int WriteFloat(Span<byte> buffer, float value) => WriteFixFloat32(buffer, value);
 
+        /// <summary>
+        /// Calls <see cref="TryWriteFixFloat32"/>. Provided for consistency with other types.
+        /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool TryWriteFloat(Span<byte> buffer, float value, out int wroteSize) => TryWriteFixFloat32(buffer, value, out wroteSize);
 
+        /// <summary>
+        /// Calls <see cref="ReadFixFloat32"/>. Provided for consistency with other types.
+        /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static float ReadFloat(ReadOnlySpan<byte> buffer, out int readSize) => ReadFixFloat32(buffer, out readSize);
 
+        /// <summary>
+        /// Calls <see cref="TryReadFixFloat32"/>. Provided for consistency with other types.
+        /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool TryReadFloat(ReadOnlySpan<byte> buffer, out float value, out int readSize) => TryReadFixFloat32(buffer, out value, out readSize);
 
