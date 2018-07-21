@@ -1151,11 +1151,7 @@ namespace ProGaudi.MsgPack.Light
         private static int WriteExtensionHeader(Span<byte> buffer, byte code, sbyte type)
         {
             buffer[0] = code;
-            unchecked
-            {
-                buffer[1] = (byte) type;
-            }
-
+            buffer[1] = unchecked((byte)type);
             return 2;
         }
 
@@ -1193,10 +1189,7 @@ namespace ProGaudi.MsgPack.Light
             readSize = 2;
             if (buffer.Length < 2) return false;
             if (buffer[0] != code) return false;
-            unchecked
-            {
-                type = (sbyte) buffer[1];
-            }
+            type = unchecked((sbyte)buffer[1]);
             return true;
         }
 
@@ -1218,10 +1211,7 @@ namespace ProGaudi.MsgPack.Light
         {
             readSize = 2;
             if (buffer[0] != code) throw new InvalidOperationException();
-            unchecked
-            {
-                return (sbyte)buffer[1];
-            }
+            return unchecked((sbyte)buffer[1]);
         }
     }
 }

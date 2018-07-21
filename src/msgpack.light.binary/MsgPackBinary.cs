@@ -13,12 +13,16 @@ namespace ProGaudi.MsgPack.Light
     public static partial class MsgPackBinary
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static InvalidOperationException WrongRangeCodeException(byte code, byte min, byte max) => new InvalidOperationException(
+        private static Exception WrongRangeCodeException(byte code, byte min, byte max) => new InvalidOperationException(
+            $"Wrong data code: {code:x2}. Expected: {min:x2} <= code <= {max:x2}."
+        );
+
+        private static Exception WrongRangeCodeException(sbyte code, sbyte min, sbyte max) => new InvalidOperationException(
             $"Wrong data code: {code:x2}. Expected: {min:x2} <= code <= {max:x2}."
         );
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static InvalidOperationException WrongCodeException(byte code, byte expected) => new InvalidOperationException(
+        private static Exception WrongCodeException(byte code, byte expected) => new InvalidOperationException(
             $"Wrong data code: {code:x2}. Expected: {expected:x2}."
         );
 
@@ -63,5 +67,24 @@ See https://blogs.msdn.microsoft.com/joshwil/2005/08/10/bigarrayt-getting-around
             $"Wrong array data code: {code:x2}. Expected: {FixArrayMin:x2} <= code <= {FixArrayMax:x2} or {Array16:x2} or {Array32:x2}."
         );
 
+        private static Exception CantReadEmptyBufferException() => new InvalidOperationException(
+            "We need at least 1 byte to read from buffer!"
+        );
+
+        private static Exception ValueIsTooLargeException<T1, T2>(T1 value, T2 maxValue) => new InvalidOperationException(
+            $"Value is {value}, maximum is {maxValue}"
+        );
+
+        private static Exception WrongIntCodeException(byte code, params byte[] expected) => new InvalidOperationException(
+            $"Wrong int data code: {code:x2}. Expected: {FixNegativeMinSByte:x2} <= x <= {FixPositiveMax:x2} or x ⊂ ({string.Join(", ", expected.Select(x => x.ToString("x2")))})."
+        );
+
+        private static Exception WrongUIntCodeException(byte code, params byte[] expected) => new InvalidOperationException(
+            $"Wrong uint data code: {code:x2}. Expected: 0 <= x <= {FixPositiveMax:x2} or x ⊂ ({string.Join(", ", expected.Select(x => x.ToString("x2")))})."
+        );
+
+        private static Exception UnsignedIntException(long value) => new InvalidOperationException(
+            $"Value {value} should be greater or equal to zero."
+        );
     }
 }

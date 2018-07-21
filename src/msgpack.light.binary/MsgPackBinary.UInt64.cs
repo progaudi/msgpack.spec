@@ -9,37 +9,88 @@ namespace ProGaudi.MsgPack.Light
     /// </summary>
     public static partial class MsgPackBinary
     {
+        /// <summary>
+        /// Write uint64 <paramref name="value"/> into <paramref name="buffer"/>.
+        /// </summary>
+        /// <returns>Count of bytes, written to <paramref name="buffer"/>.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int WriteFixUInt64(Span<byte> buffer, ulong value) => TryWriteFixUInt64(buffer, value, out var wroteSize)
-            ? wroteSize
-            : throw new InvalidOperationException();
+        public static int WriteFixUInt64(Span<byte> buffer, ulong value)
+        {
+            return TryWriteFixUInt64(buffer, value, out var wroteSize)
+                ? wroteSize
+                : throw new InvalidOperationException();
+        }
 
+        /// <summary>
+        /// Tries to write uint64 <paramref name="value"/> into <paramref name="buffer"/>.
+        /// </summary>
+        /// <param name="buffer">Buffer to write.</param>
+        /// <param name="value">Value to write</param>
+        /// <param name="wroteSize">Count of bytes, written to <paramref name="buffer"/>. If return value is <c>false</c>, value is unspecified.</param>
+        /// <returns><c>true</c>, if everything is ok, <c>false</c> if <paramref name="buffer"/> is too small.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool TryWriteFixUInt64(Span<byte> buffer, ulong value, out int wroteSize)
         {
             wroteSize = 9;
+            if (buffer.Length < wroteSize) return false;
             buffer[0] = DataCodes.UInt64;
             return BinaryPrimitives.TryWriteUInt64BigEndian(buffer.Slice(1), value);
         }
 
+        /// <summary>
+        /// Reads uint32 from <paramref name="buffer"/>.
+        /// </summary>
+        /// <param name="buffer">Buffer to read from</param>
+        /// <param name="readSize">Count of bytes, read from <paramref name="buffer"/></param>
+        /// <returns>Read value</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static ulong ReadFixUInt64(ReadOnlySpan<byte> buffer, out int readSize) => TryReadFixUInt64(buffer, out var result, out readSize)
-            ? result
-            : throw new InvalidOperationException();
+        public static ulong ReadFixUInt64(ReadOnlySpan<byte> buffer, out int readSize)
+        {
+            readSize = 9;
+            if (buffer[0] != DataCodes.UInt64) throw WrongCodeException(buffer[0], DataCodes.UInt64);
+            return BinaryPrimitives.ReadUInt64BigEndian(buffer.Slice(1));
+        }
 
+        /// <summary>
+        /// Tries to read from <paramref name="buffer"/>
+        /// </summary>
+        /// <param name="buffer">Buffer to read from.</param>
+        /// <param name="value">Value, read from <paramref name="buffer"/>. If return value is false, value is unspecified.</param>
+        /// <param name="readSize">Count of bytes, read from <paramref name="buffer"/>. If return value is false, value is unspecified.</param>
+        /// <returns><c>true</c>, if everything is ok, <c>false</c> if <paramref name="buffer"/> is too small or <paramref name="buffer"/>[0] is not <see cref="DataCodes.UInt64"/>.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool TryReadFixUInt64(ReadOnlySpan<byte> buffer, out ulong value, out int readSize)
         {
             readSize = 9;
+            value = default;
+            if (buffer.Length < readSize) return false;
             var result = buffer[0] == DataCodes.UInt64;
             return BinaryPrimitives.TryReadUInt64BigEndian(buffer.Slice(1), out value) && result;
         }
 
+        /// <summary>
+        /// Write smallest possible representation of <paramref name="value"/> into <paramref name="buffer"/>.
+        /// </summary>
+        /// <remarks>See https://github.com/msgpack/msgpack/issues/164 on data code selection.</remarks>
+        /// <returns>Count of bytes, written to <paramref name="buffer"/>.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int WriteUInt64(Span<byte> buffer, ulong value) => TryWriteUInt64(buffer, value, out var wroteSize)
-            ? wroteSize
-            : throw new InvalidOperationException();
+        public static int WriteUInt64(Span<byte> buffer, ulong value)
+        {
+            if (value <= DataCodes.FixPositiveMax) return WritePositiveFixInt(buffer, (byte) value);
+            if (value <= byte.MaxValue) return WriteFixUInt8(buffer, (byte) value);
+            if (value <= ushort.MaxValue) return WriteFixUInt16(buffer, (ushort) value);
+            if (value <= uint.MaxValue) return WriteFixUInt32(buffer, (uint) value);
+            return WriteFixUInt64(buffer, value);
+        }
 
+        /// <summary>
+        /// Tries to write smallest possible representation of <paramref name="value"/> into <paramref name="buffer"/>.
+        /// </summary>
+        /// <remarks>See https://github.com/msgpack/msgpack/issues/164 on data code selection.</remarks>
+        /// <param name="buffer">Buffer to write.</param>
+        /// <param name="value">Value to write</param>
+        /// <param name="wroteSize">Count of bytes, written to <paramref name="buffer"/>. If return value is <c>false</c>, value is unspecified.</param>
+        /// <returns><c>true</c>, if everything is ok, <c>false</c> if <paramref name="buffer"/> is too small.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool TryWriteUInt64(Span<byte> buffer, ulong value, out int wroteSize)
         {
@@ -47,14 +98,75 @@ namespace ProGaudi.MsgPack.Light
             return TryWriteUInt32(buffer, (uint)value, out wroteSize);
         }
 
+        /// <summary>
+        /// Read <see cref="ulong"/> values from <paramref name="buffer"/>
+        /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static ulong ReadUInt64(ReadOnlySpan<byte> buffer, out int readSize) => TryReadUInt64(buffer, out var value, out readSize)
-            ? value
-            : throw new InvalidOperationException();
+        public static ulong ReadUInt64(ReadOnlySpan<byte> buffer, out int readSize)
+        {
+            if (buffer.IsEmpty) throw CantReadEmptyBufferException();
+            var code = buffer[0];
 
+            switch (code)
+            {
+                case DataCodes.Int64:
+                    var int64 = ReadFixInt64(buffer, out readSize);
+                    if (int64 < 0) throw UnsignedIntException(int64);
+                    return (ulong) int64;
+
+                case DataCodes.Int32:
+                    var int32 = ReadFixInt32(buffer, out readSize);
+                    if (int32 < 0) throw UnsignedIntException(int32);
+                    return (ulong) int32;
+
+                case DataCodes.Int16:
+                    var int16 = ReadFixInt32(buffer, out readSize);
+                    if (int16 < 0) throw UnsignedIntException(int16);
+                    return (ulong) int16;
+
+                case DataCodes.Int8:
+                    var int8 = ReadFixInt32(buffer, out readSize);
+                    if (int8 < 0) throw UnsignedIntException(int8);
+                    return (ulong) int8;
+
+                case DataCodes.UInt64:
+                    return ReadFixUInt64(buffer, out readSize);
+
+                case DataCodes.UInt32:
+                    return ReadFixUInt32(buffer, out readSize);
+
+                case DataCodes.UInt16:
+                    return ReadFixUInt16(buffer, out readSize);
+
+                case DataCodes.UInt8:
+                    return ReadFixUInt8(buffer, out readSize);
+            }
+
+            if (TryReadPositiveFixInt(buffer, out var positive, out readSize))
+            {
+                return positive;
+            }
+
+            throw WrongUIntCodeException(code, DataCodes.Int8, DataCodes.Int16, DataCodes.Int32, DataCodes.Int64, DataCodes.UInt8, DataCodes.UInt16, DataCodes.UInt32, DataCodes.UInt64);
+        }
+
+        /// <summary>
+        /// Tries to read <see cref="ulong"/> value from <paramref name="buffer"/>.
+        /// </summary>
+        /// <param name="buffer">Buffer to read from.</param>
+        /// <param name="value">Value, read from <paramref name="buffer"/>. If return value is false, value is unspecified.</param>
+        /// <param name="readSize">Count of bytes, read from <paramref name="buffer"/>. If return value is false, value is unspecified.</param>
+        /// <returns><c>true</c>, if everything is ok, <c>false</c> if <paramref name="buffer"/> is too small or <paramref name="buffer"/>[0] is not ok.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool TryReadUInt64(ReadOnlySpan<byte> buffer, out ulong value, out int readSize)
         {
+            if (buffer.IsEmpty)
+            {
+                value = default;
+                readSize = default;
+                return false;
+            }
+
             var code = buffer[0];
             bool result;
 

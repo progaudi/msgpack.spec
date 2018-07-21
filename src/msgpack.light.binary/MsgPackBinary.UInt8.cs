@@ -8,40 +8,87 @@ namespace ProGaudi.MsgPack.Light
     /// </summary>
     public static partial class MsgPackBinary
     {
+        /// <summary>
+        /// Write uint8 <paramref name="value"/> into <paramref name="buffer"/>.
+        /// </summary>
+        /// <returns>Count of bytes, written to <paramref name="buffer"/>.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int WriteFixUInt8(Span<byte> buffer, byte value) => TryWriteFixUInt8(buffer, value, out var wroteSize)
-            ? wroteSize
-            : throw new InvalidOperationException();
+        public static int WriteFixUInt8(Span<byte> buffer, byte value)
+        {
+            buffer[0] = DataCodes.UInt8;
+            buffer[1] = value;
+            return 2;
+        }
 
+        /// <summary>
+        /// Tries to write uint8 <paramref name="value"/> into <paramref name="buffer"/>.
+        /// </summary>
+        /// <param name="buffer">Buffer to write.</param>
+        /// <param name="value">Value to write</param>
+        /// <param name="wroteSize">Count of bytes, written to <paramref name="buffer"/>. If return value is <c>false</c>, value is unspecified.</param>
+        /// <returns><c>true</c>, if everything is ok, <c>false</c> if <paramref name="buffer"/> is too small.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool TryWriteFixUInt8(Span<byte> buffer, byte value, out int wroteSize)
         {
             wroteSize = 2;
+            if (buffer.Length < wroteSize) return false;
             buffer[0] = DataCodes.UInt8;
             buffer[1] = value;
             return true;
         }
 
+        /// <summary>
+        /// Reads uint32 from <paramref name="buffer"/>.
+        /// </summary>
+        /// <param name="buffer">Buffer to read from</param>
+        /// <param name="readSize">Count of bytes, read from <paramref name="buffer"/></param>
+        /// <returns>Read value</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static byte ReadFixUInt8(ReadOnlySpan<byte> buffer, out int readSize) => TryReadFixUInt8(buffer, out var result, out readSize)
-            ? result
-            : throw new InvalidOperationException();
+        public static byte ReadFixUInt8(ReadOnlySpan<byte> buffer, out int readSize)
+        {
+            readSize = 2;
+            if (buffer[0] != DataCodes.UInt8) throw WrongCodeException(buffer[0], DataCodes.UInt8);
+            return buffer[1];
+        }
 
+        /// <summary>
+        /// Tries to read from <paramref name="buffer"/>
+        /// </summary>
+        /// <param name="buffer">Buffer to read from.</param>
+        /// <param name="value">Value, read from <paramref name="buffer"/>. If return value is false, value is unspecified.</param>
+        /// <param name="readSize">Count of bytes, read from <paramref name="buffer"/>. If return value is false, value is unspecified.</param>
+        /// <returns><c>true</c>, if everything is ok, <c>false</c> if <paramref name="buffer"/> is too small or <paramref name="buffer"/>[0] is not <see cref="DataCodes.UInt8"/>.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool TryReadFixUInt8(ReadOnlySpan<byte> buffer, out byte value, out int readSize)
         {
             readSize = 2;
+            value = default;
+            if (buffer.Length < readSize) return false;
             var result = buffer[0] == DataCodes.UInt8;
             value = result ? buffer[1] : default;
             return result;
         }
 
-        // https://github.com/msgpack/msgpack/issues/164
+        /// <summary>
+        /// Write smallest possible representation of <paramref name="value"/> into <paramref name="buffer"/>.
+        /// </summary>
+        /// <remarks>See https://github.com/msgpack/msgpack/issues/164 on data code selection.</remarks>
+        /// <returns>Count of bytes, written to <paramref name="buffer"/>.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int WriteUInt8(Span<byte> buffer, byte value) => TryWriteUInt8(buffer, value, out var wroteSize)
-            ? wroteSize
-            : throw new InvalidOperationException();
+        public static int WriteUInt8(Span<byte> buffer, byte value)
+        {
+            if (value < DataCodes.FixPositiveMax) return WritePositiveFixInt(buffer, value);
+            return WriteFixUInt8(buffer, value);
+        }
 
+        /// <summary>
+        /// Tries to write smallest possible representation of <paramref name="value"/> into <paramref name="buffer"/>.
+        /// </summary>
+        /// <remarks>See https://github.com/msgpack/msgpack/issues/164 on data code selection.</remarks>
+        /// <param name="buffer">Buffer to write.</param>
+        /// <param name="value">Value to write</param>
+        /// <param name="wroteSize">Count of bytes, written to <paramref name="buffer"/>. If return value is <c>false</c>, value is unspecified.</param>
+        /// <returns><c>true</c>, if everything is ok, <c>false</c> if <paramref name="buffer"/> is too small.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool TryWriteUInt8(Span<byte> buffer, byte value, out int wroteSize)
         {
@@ -50,11 +97,23 @@ namespace ProGaudi.MsgPack.Light
             return TryWriteFixUInt8(buffer, value, out wroteSize);
         }
 
+        /// <summary>
+        /// Read <see cref="byte"/> values from <paramref name="buffer"/>
+        /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static byte ReadUInt8(ReadOnlySpan<byte> buffer, out int readSize) => TryReadUInt8(buffer, out var value, out readSize)
-            ? value
-            : throw new InvalidOperationException();
+        public static byte ReadUInt8(ReadOnlySpan<byte> buffer, out int readSize)
+        {
+            if (buffer[0] == DataCodes.UInt8) return ReadFixUInt8(buffer, out readSize);
+            return ReadPositiveFixInt(buffer, out readSize);
+        }
 
+        /// <summary>
+        /// Tries to read <see cref="byte"/> value from <paramref name="buffer"/>.
+        /// </summary>
+        /// <param name="buffer">Buffer to read from.</param>
+        /// <param name="value">Value, read from <paramref name="buffer"/>. If return value is false, value is unspecified.</param>
+        /// <param name="readSize">Count of bytes, read from <paramref name="buffer"/>. If return value is false, value is unspecified.</param>
+        /// <returns><c>true</c>, if everything is ok, <c>false</c> if <paramref name="buffer"/> is too small or <paramref name="buffer"/>[0] is not ok.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool TryReadUInt8(ReadOnlySpan<byte> buffer, out byte value, out int readSize)
         {

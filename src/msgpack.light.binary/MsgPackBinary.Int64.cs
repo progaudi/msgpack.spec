@@ -9,38 +9,89 @@ namespace ProGaudi.MsgPack.Light
     /// </summary>
     public static partial class MsgPackBinary
     {
+        /// <summary>
+        /// Write int64 <paramref name="value"/> into <paramref name="buffer"/>.
+        /// </summary>
+        /// <returns>Count of bytes, written to <paramref name="buffer"/>.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int WriteFixInt64(Span<byte> buffer, int value) => TryWriteFixInt64(buffer, value, out var wroteSize)
-            ? wroteSize
-            : throw new InvalidOperationException();
+        public static int WriteFixInt64(Span<byte> buffer, long value)
+        {
+            buffer[0] = DataCodes.Int64;
+            BinaryPrimitives.TryWriteInt64BigEndian(buffer.Slice(1), value);
+            return 9;
+        }
 
+        /// <summary>
+        /// Tries to write int64 <paramref name="value"/> into <paramref name="buffer"/>.
+        /// </summary>
+        /// <param name="buffer">Buffer to write.</param>
+        /// <param name="value">Value to write</param>
+        /// <param name="wroteSize">Count of bytes, written to <paramref name="buffer"/>. If return value is <c>false</c>, value is unspecified.</param>
+        /// <returns><c>true</c>, if everything is ok, <c>false</c> if <paramref name="buffer"/> is too small.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool TryWriteFixInt64(Span<byte> buffer, long value, out int wroteSize)
         {
             wroteSize = 9;
+            if (buffer.Length < wroteSize) return false;
             buffer[0] = DataCodes.Int64;
             return BinaryPrimitives.TryWriteInt64BigEndian(buffer.Slice(1), value);
         }
 
+        /// <summary>
+        /// Reads uint32 from <paramref name="buffer"/>.
+        /// </summary>
+        /// <param name="buffer">Buffer to read from</param>
+        /// <param name="readSize">Count of bytes, read from <paramref name="buffer"/></param>
+        /// <returns>Read value</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static long ReadFixInt64(ReadOnlySpan<byte> buffer, out int readSize) => TryReadFixInt64(buffer, out var result, out readSize)
-            ? result
-            : throw new InvalidOperationException();
+        public static long ReadFixInt64(ReadOnlySpan<byte> buffer, out int readSize)
+        {
+            readSize = 9;
+            if (buffer[0] != DataCodes.Int64) throw WrongCodeException(buffer[0], DataCodes.Int64);
+            return BinaryPrimitives.ReadInt64BigEndian(buffer.Slice(1));
+        }
 
+        /// <summary>
+        /// Tries to read from <paramref name="buffer"/>
+        /// </summary>
+        /// <param name="buffer">Buffer to read from.</param>
+        /// <param name="value">Value, read from <paramref name="buffer"/>. If return value is false, value is unspecified.</param>
+        /// <param name="readSize">Count of bytes, read from <paramref name="buffer"/>. If return value is false, value is unspecified.</param>
+        /// <returns><c>true</c>, if everything is ok, <c>false</c> if <paramref name="buffer"/> is too small or <paramref name="buffer"/>[0] is not <see cref="DataCodes.Int64"/>.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool TryReadFixInt64(ReadOnlySpan<byte> buffer, out long value, out int readSize)
         {
             readSize = 9;
+            value = default;
+            if (buffer.Length < readSize) return false;
             var result = buffer[0] == DataCodes.Int64;
             return BinaryPrimitives.TryReadInt64BigEndian(buffer.Slice(1), out value) && result;
         }
 
-        // https://github.com/msgpack/msgpack/issues/164
+        /// <summary>
+        /// Write smallest possible representation of <paramref name="value"/> into <paramref name="buffer"/>.
+        /// </summary>
+        /// <remarks>See https://github.com/msgpack/msgpack/issues/164 on data code selection.</remarks>
+        /// <returns>Count of bytes, written to <paramref name="buffer"/>.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int WriteInt64(Span<byte> buffer, long value) => TryWriteInt64(buffer, value, out var wroteSize)
-            ? wroteSize
-            : throw new InvalidOperationException();
+        public static int WriteInt64(Span<byte> buffer, long value)
+        {
+            if (value >= 0) return WriteUInt64(buffer, (ulong) value);
+            if (value >= DataCodes.FixNegativeMinSByte) return WriteNegativeFixInt(buffer, (sbyte) value);
+            if (value >= sbyte.MinValue) return WriteFixInt8(buffer, (sbyte) value);
+            if (value >= short.MinValue) return WriteFixInt16(buffer, (short) value);
+            if (value >= int.MinValue) return WriteFixInt32(buffer, (int) value);
+            return WriteFixInt64(buffer, value);
+        }
 
+        /// <summary>
+        /// Tries to write smallest possible representation of <paramref name="value"/> into <paramref name="buffer"/>.
+        /// </summary>
+        /// <remarks>See https://github.com/msgpack/msgpack/issues/164 on data code selection.</remarks>
+        /// <param name="buffer">Buffer to write.</param>
+        /// <param name="value">Value to write</param>
+        /// <param name="wroteSize">Count of bytes, written to <paramref name="buffer"/>. If return value is <c>false</c>, value is unspecified.</param>
+        /// <returns><c>true</c>, if everything is ok, <c>false</c> if <paramref name="buffer"/> is too small.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool TryWriteInt64(Span<byte> buffer, long value, out int wroteSize)
         {
@@ -51,14 +102,73 @@ namespace ProGaudi.MsgPack.Light
             return TryWriteInt8(buffer, (sbyte)value, out wroteSize);
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static long ReadInt64(ReadOnlySpan<byte> buffer, out int readSize) => TryReadInt64(buffer, out var value, out readSize)
-            ? value
-            : throw new InvalidOperationException();
+        /// <summary>
+        /// Read <see cref="long"/> values from <paramref name="buffer"/>
+        /// </summary>
+        public static long ReadInt64(ReadOnlySpan<byte> buffer, out int readSize)
+        {
+            if (buffer.IsEmpty) throw CantReadEmptyBufferException();
+            var code = buffer[0];
 
+            switch (code)
+            {
+                case DataCodes.Int64:
+                    return ReadFixInt64(buffer, out readSize);
+
+                case DataCodes.Int32:
+                    return ReadFixInt32(buffer, out readSize);
+
+                case DataCodes.Int16:
+                    return ReadFixInt16(buffer, out readSize);
+
+                case DataCodes.Int8:
+                    return ReadFixInt8(buffer, out readSize);
+
+                case DataCodes.UInt64:
+                    var value = ReadFixUInt64(buffer, out readSize);
+                    if (value > long.MaxValue) throw ValueIsTooLargeException(value, long.MaxValue);
+                    return (long) value;
+
+                case DataCodes.UInt32:
+                    return ReadFixUInt32(buffer, out readSize);
+
+                case DataCodes.UInt16:
+                    return ReadFixUInt16(buffer, out readSize);
+
+                case DataCodes.UInt8:
+                    return ReadFixUInt8(buffer, out readSize);
+            }
+
+            if (TryReadPositiveFixInt(buffer, out var positive, out readSize))
+            {
+                return positive;
+            }
+
+            if (TryReadNegativeFixInt(buffer, out var negative, out readSize))
+            {
+                return negative;
+            }
+
+            throw WrongIntCodeException(code, DataCodes.Int8, DataCodes.Int16, DataCodes.Int32, DataCodes.Int64, DataCodes.UInt8, DataCodes.UInt16, DataCodes.UInt32, DataCodes.UInt64);
+        }
+
+        /// <summary>
+        /// Tries to read <see cref="long"/> value from <paramref name="buffer"/>.
+        /// </summary>
+        /// <param name="buffer">Buffer to read from.</param>
+        /// <param name="value">Value, read from <paramref name="buffer"/>. If return value is false, value is unspecified.</param>
+        /// <param name="readSize">Count of bytes, read from <paramref name="buffer"/>. If return value is false, value is unspecified.</param>
+        /// <returns><c>true</c>, if everything is ok, <c>false</c> if <paramref name="buffer"/> is too small or <paramref name="buffer"/>[0] is not ok.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool TryReadInt64(ReadOnlySpan<byte> buffer, out long value, out int readSize)
         {
+            if (buffer.IsEmpty)
+            {
+                value = default;
+                readSize = default;
+                return false;
+            }
+
             var code = buffer[0];
             bool result;
 
