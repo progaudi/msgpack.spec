@@ -1,0 +1,16 @@
+language: csharp
+matrix:
+  include:
+    - mono: none
+      dotnet: 1.1.10
+      env:
+        TEST_FRAMEWORK_LIST: ./scripts/.travis.sdk1.txt
+    - mono: none
+      dotnet: 2.1.302
+      env:
+        TEST_FRAMEWORK_LIST: ./scripts/.travis.sdk2.txt
+
+script:
+  - dotnet restore
+  - dotnet build -c Release msgpack.spec.sln
+  - cat $TEST_FRAMEWORK_LIST | xargs -I {} dotnet test -c Release -f {} --no-build tests/msgpack.spec.tests/msgpack.spec.tests.csproj -- -parallel assemblies
