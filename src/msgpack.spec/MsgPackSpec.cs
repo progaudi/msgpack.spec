@@ -46,8 +46,8 @@ namespace ProGaudi.MsgPack
         );
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static Exception TooLargeArray(uint length) => new InvalidOperationException(
-            $@"You can't create arrays longer than int.MaxValue in .net. Packet length was: {length}.
+        private static Exception DataIsTooLarge(uint length) => new InvalidOperationException(
+            $@"You can't create arrays or string longer than int.MaxValue in .net. Packet length was: {length}.
 See https://blogs.msdn.microsoft.com/joshwil/2005/08/10/bigarrayt-getting-around-the-2gb-array-size-limit/"
         );
 

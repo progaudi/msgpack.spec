@@ -296,7 +296,7 @@ namespace ProGaudi.MsgPack
                         return (int) uint32Value;
                     }
 
-                    throw TooLargeArray(uint32Value);
+                    throw DataIsTooLarge(uint32Value);
                 default:
                     throw WrongCodeException(buffer[0], DataCodes.Binary8, DataCodes.Binary16, DataCodes.Binary32);
             }
@@ -583,7 +583,7 @@ namespace ProGaudi.MsgPack
         public static IMemoryOwner<byte> ReadBinary32(ReadOnlySpan<byte> buffer, out int resultLength, out int readSize)
         {
             var length = ReadBinary32Header(buffer, out readSize);
-            if (length > int.MaxValue) throw TooLargeArray(length);
+            if (length > int.MaxValue) throw DataIsTooLarge(length);
             resultLength = (int)length;
             return ReadBinaryBlob(buffer, ref readSize, resultLength);
         }

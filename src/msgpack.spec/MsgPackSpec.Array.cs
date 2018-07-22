@@ -1,6 +1,7 @@
 using System;
 using System.Buffers.Binary;
 using System.Runtime.CompilerServices;
+using static ProGaudi.MsgPack.DataCodes;
 
 namespace ProGaudi.MsgPack
 {
@@ -13,16 +14,16 @@ namespace ProGaudi.MsgPack
         /// Writes FixArray header into <paramref name="buffer"/>.
         /// </summary>
         /// <remarks>
-        /// DOES NOT check if <paramref name="length"/> is less or equal that <see cref="DataCodes.FixArrayMaxLength"/>.
+        /// DOES NOT check if <paramref name="length"/> is less or equal that <see cref="FixArrayMaxLength"/>.
         /// If you need that check, use <see cref="TryWriteFixArrayHeader"/>.
         /// </remarks>
         /// <param name="buffer">Buffer to write. Ensure that is at least 1 byte long.</param>
-        /// <param name="length">Length of array. Should be less or equal to <see cref="DataCodes.FixArrayMaxLength"/>.</param>
+        /// <param name="length">Length of array. Should be less or equal to <see cref="FixArrayMaxLength"/>.</param>
         /// <returns>Count of bytes, written to <paramref name="buffer"/></returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int WriteFixArrayHeader(Span<byte> buffer, byte length)
         {
-            buffer[0] = (byte) (DataCodes.FixArrayMin + length);
+            buffer[0] = (byte) (FixArrayMin + length);
             return 1;
         }
 
@@ -30,20 +31,20 @@ namespace ProGaudi.MsgPack
         /// Tries to write FixArray header into <paramref name="buffer"/>.
         /// </summary>
         /// <param name="buffer">Buffer to write.</param>
-        /// <param name="length">Length of array. Should be less or equal to <see cref="DataCodes.FixArrayMaxLength"/>.</param>
+        /// <param name="length">Length of array. Should be less or equal to <see cref="FixArrayMaxLength"/>.</param>
         /// <param name="wroteSize">Count of bytes, written to <paramref name="buffer"/>. If return value is <c>false</c>, value is unspecified.</param>
         /// <returns><c>true</c>, if everything is ok, <c>false</c> if:
         /// <list type="bullet">
         ///     <item><description><paramref name="buffer"/> is too small or</description></item>
-        ///     <item><description><paramref name="length"/> is greater <see cref="DataCodes.FixArrayMaxLength"/>.</description></item>
+        ///     <item><description><paramref name="length"/> is greater <see cref="FixArrayMaxLength"/>.</description></item>
         /// </list>
         /// </returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool TryWriteFixArrayHeader(Span<byte> buffer, byte length, out int wroteSize)
         {
             wroteSize = 1;
-            if (length >= DataCodes.FixArrayMaxLength || buffer.Length < wroteSize) return false;
-            buffer[0] = (byte) (DataCodes.FixArrayMin + length);
+            if (length >= FixArrayMaxLength || buffer.Length < wroteSize) return false;
+            buffer[0] = (byte) (FixArrayMin + length);
             return true;
         }
 
@@ -56,7 +57,7 @@ namespace ProGaudi.MsgPack
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int WriteArray16Header(Span<byte> buffer, ushort length)
         {
-            buffer[0] = DataCodes.Array16;
+            buffer[0] = Array16;
             BinaryPrimitives.WriteUInt16BigEndian(buffer.Slice(1), length);
             return 3;
         }
@@ -74,7 +75,7 @@ namespace ProGaudi.MsgPack
         {
             wroteSize = 3;
             if (buffer.Length < wroteSize) return false;
-            buffer[0] = DataCodes.Array16;
+            buffer[0] = Array16;
             return BinaryPrimitives.TryWriteUInt16BigEndian(buffer.Slice(1), length);
         }
 
@@ -87,7 +88,7 @@ namespace ProGaudi.MsgPack
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int WriteArray32Header(Span<byte> buffer, uint length)
         {
-            buffer[0] = DataCodes.Array32;
+            buffer[0] = Array32;
             BinaryPrimitives.WriteUInt32BigEndian(buffer.Slice(1), length);
             return 5;
         }
@@ -105,7 +106,7 @@ namespace ProGaudi.MsgPack
         {
             wroteSize = 5;
             if (buffer.Length < wroteSize) return false;
-            buffer[0] = DataCodes.Array32;
+            buffer[0] = Array32;
             return BinaryPrimitives.TryWriteUInt32BigEndian(buffer.Slice(1), length);
         }
 
@@ -119,23 +120,23 @@ namespace ProGaudi.MsgPack
         public static byte ReadFixArrayHeader(ReadOnlySpan<byte> buffer, out int readSize)
         {
             readSize = 1;
-            if (DataCodes.FixArrayMin <= buffer[0] && buffer[0] <= DataCodes.FixArrayMax)
-                return (byte) (buffer[0] - DataCodes.FixArrayMin);
+            if (FixArrayMin <= buffer[0] && buffer[0] <= FixArrayMax)
+                return (byte) (buffer[0] - FixArrayMin);
 
-            throw WrongRangeCodeException(buffer[0], DataCodes.FixArrayMin, DataCodes.FixArrayMax);
+            throw WrongRangeCodeException(buffer[0], FixArrayMin, FixArrayMax);
         }
 
         /// <summary>
         /// Tries to read FixArray header from <paramref name="buffer"/>.
         /// </summary>
         /// <param name="buffer">Buffer to read.</param>
-        /// <param name="length">Length of array. Should be less or equal to <see cref="DataCodes.FixArrayMaxLength"/>.</param>
+        /// <param name="length">Length of array. Should be less or equal to <see cref="FixArrayMaxLength"/>.</param>
         /// <param name="readSize">Count of bytes read from <paramref name="buffer"/>. If return value is <c>false</c>, value is unspecified.</param>
         /// <returns><c>true</c>, if everything is ok, <c>false</c> if:
         /// <list type="bullet">
         ///     <item><description><paramref name="buffer"/> is too small or</description></item>
         ///     <item><description><paramref name="buffer"/>[0] contains wrong data code or</description></item>
-        ///     <item><description><paramref name="length"/> is greater <see cref="DataCodes.FixArrayMaxLength"/>.</description></item>
+        ///     <item><description><paramref name="length"/> is greater <see cref="FixArrayMaxLength"/>.</description></item>
         /// </list>
         /// </returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -144,8 +145,8 @@ namespace ProGaudi.MsgPack
             readSize = 1;
             length = 0;
             if (buffer.Length < readSize) return false;
-            var result = DataCodes.FixArrayMin <= buffer[0] && buffer[0] <= DataCodes.FixArrayMax;
-            length = (byte) (buffer[0] - DataCodes.FixArrayMin);
+            var result = FixArrayMin <= buffer[0] && buffer[0] <= FixArrayMax;
+            length = (byte) (buffer[0] - FixArrayMin);
             return result;
         }
 
@@ -159,9 +160,9 @@ namespace ProGaudi.MsgPack
         public static ushort ReadArray16Header(ReadOnlySpan<byte> buffer, out int readSize)
         {
             readSize = 3;
-            if (buffer[0] == DataCodes.Array16)
+            if (buffer[0] == Array16)
                 return BinaryPrimitives.ReadUInt16BigEndian(buffer.Slice(1));
-            throw WrongCodeException(buffer[0], DataCodes.Array16);
+            throw WrongCodeException(buffer[0], Array16);
         }
 
         /// <summary>
@@ -182,7 +183,7 @@ namespace ProGaudi.MsgPack
             readSize = 3;
             length = 0;
             if (buffer.Length < readSize) return false;
-            return buffer[0] == DataCodes.Array16 && BinaryPrimitives.TryReadUInt16BigEndian(buffer.Slice(1), out length);
+            return buffer[0] == Array16 && BinaryPrimitives.TryReadUInt16BigEndian(buffer.Slice(1), out length);
         }
 
         /// <summary>
@@ -195,9 +196,9 @@ namespace ProGaudi.MsgPack
         public static uint ReadArray32Header(ReadOnlySpan<byte> buffer, out int readSize)
         {
             readSize = 5;
-            if (buffer[0] == DataCodes.Array32)
+            if (buffer[0] == Array32)
                 return BinaryPrimitives.ReadUInt32BigEndian(buffer.Slice(1));
-            throw WrongCodeException(buffer[0], DataCodes.Array32);
+            throw WrongCodeException(buffer[0], Array32);
         }
 
         /// <summary>
@@ -218,7 +219,7 @@ namespace ProGaudi.MsgPack
             readSize = 5;
             length = 0;
             if (buffer.Length < readSize) return false;
-            return buffer[0] == DataCodes.Array32 && BinaryPrimitives.TryReadUInt32BigEndian(buffer.Slice(1), out length);
+            return buffer[0] == Array32 && BinaryPrimitives.TryReadUInt32BigEndian(buffer.Slice(1), out length);
         }
 
         /// <summary>
@@ -235,7 +236,7 @@ namespace ProGaudi.MsgPack
                 throw LengthShouldBeNonNegative(length);
             }
 
-            if (length <= DataCodes.FixArrayMaxLength)
+            if (length <= FixArrayMaxLength)
             {
                 return WriteFixArrayHeader(buffer, (byte) length);
             }
@@ -265,7 +266,7 @@ namespace ProGaudi.MsgPack
                 return false;
             }
 
-            if (length <= DataCodes.FixArrayMaxLength)
+            if (length <= FixArrayMaxLength)
             {
                 return TryWriteFixArrayHeader(buffer, (byte) length, out wroteSize);
             }
@@ -287,17 +288,17 @@ namespace ProGaudi.MsgPack
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int ReadArrayHeader(ReadOnlySpan<byte> buffer, out int readSize)
         {
-            if (DataCodes.FixArrayMin <= buffer[0] && buffer[0] <= DataCodes.FixArrayMax)
+            if (FixArrayMin <= buffer[0] && buffer[0] <= FixArrayMax)
             {
                 return ReadFixArrayHeader(buffer, out readSize);
             }
 
-            if (buffer[0] == DataCodes.Array16)
+            if (buffer[0] == Array16)
             {
                 return ReadArray16Header(buffer, out readSize);
             }
 
-            if (buffer[0] == DataCodes.Array32)
+            if (buffer[0] == Array32)
             {
                 var uint32Value = ReadArray32Header(buffer, out readSize);
                 if (uint32Value <= int.MaxValue)
@@ -305,7 +306,7 @@ namespace ProGaudi.MsgPack
                     return (int) uint32Value;
                 }
 
-                throw TooLargeArray(uint32Value);
+                throw DataIsTooLarge(uint32Value);
             }
 
             throw WrongArrayHeader(buffer[0]);
