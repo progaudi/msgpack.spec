@@ -1,0 +1,46 @@
+<Project Sdk="Microsoft.NET.Sdk" ToolsVersion="15.0">
+  <PropertyGroup>
+    <Description>MsgPack reference serialization library</Description>
+    <AssemblyTitle>progaudi.msgpack.spec</AssemblyTitle>
+    <RootNamespace>ProGaudi.MsgPack</RootNamespace>
+    <Product>progaudi.msgpack.spec</Product>
+    <Copyright>Copyright © 2016-2018</Copyright>
+    <PackageTags>msgpack;serialization</PackageTags>
+    <PackageProjectUrl>https://github.com/progaudi/msgpack.spec</PackageProjectUrl>
+    <PackageLicenseUrl>https://github.com/progaudi/msgpack.spec/blob/master/LICENSE</PackageLicenseUrl>
+    <ProjectGuid>{7058F131-95D8-411F-A8F9-5D545B2F6CD6}</ProjectGuid>
+    <Authors>roman-kozachenko;aensidhe</Authors>
+    <Company>progaudi</Company>
+  </PropertyGroup>
+
+  <PropertyGroup Condition=" '$(OS)' == 'Windows_NT' ">
+    <TargetFrameworks>net45;net46;netstandard1.4;netstandard2.0;netcoreapp2.1</TargetFrameworks>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(OS)' != 'Windows_NT' ">
+    <TargetFrameworks>netstandard1.4;netstandard2.0;netcoreapp2.1</TargetFrameworks>
+  </PropertyGroup>
+  <PropertyGroup>
+    <PatchLevelVersion Condition=" '$(BuildNumber)' == '' ">0</PatchLevelVersion>
+    <PatchLevelVersion Condition=" '$(BuildNumber)' != '' ">$(BuildNumber).1-prerelease</PatchLevelVersion>
+    <Version>1.0.$(PatchLevelVersion)</Version>
+
+    <GenerateAssemblyTitleAttribute>true</GenerateAssemblyTitleAttribute>
+    <GenerateAssemblyProductAttribute>true</GenerateAssemblyProductAttribute>
+    <GenerateAssemblyCopyrightAttribute>true</GenerateAssemblyCopyrightAttribute>
+  </PropertyGroup>
+  <PropertyGroup>
+    <LangVersion>latest</LangVersion> <!-- default to allowing all language features -->
+    <WarningLevel>4</WarningLevel>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="JetBrains.Annotations" Version="11.1.0" />
+    <PackageReference Include="System.Memory" Version="4.5.1" />
+    <PackageReference Include="System.ValueTuple" Version="4.5.0" />
+  </ItemGroup>
+
+  <ItemGroup Condition=" '$(TargetFramework)' == 'net45' or '$(TargetFramework)' == 'net46' ">
+    <PackageReference Include="System.Buffers" Version="4.5.0" />
+  </ItemGroup>
+</Project>

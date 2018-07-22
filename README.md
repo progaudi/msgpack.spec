@@ -1,6 +1,6 @@
 # msgpack.spec
 
-Reference implementation of https://github.com/msgpack/msgpack/blob/master/spec.md
+Reference implementation of [msgpack specification](https://github.com/msgpack/msgpack/blob/master/spec.md).
 
 ## Usage
 
