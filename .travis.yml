@@ -12,5 +12,5 @@ matrix:
 
 script:
   - dotnet restore
-  - dotnet build -c Release msgpack.spec.sln
+  - dotnet build --no-restore -c Release msgpack.spec.sln
   - cat $TEST_FRAMEWORK_LIST | xargs -I {} dotnet test -c Release -f {} --no-build tests/msgpack.spec.tests/msgpack.spec.tests.csproj -- -parallel assemblies
