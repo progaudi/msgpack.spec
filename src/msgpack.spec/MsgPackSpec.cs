@@ -66,6 +66,11 @@ See https://blogs.msdn.microsoft.com/joshwil/2005/08/10/bigarrayt-getting-around
             $"Wrong array data code: 0x{code:x2}. Expected: 0x{FixArrayMin:x2} <= code <= 0x{FixArrayMax:x2} or 0x{Array16:x2} or 0x{Array32:x2}."
         );
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static Exception WrongMapHeader(byte code) => new InvalidOperationException(
+            $"Wrong map data code: 0x{code:x2}. Expected: 0x{FixMapMin:x2} <= code <= 0x{FixMapMax:x2} or 0x{Map16:x2} or 0x{Map32:x2}."
+        );
+
         private static Exception CantReadEmptyBufferException() => new InvalidOperationException(
             "We need at least 1 byte to read from buffer!"
         );
