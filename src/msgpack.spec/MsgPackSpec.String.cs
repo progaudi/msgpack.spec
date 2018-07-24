@@ -63,8 +63,8 @@ namespace ProGaudi.MsgPack
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int WriteString8Header(Span<byte> buffer, byte length)
         {
-            buffer[0] = String8;
             buffer[1] = length;
+            buffer[0] = String8;
             return 2;
         }
 
@@ -85,8 +85,8 @@ namespace ProGaudi.MsgPack
         {
             wroteSize = 2;
             if (buffer.Length < wroteSize) return false;
-            buffer[0] = String8;
             buffer[1] = length;
+            buffer[0] = String8;
             return true;
         }
 
@@ -99,8 +99,8 @@ namespace ProGaudi.MsgPack
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int WriteString16Header(Span<byte> buffer, ushort length)
         {
-            buffer[0] = String16;
             WriteUInt16BigEndian(buffer.Slice(1), length);
+            buffer[0] = String16;
             return 3;
         }
 
@@ -134,8 +134,8 @@ namespace ProGaudi.MsgPack
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int WriteString32Header(Span<byte> buffer, uint length)
         {
-            buffer[0] = String32;
             WriteUInt32BigEndian(buffer.Slice(1), length);
+            buffer[0] = String32;
             return 5;
         }
 

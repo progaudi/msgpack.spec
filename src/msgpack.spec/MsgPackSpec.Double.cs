@@ -16,31 +16,31 @@ namespace ProGaudi.MsgPack
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int WriteFixFloat64(Span<byte> buffer, double value)
         {
-            buffer[0] = DataCodes.Float64;
             var binary = new DoubleBinary(value);
 
             if (BitConverter.IsLittleEndian)
             {
-                buffer[1] = binary.Byte7;
-                buffer[2] = binary.Byte6;
-                buffer[3] = binary.Byte5;
-                buffer[4] = binary.Byte4;
-                buffer[5] = binary.Byte3;
-                buffer[6] = binary.Byte2;
-                buffer[7] = binary.Byte1;
                 buffer[8] = binary.Byte0;
+                buffer[7] = binary.Byte1;
+                buffer[6] = binary.Byte2;
+                buffer[5] = binary.Byte3;
+                buffer[4] = binary.Byte4;
+                buffer[3] = binary.Byte5;
+                buffer[2] = binary.Byte6;
+                buffer[1] = binary.Byte7;
             }
             else
             {
-                buffer[1] = binary.Byte0;
-                buffer[2] = binary.Byte1;
-                buffer[3] = binary.Byte2;
-                buffer[4] = binary.Byte3;
-                buffer[5] = binary.Byte4;
-                buffer[6] = binary.Byte5;
-                buffer[7] = binary.Byte6;
                 buffer[8] = binary.Byte7;
+                buffer[7] = binary.Byte6;
+                buffer[6] = binary.Byte5;
+                buffer[5] = binary.Byte4;
+                buffer[4] = binary.Byte3;
+                buffer[3] = binary.Byte2;
+                buffer[2] = binary.Byte1;
+                buffer[1] = binary.Byte0;
             }
+            buffer[0] = DataCodes.Float64;
 
             return 9;
         }
@@ -213,14 +213,14 @@ namespace ProGaudi.MsgPack
                 }
                 else
                 {
-                    Byte0 = bytes[0];
-                    Byte1 = bytes[1];
-                    Byte2 = bytes[2];
-                    Byte3 = bytes[3];
-                    Byte4 = bytes[4];
-                    Byte5 = bytes[5];
-                    Byte6 = bytes[6];
                     Byte7 = bytes[7];
+                    Byte6 = bytes[6];
+                    Byte5 = bytes[5];
+                    Byte4 = bytes[4];
+                    Byte3 = bytes[3];
+                    Byte2 = bytes[2];
+                    Byte1 = bytes[1];
+                    Byte0 = bytes[0];
                 }
             }
         }

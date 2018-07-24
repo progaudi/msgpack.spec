@@ -16,23 +16,23 @@ namespace ProGaudi.MsgPack
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int WriteFixFloat32(Span<byte> buffer, float value)
         {
-            buffer[0] = DataCodes.Float32;
             var binary = new FloatBinary(value);
 
             if (BitConverter.IsLittleEndian)
             {
-                buffer[1] = binary.Byte3;
-                buffer[2] = binary.Byte2;
-                buffer[3] = binary.Byte1;
                 buffer[4] = binary.Byte0;
+                buffer[3] = binary.Byte1;
+                buffer[2] = binary.Byte2;
+                buffer[1] = binary.Byte3;
             }
             else
             {
-                buffer[1] = binary.Byte0;
-                buffer[2] = binary.Byte1;
-                buffer[3] = binary.Byte2;
                 buffer[4] = binary.Byte3;
+                buffer[3] = binary.Byte2;
+                buffer[2] = binary.Byte1;
+                buffer[1] = binary.Byte0;
             }
+            buffer[0] = DataCodes.Float32;
 
             return 5;
         }
@@ -146,10 +146,10 @@ namespace ProGaudi.MsgPack
                 }
                 else
                 {
-                    Byte0 = bytes[0];
-                    Byte1 = bytes[1];
-                    Byte2 = bytes[2];
                     Byte3 = bytes[3];
+                    Byte2 = bytes[2];
+                    Byte1 = bytes[1];
+                    Byte0 = bytes[0];
                 }
             }
         }

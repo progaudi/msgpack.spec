@@ -16,8 +16,8 @@ namespace ProGaudi.MsgPack
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int WriteFixInt64(Span<byte> buffer, long value)
         {
+            BinaryPrimitives.WriteInt64BigEndian(buffer.Slice(1), value);
             buffer[0] = DataCodes.Int64;
-            BinaryPrimitives.TryWriteInt64BigEndian(buffer.Slice(1), value);
             return 9;
         }
 

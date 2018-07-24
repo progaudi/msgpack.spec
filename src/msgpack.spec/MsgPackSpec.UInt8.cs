@@ -15,8 +15,8 @@ namespace ProGaudi.MsgPack
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int WriteFixUInt8(Span<byte> buffer, byte value)
         {
-            buffer[0] = DataCodes.UInt8;
             buffer[1] = value;
+            buffer[0] = DataCodes.UInt8;
             return 2;
         }
 
@@ -32,8 +32,8 @@ namespace ProGaudi.MsgPack
         {
             wroteSize = 2;
             if (buffer.Length < wroteSize) return false;
-            buffer[0] = DataCodes.UInt8;
             buffer[1] = value;
+            buffer[0] = DataCodes.UInt8;
             return true;
         }
 

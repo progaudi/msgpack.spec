@@ -19,8 +19,8 @@ namespace ProGaudi.MsgPack
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int WriteBinary8Header(Span<byte> buffer, byte length)
         {
-            buffer[0] = DataCodes.Binary8;
             buffer[1] = length;
+            buffer[0] = DataCodes.Binary8;
             return 2;
         }
 
@@ -37,8 +37,8 @@ namespace ProGaudi.MsgPack
         {
             wroteSize = 2;
             if (buffer.Length < wroteSize) return false;
-            buffer[0] = DataCodes.Binary8;
             buffer[1] = length;
+            buffer[0] = DataCodes.Binary8;
             return true;
         }
 
@@ -51,8 +51,8 @@ namespace ProGaudi.MsgPack
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int WriteBinary16Header(Span<byte> buffer, ushort length)
         {
-            buffer[0] = DataCodes.Binary16;
             BinaryPrimitives.WriteUInt16BigEndian(buffer.Slice(1), length);
+            buffer[0] = DataCodes.Binary16;
             return 3;
         }
 
@@ -82,8 +82,8 @@ namespace ProGaudi.MsgPack
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int WriteBinary32Header(Span<byte> buffer, uint length)
         {
-            buffer[0] = DataCodes.Binary32;
             BinaryPrimitives.WriteUInt32BigEndian(buffer.Slice(1), length);
+            buffer[0] = DataCodes.Binary32;
             return 5;
         }
 
