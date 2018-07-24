@@ -47,14 +47,11 @@ configuration: Release
 # to run your custom scripts instead of automatic MSBuild
 build_script:
   - ps: dotnet build -c Release
+  - ps: dotnet pack --no-build -c Release /property:Version=$version /property:PackageOutputPath=.\.nupkgs
 
 # to run your custom scripts instead of automatic tests
 test_script:
   - dotnet test -c Release --no-build ./tests/msgpack.spec.tests/msgpack.spec.tests.csproj
-
-# scripts to run before deployment
-before_deploy:
-  - ps: dotnet pack --no-build -c Release /property:Version=$version /property:PackageOutputPath=.\.nupkgs
 
 #---------------------------------#
 #     deployment configuration    #
