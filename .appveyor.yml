@@ -64,6 +64,7 @@ artifacts:
 deploy:
     # Deploying to NuGet feed
   - provider: NuGet
+    server: https://api.nuget.org/v3/index.json
     api_key:
       secure: +Qor7qH6REVQKnwKWnPnTt9vMIlk3knVatE7zySAPvm+ZQdedf4GllTUYg2mmlCC
     artifact: .nupkgs\*.nupkg
