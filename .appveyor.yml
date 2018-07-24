@@ -29,8 +29,8 @@ init:
 # environment variables
 environment:
   # this is how to set encrypted variable. Go to "Encrypt data" page in account menu to encrypt data.
-  my_secure_var1:
-    secure: FW3tJ3fMncxvs58/ifSP7w==
+  NUGET_API_KEY:
+    secure: +Qor7qH6REVQKnwKWnPnTt9vMIlk3knVatE7zySAPvm+ZQdedf4GllTUYg2mmlCC
 
 # scripts that run after cloning repository
 install:
@@ -61,19 +61,5 @@ artifacts:
 
 # providers: Local, FTP, WebDeploy, AzureCS, AzureBlob, S3, NuGet, Environment
 # provider names are case-sensitive!
-deploy:
-    # Deploying to NuGet feed
-  - provider: NuGet
-    server: https://api.nuget.org/v3/index.json
-    api_key:
-      secure: +Qor7qH6REVQKnwKWnPnTt9vMIlk3knVatE7zySAPvm+ZQdedf4GllTUYg2mmlCC
-    artifact: .nupkgs\*.nupkg
-
-    # Deploy to GitHub Releases
-  - provider: GitHub
-    artifact: .nupkgs\*.nupkg     # upload all NuGet packages to release assets
-    draft: false
-    prerelease: false
-    on:
-      branch: master                # release from master branch only
-      appveyor_repo_tag: true       # deploy on tag push only
+deploy_script:
+  -  ps: dotnet nuget push .nupkgs\progaudi.msgpack.spec.nupkg -k $env:NUGET_API_KEY -s https://api.nuget.org/v3/index.json
