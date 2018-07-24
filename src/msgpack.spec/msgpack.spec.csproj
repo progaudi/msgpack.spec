@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk" ToolsVersion="15.0">
   <PropertyGroup>
     <Description>MsgPack reference serialization library</Description>
-    <AssemblyTitle>progaudi.msgpack.spec</AssemblyTitle>
+    <AssemblyName>progaudi.msgpack.spec</AssemblyName>
     <RootNamespace>ProGaudi.MsgPack</RootNamespace>
     <Product>progaudi.msgpack.spec</Product>
     <Copyright>Copyright © 2016-2018</Copyright>

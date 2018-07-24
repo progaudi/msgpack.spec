@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk" ToolsVersion="15.0">
   <PropertyGroup>
     <Description>Tests for msgpack reference serialization library</Description>
-    <AssemblyTitle>progaudi.msgpack.spec.tests</AssemblyTitle>
+    <AssemblyName>progaudi.msgpack.spec.tests</AssemblyName>
     <RootNamespace>ProGaudi.MsgPack.Tests</RootNamespace>
     <Product>progaudi.msgpack.spec</Product>
     <Copyright>Copyright © 2016-2018</Copyright>
