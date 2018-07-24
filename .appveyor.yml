@@ -36,8 +36,8 @@ environment:
 install:
   # to run script as a PowerShell command prepend it with ps:
   - ps: .\scripts\set-version.ps1
-  - ps: mkdir -Force .\.nupkgs | Out-Null
-  - ps: Get-ChildItem .\.nupkgs | Remove-Item
+  - ps: mkdir -Force "$PSScriptRoot\.nupkgs" | Out-Null
+  - ps: Get-ChildItem "$PSScriptRoot\.nupkgs" | Remove-Item
 
 #---------------------------------#
 #       build configuration       #
@@ -47,7 +47,7 @@ configuration: Release
 # to run your custom scripts instead of automatic MSBuild
 build_script:
   - ps: dotnet build -c Release
-  - ps: dotnet pack --no-build -c Release /property:Version=$env:APPVEYOR_BUILD_VERSION /property:PackageOutputPath=.\.nupkgs
+  - ps: dotnet pack --no-build -c Release /property:Version=$env:APPVEYOR_BUILD_VERSION /property:PackageOutputPath="$PSScriptRoot\.nupkgs"
 
 # to run your custom scripts instead of automatic tests
 test_script:
@@ -57,7 +57,7 @@ test_script:
 #     deployment configuration    #
 #---------------------------------#
 artifacts:
-  - path: .\.nupkgs\*.nupkg
+  - path: "$PSScriptRoot\.nupkgs\*.nupkg"
 
 # providers: Local, FTP, WebDeploy, AzureCS, AzureBlob, S3, NuGet, Environment
 # provider names are case-sensitive!
@@ -66,11 +66,11 @@ deploy:
   - provider: NuGet
     api_key:
       secure: +Qor7qH6REVQKnwKWnPnTt9vMIlk3knVatE7zySAPvm+ZQdedf4GllTUYg2mmlCC
-    artifact: .\.nupkgs\*.nupkg
+    artifact: "$PSScriptRoot\.nupkgs\*.nupkg"
 
     # Deploy to GitHub Releases
   - provider: GitHub
-    artifact: .\.nupkgs\*.nupkg     # upload all NuGet packages to release assets
+    artifact: "$PSScriptRoot\.nupkgs\*.nupkg"     # upload all NuGet packages to release assets
     draft: false
     prerelease: false
     on:
