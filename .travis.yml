@@ -1,18 +1,7 @@
-language: csharp
-matrix:
-  include:
-    - mono: none
-      dotnet: 1.1.10
-      env:
-        PROGAUDI_TEST_FRAMEWORK_LIST: ./scripts/.travis.sdk1.txt
-        PROGAUDI_BUILD_COMMAND: build
-    - mono: none
-      dotnet: 2.1.302
-      env:
-        PROGAUDI_TEST_FRAMEWORK_LIST: ./scripts/.travis.sdk2.txt
-        PROGAUDI_BUILD_COMMAND: build --no-restore
+sudo: required
+
+services:
+  - docker
 
 script:
-  - dotnet restore
-  - dotnet $PROGAUDI_BUILD_COMMAND -c Release msgpack.spec.sln
-  - cat $PROGAUDI_TEST_FRAMEWORK_LIST | xargs -I {} dotnet test -c Release -f {} --no-build tests/msgpack.spec.tests/msgpack.spec.tests.csproj -- -parallel assemblies
+  - docker build .
