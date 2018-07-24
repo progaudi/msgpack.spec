@@ -50,7 +50,7 @@ build_script:
 
 # to run your custom scripts instead of automatic tests
 test_script:
-  - dotnet test --no-build
+  - dotnet test -c Release --no-build ./tests/msgpack.spec.tests/msgpack.spec.tests.csproj
 
 # scripts to run before deployment
 before_deploy:
