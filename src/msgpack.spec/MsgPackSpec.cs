@@ -90,5 +90,9 @@ See https://blogs.msdn.microsoft.com/joshwil/2005/08/10/bigarrayt-getting-around
         private static Exception UnsignedIntException(long value) => new InvalidOperationException(
             $"Value {value} should be greater or equal to zero."
         );
+
+        private static Exception WrongExtensionTypeException(sbyte extension, sbyte expected) => new InvalidOperationException(
+            $"Wrong extension type: {extension}. Expected: {expected}."
+        );
     }
 }
