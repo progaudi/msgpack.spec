@@ -11,10 +11,11 @@ namespace ProGaudi.MsgPack
     /// </summary>
     public static partial class MsgPackSpec
     {
+        private static readonly FixedMemoryArrayPool _pool = new FixedMemoryArrayPool();
+
         /// <summary>
         /// Provides mapping of first byte of <paramref name="buffer"/> high level <see cref="DataFamily"/>. Will be useful for writing converters for complex types.
         /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static DataFamily GetDataFamily(ReadOnlySpan<byte> buffer) => GetDataFamily(buffer[0]);
 
         /// <summary>

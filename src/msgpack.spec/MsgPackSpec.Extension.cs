@@ -715,12 +715,12 @@ namespace ProGaudi.MsgPack
         /// </summary>
         /// <param name="buffer">Buffer to read from.</param>
         /// <param name="readSize">Count of bytes read from <paramref name="buffer"/>.</param>
-        /// <returns>Extension code type, length and extension.</returns>
+        /// <returns>Extension code type and extension.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static (sbyte type, byte length, IMemoryOwner<byte> extension) ReadExtension8(ReadOnlySpan<byte> buffer, out int readSize)
+        public static (sbyte type, IMemoryOwner<byte> extension) ReadExtension8(ReadOnlySpan<byte> buffer, out int readSize)
         {
             var (type, size) = ReadExtension8Header(buffer, out readSize);
-            return (type, size, ReadExtension(buffer, size, ref readSize));
+            return (type, ReadExtension(buffer, size, ref readSize));
         }
 
         /// <summary>
@@ -741,11 +741,11 @@ namespace ProGaudi.MsgPack
         /// </summary>
         /// <param name="buffer">Buffer to read from.</param>
         /// <param name="readSize">Count of bytes read from <paramref name="buffer"/>.</param>
-        /// <returns>Extension code type, length and extension.</returns>
-        public static (sbyte type, ushort length, IMemoryOwner<byte> extension) ReadExtension16(ReadOnlySpan<byte> buffer, out int readSize)
+        /// <returns>Extension code type and extension.</returns>
+        public static (sbyte type, IMemoryOwner<byte> extension) ReadExtension16(ReadOnlySpan<byte> buffer, out int readSize)
         {
             var (type, size) = ReadExtension16Header(buffer, out readSize);
-            return (type, size, ReadExtension(buffer, size, ref readSize));
+            return (type, ReadExtension(buffer, size, ref readSize));
         }
 
         /// <summary>
@@ -766,12 +766,12 @@ namespace ProGaudi.MsgPack
         /// </summary>
         /// <param name="buffer">Buffer to read from.</param>
         /// <param name="readSize">Count of bytes read from <paramref name="buffer"/>.</param>
-        /// <returns>Extension code type, length and extension.</returns>
-        public static (sbyte type, uint length, IMemoryOwner<byte> extension) ReadExtension32(ReadOnlySpan<byte> buffer, out int readSize)
+        /// <returns>Extension code type and extension.</returns>
+        public static (sbyte type, IMemoryOwner<byte> extension) ReadExtension32(ReadOnlySpan<byte> buffer, out int readSize)
         {
             var (type, uintSize) = ReadExtension32Header(buffer, out readSize);
             if (uintSize > int.MaxValue) throw new InvalidOperationException();
-            return (type, uintSize, ReadExtension(buffer, (int) uintSize, ref readSize));
+            return (type, ReadExtension(buffer, (int) uintSize, ref readSize));
         }
 
         /// <summary>
@@ -828,12 +828,12 @@ namespace ProGaudi.MsgPack
         /// </summary>
         /// <param name="buffer">Buffer to read from.</param>
         /// <param name="readSize">Count of bytes read from <paramref name="buffer"/>.</param>
-        /// <returns>Extension code type, length and extension.</returns>
-        public static (sbyte type, uint length, IMemoryOwner<byte> extension) ReadExtension(ReadOnlySpan<byte> buffer, out int readSize)
+        /// <returns>Extension code type and extension.</returns>
+        public static (sbyte type, IMemoryOwner<byte> extension) ReadExtension(ReadOnlySpan<byte> buffer, out int readSize)
         {
             var (type, uintSize) = ReadExtensionHeader(buffer, out readSize);
             if (uintSize > int.MaxValue) throw new InvalidOperationException();
-            return (type, uintSize, ReadExtension(buffer, (int) uintSize, ref readSize));
+            return (type, ReadExtension(buffer, (int) uintSize, ref readSize));
         }
 
         /// <summary>
@@ -985,14 +985,13 @@ namespace ProGaudi.MsgPack
         /// </summary>
         /// <param name="buffer">Buffer to read from.</param>
         /// <param name="type">Type of extension.</param>
-        /// <param name="length">Length of extension.</param>
         /// <param name="extension">Extension data.</param>
         /// <param name="readSize">Count of bytes read from <paramref name="buffer"/>.</param>
         /// <returns><c>true</c> if everything is ok or <c>false</c> if <paramref name="buffer"/> is too short or <see cref="TryReadExtension8Header"/> returned false.</returns>
-        public static bool TryReadExtension8(ReadOnlySpan<byte> buffer, out sbyte type, out byte length, out IMemoryOwner<byte> extension, out int readSize)
+        public static bool TryReadExtension8(ReadOnlySpan<byte> buffer, out sbyte type, out IMemoryOwner<byte> extension, out int readSize)
         {
             extension = null;
-            return TryReadExtension8Header(buffer, out type, out length, out readSize)
+            return TryReadExtension8Header(buffer, out type, out var length, out readSize)
                 && TryReadExtension(buffer, length, ref extension, ref readSize);
         }
 
@@ -1019,14 +1018,13 @@ namespace ProGaudi.MsgPack
         /// </summary>
         /// <param name="buffer">Buffer to read from.</param>
         /// <param name="type">Type of extension.</param>
-        /// <param name="length">Length of extension.</param>
         /// <param name="extension">Extension data.</param>
         /// <param name="readSize">Count of bytes read from <paramref name="buffer"/>.</param>
         /// <returns><c>true</c> if everything is ok or <c>false</c> if <paramref name="buffer"/> is too short or <see cref="TryReadExtension16Header"/> returned false.</returns>
-        public static bool TryReadExtension16(ReadOnlySpan<byte> buffer, out sbyte type, out ushort length, out IMemoryOwner<byte> extension, out int readSize)
+        public static bool TryReadExtension16(ReadOnlySpan<byte> buffer, out sbyte type, out IMemoryOwner<byte> extension, out int readSize)
         {
             extension = null;
-            return TryReadExtension16Header(buffer, out type, out length, out readSize)
+            return TryReadExtension16Header(buffer, out type, out var length, out readSize)
                 && TryReadExtension(buffer, length, ref extension, ref readSize);
         }
 
@@ -1053,14 +1051,13 @@ namespace ProGaudi.MsgPack
         /// </summary>
         /// <param name="buffer">Buffer to read from.</param>
         /// <param name="type">Type of extension.</param>
-        /// <param name="length">Length of extension.</param>
         /// <param name="extension">Extension data.</param>
         /// <param name="readSize">Count of bytes read from <paramref name="buffer"/>.</param>
         /// <returns><c>true</c> if everything is ok or <c>false</c> if <paramref name="buffer"/> is too short or <see cref="TryReadExtension32Header"/> returned false.</returns>
-        public static bool TryReadExtension32(ReadOnlySpan<byte> buffer, out sbyte type, out uint length, out IMemoryOwner<byte> extension, out int readSize)
+        public static bool TryReadExtension32(ReadOnlySpan<byte> buffer, out sbyte type, out IMemoryOwner<byte> extension, out int readSize)
         {
             extension = null;
-            return TryReadExtension32Header(buffer, out type, out length, out readSize)
+            return TryReadExtension32Header(buffer, out type, out var length, out readSize)
                 && length <= int.MaxValue
                 && TryReadExtension(buffer, (int) length, ref extension, ref readSize);
         }
@@ -1133,14 +1130,13 @@ namespace ProGaudi.MsgPack
         /// </summary>
         /// <param name="buffer">Buffer to read from.</param>
         /// <param name="type">Type of extension.</param>
-        /// <param name="length">Length of extension</param>
         /// <param name="extension">Extension data.</param>
         /// <param name="readSize">Count of bytes read from <paramref name="buffer"/>.</param>
         /// <returns><c>true</c> if everything is ok or <c>false</c> if <paramref name="buffer"/> is too short or <see cref="TryReadExtensionHeader"/> returned false, or length is greater than <see cref="int.MaxValue"/>.</returns>
-        public static bool TryReadExtension(ReadOnlySpan<byte> buffer, out sbyte type, out uint length, out IMemoryOwner<byte> extension, out int readSize)
+        public static bool TryReadExtension(ReadOnlySpan<byte> buffer, out sbyte type, out IMemoryOwner<byte> extension, out int readSize)
         {
             extension = null;
-            return TryReadExtensionHeader(buffer, out type, out length, out readSize)
+            return TryReadExtensionHeader(buffer, out type, out var length, out readSize)
                 && length <= int.MaxValue
                 && TryReadExtension(buffer, (int) length, ref extension, ref readSize);
         }
@@ -1170,7 +1166,7 @@ namespace ProGaudi.MsgPack
         {
             if (buffer.Length - readSize < size) return false;
 
-            extension = MemoryPool<byte>.Shared.Rent(size);
+            extension = _pool.Rent(size);
             if (buffer.Slice(readSize).TryCopyTo(extension.Memory.Span))
             {
                 readSize += size;
@@ -1197,7 +1193,7 @@ namespace ProGaudi.MsgPack
             int size,
             ref int readSize)
         {
-            var owner = MemoryPool<byte>.Shared.Rent(size);
+            var owner = _pool.Rent(size);
             buffer.Slice(readSize, size).CopyTo(owner.Memory.Span);
             readSize += size;
             return owner;
