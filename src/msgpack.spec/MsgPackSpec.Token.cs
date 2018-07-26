@@ -1,5 +1,6 @@
 using System;
 using System.Buffers;
+using System.Collections.Generic;
 
 namespace ProGaudi.MsgPack
 {
@@ -30,127 +31,220 @@ namespace ProGaudi.MsgPack
                 throw new ArgumentOutOfRangeException(nameof(buffer), "EOF: Buffer is empty.");
             }
 
-            var code = buffer[0];
-            if (code <= DataCodes.FixPositiveMax) return buffer.Slice(0, 1);
-            if (DataCodes.FixMapMin <= code && code <= DataCodes.FixMapMax)
-                return ReadMap(buffer, ReadFixMapHeader(buffer, out var readSize), readSize);
-            if (DataCodes.FixArrayMin <= code && code <= DataCodes.FixArrayMax)
-                return ReadArray(buffer, ReadFixArrayHeader(buffer, out var readSize), readSize);
-            if (DataCodes.FixStringMin <= code && code <= DataCodes.FixStringMax)
-                return ReadString(buffer, ReadFixStringHeader(buffer, out var readSize), readSize);
-
-            if (DataCodes.FixNegativeMin <= code) return buffer.Slice(0, 1);
-            switch (code)
+            var offset = 0;
+            var elementsToRead = 1L;
+            var stack = new Stack<byte>();
+            do
             {
-                case DataCodes.Nil:
-                case DataCodes.True:
-                case DataCodes.False:
-                    return buffer.Slice(0, 1);
-
-                case DataCodes.Binary8:
-                    return buffer.Slice(0, ReadBinary8Header(buffer, out var readSize) + readSize);
-                case DataCodes.Binary16:
-                    return buffer.Slice(0, ReadBinary16Header(buffer, out readSize) + readSize);
-                case DataCodes.Binary32:
-                    var binaryLength = ReadBinary32Header(buffer, out readSize);
-                    if (int.MaxValue - readSize < binaryLength)
-                        throw DataIsTooLarge(binaryLength);
-                    return buffer.Slice(0, (int)(binaryLength + readSize));
-
-                case DataCodes.Extension8:
-                    return buffer.Slice(0, ReadExtension8Header(buffer, out readSize).length + readSize);
-                case DataCodes.Extension16:
-                    return buffer.Slice(0, ReadExtension16Header(buffer, out readSize).length + readSize);
-                case DataCodes.Extension32:
-                    var (_, extensionLength) = ReadExtension32Header(buffer, out readSize);
-                    if (int.MaxValue - readSize < extensionLength)
-                        throw DataIsTooLarge(extensionLength);
-                    return buffer.Slice(0, (int)(extensionLength + readSize));
-
-                case DataCodes.Float32:
-                    return buffer.Slice(0, 5);
-                case DataCodes.Float64:
-                    return buffer.Slice(0, 9);
-
-                case DataCodes.UInt8:
-                    return buffer.Slice(0, 1);
-                case DataCodes.UInt16:
-                    return buffer.Slice(0, 3);
-                case DataCodes.UInt32:
-                    return buffer.Slice(0, 5);
-                case DataCodes.UInt64:
-                    return buffer.Slice(0, 9);
-                case DataCodes.Int8:
-                    return buffer.Slice(0, 1);
-                case DataCodes.Int16:
-                    return buffer.Slice(0, 3);
-                case DataCodes.Int32:
-                    return buffer.Slice(0, 5);
-                case DataCodes.Int64:
-                    return buffer.Slice(0, 9);
-
-                case DataCodes.FixExtension1:
-                    return buffer.Slice(0, 3);
-                case DataCodes.FixExtension2:
-                    return buffer.Slice(0, 4);
-                case DataCodes.FixExtension4:
-                    return buffer.Slice(0, 6);
-                case DataCodes.FixExtension8:
-                    return buffer.Slice(0, 8);
-                case DataCodes.FixExtension16:
-                    return buffer.Slice(0, 18);
-
-                case DataCodes.String8:
-                    return ReadString(buffer, ReadString8Header(buffer, out readSize), readSize);
-                case DataCodes.String16:
-                    return ReadString(buffer, ReadString16Header(buffer, out readSize), readSize);
-                case DataCodes.String32:
-                    var stringLength = ReadString32Header(buffer, out readSize);
-                    return ReadString(buffer, stringLength, readSize);
-
-                case DataCodes.Array16:
-                    return ReadArray(buffer, ReadArray16Header(buffer, out readSize), readSize);
-                case DataCodes.Array32:
-                    return ReadArray(buffer, ReadArray32Header(buffer, out readSize), readSize);
-
-                case DataCodes.Map16:
-                    return ReadMap(buffer, ReadMap16Header(buffer, out readSize), readSize);
-                case DataCodes.Map32:
-                    return ReadMap(buffer, ReadMap32Header(buffer, out readSize), readSize);
-
-                // case "NeverUsed" be here to have happy compilator
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(buffer), "Data code is 0xc1 and it is invalid data code.");
-            }
-
-            ReadOnlySpan<byte> ReadString(in ReadOnlySpan<byte> b, uint length, int readSize)
-            {
-                if (int.MaxValue - readSize < length) throw DataIsTooLarge(length);
-                return b.Slice(0, (int)(length + readSize));
-            }
-
-            ReadOnlySpan<byte> ReadMap(in ReadOnlySpan<byte> b, uint length, int readSize)
-            {
-                if (int.MaxValue - readSize < length) throw DataIsTooLarge(length);
-                for (var i = 0u; i < length; i++)
+                var code = buffer[offset];
+                stack.Push(code);
+                if (code <= DataCodes.FixPositiveMax)
                 {
-                    readSize += ReadToken(b.Slice(readSize)).Length;
-                    readSize += ReadToken(b.Slice(readSize)).Length;
+                    elementsToRead--;
+                    offset++;
+                    continue;
                 }
 
-                return b.Slice(0, readSize);
-            }
-
-            ReadOnlySpan<byte> ReadArray(in ReadOnlySpan<byte> b, uint length, int readSize)
-            {
-                if (int.MaxValue - readSize < length) throw DataIsTooLarge(length);
-                for (var i = 0u; i < length; i++)
+                if (DataCodes.FixMapMin <= code && code <= DataCodes.FixMapMax)
                 {
-                    readSize += ReadToken(b.Slice(readSize)).Length;
+                    var length = ReadFixMapHeader(buffer.Slice(offset), out var readSize);
+                    elementsToRead += 2 * length - 1;
+                    offset += readSize;
+                    continue;
                 }
 
-                return b.Slice(0, readSize);
-            }
+                if (DataCodes.FixArrayMin <= code && code <= DataCodes.FixArrayMax)
+                {
+                    var length = ReadFixArrayHeader(buffer.Slice(offset), out var readSize);
+                    elementsToRead += length - 1;
+                    offset += readSize;
+                    continue;
+                }
+
+                if (DataCodes.FixStringMin <= code && code <= DataCodes.FixStringMax)
+                {
+                    uint length = ReadFixStringHeader(buffer.Slice(offset), out var readSize);
+                    elementsToRead--;
+                    offset += (int)(length + readSize);
+                    continue;
+                }
+
+                if (DataCodes.FixNegativeMin <= code)
+                {
+                    elementsToRead--;
+                    offset++;
+                    continue;
+                }
+
+                switch (code)
+                {
+                    case DataCodes.Nil:
+                    case DataCodes.True:
+                    case DataCodes.False:
+                        elementsToRead--;
+                        offset++;
+                        continue;
+
+                    case DataCodes.Binary8:
+                        uint length = ReadBinary8Header(buffer.Slice(offset), out var readSize);
+                        elementsToRead--;
+                        offset += (int)(length + readSize);
+                        continue;
+
+                    case DataCodes.Binary16:
+                        length = ReadBinary16Header(buffer.Slice(offset), out readSize);
+                        elementsToRead--;
+                        offset += (int)(length + readSize);
+                        continue;
+
+                    case DataCodes.Binary32:
+                        length = ReadBinary32Header(buffer.Slice(offset), out readSize);
+                        elementsToRead--;
+                        offset += (int)(length + readSize);
+                        continue;
+
+                    case DataCodes.Extension8:
+                        length = ReadExtension8Header(buffer.Slice(offset), out readSize).length;
+                        elementsToRead--;
+                        offset += (int)(length + readSize);
+                        continue;
+
+                    case DataCodes.Extension16:
+                        length = ReadExtension16Header(buffer.Slice(offset), out readSize).length;
+                        elementsToRead--;
+                        offset += (int)(length + readSize);
+                        continue;
+
+                    case DataCodes.Extension32:
+                        length = ReadExtension32Header(buffer.Slice(offset), out readSize).length;
+                        elementsToRead--;
+                        offset += (int)(length + readSize);
+                        continue;
+
+                    case DataCodes.Float32:
+                        elementsToRead--;
+                        offset += 5;
+                        continue;
+
+                    case DataCodes.Float64:
+                        elementsToRead--;
+                        offset += 9;
+                        continue;
+
+                    case DataCodes.UInt8:
+                        elementsToRead--;
+                        offset += 2;
+                        continue;
+
+                    case DataCodes.UInt16:
+                        elementsToRead--;
+                        offset += 3;
+                        continue;
+
+                    case DataCodes.UInt32:
+                        elementsToRead--;
+                        offset += 5;
+                        continue;
+
+                    case DataCodes.UInt64:
+                        elementsToRead--;
+                        offset += 9;
+                        continue;
+
+                    case DataCodes.Int8:
+                        elementsToRead--;
+                        offset += 2;
+                        continue;
+
+                    case DataCodes.Int16:
+                        elementsToRead--;
+                        offset += 3;
+                        continue;
+
+                    case DataCodes.Int32:
+                        elementsToRead--;
+                        offset += 5;
+                        continue;
+
+                    case DataCodes.Int64:
+                        elementsToRead--;
+                        offset += 9;
+                        continue;
+
+                    case DataCodes.FixExtension1:
+                        elementsToRead--;
+                        offset += 3;
+                        continue;
+
+                    case DataCodes.FixExtension2:
+                        elementsToRead--;
+                        offset += 4;
+                        continue;
+
+                    case DataCodes.FixExtension4:
+                        elementsToRead--;
+                        offset += 6;
+                        continue;
+
+                    case DataCodes.FixExtension8:
+                        elementsToRead--;
+                        offset += 10;
+                        continue;
+
+                    case DataCodes.FixExtension16:
+                        elementsToRead--;
+                        offset += 18;
+                        continue;
+
+                    case DataCodes.String8:
+                        length = ReadString8Header(buffer.Slice(offset), out readSize);
+                        elementsToRead--;
+                        offset += (int)(length + readSize);
+                        continue;
+
+                    case DataCodes.String16:
+                        length = ReadString16Header(buffer.Slice(offset), out readSize);
+                        elementsToRead--;
+                        offset += (int)(length + readSize);
+                        continue;
+
+                    case DataCodes.String32:
+                        length = ReadString32Header(buffer.Slice(offset), out readSize);
+                        elementsToRead--;
+                        offset += (int)(length + readSize);
+                        continue;
+
+                    case DataCodes.Array16:
+                        length = ReadArray16Header(buffer.Slice(offset), out readSize);
+                        elementsToRead += length - 1;
+                        offset += readSize;
+                        continue;
+
+                    case DataCodes.Array32:
+                        length = ReadArray32Header(buffer.Slice(offset), out readSize);
+                        elementsToRead += length - 1;
+                        offset += readSize;
+                        continue;
+
+                    case DataCodes.Map16:
+                        length = ReadMap16Header(buffer.Slice(offset), out readSize);
+                        elementsToRead += 2*length - 1;
+                        offset += readSize;
+                        continue;
+
+                    case DataCodes.Map32:
+                        length = ReadMap32Header(buffer.Slice(offset), out readSize);
+                        elementsToRead += 2*length - 1;
+                        offset += readSize;
+                        continue;
+
+                    // case "NeverUsed" be here to have happy compilator
+                    default:
+                        throw new ArgumentOutOfRangeException(nameof(buffer), $"Data code at {nameof(buffer)}[{offset}] is 0xc1 and it is invalid data code.");
+                }
+            } while (elementsToRead > 0);
+
+            return buffer.Slice(0, offset);
         }
     }
 }

@@ -1,4 +1,5 @@
 using System;
+using System.Buffers;
 using Shouldly;
 using Xunit;
 
@@ -292,6 +293,30 @@ namespace ProGaudi.MsgPack.Tests.Reader
             var e = Should.Throw<ArgumentOutOfRangeException>(() => MsgPackSpec.ReadToken(new [] {DataCodes.NeverUsed}));
             e.Message.ShouldBe($"Data code is 0xc1 and it is invalid data code.{Environment.NewLine}Parameter name: buffer");
             e.ParamName.ShouldBe("buffer");
+        }
+
+        [Theory]
+        [InlineData(1)]
+        [InlineData(10)]
+        [InlineData(100)]
+        [InlineData(1_000)]
+        [InlineData(10_000)]
+        [InlineData(100_000)]
+        [InlineData(1_000_000)]
+        [InlineData(10_000_000)]
+        [InlineData(100_000_000)]
+        [InlineData(1_000_000_000)]
+        public void DeepStack(int depth)
+        {
+            var buffer = new byte[depth];
+            var span = buffer.AsSpan();
+            while (span.Length > 1)
+                span = span.Slice(MsgPackSpec.WriteFixArrayHeader(span, 1));
+
+            MsgPackSpec.WritePositiveFixInt(span, 1);
+
+            var token = MsgPackSpec.ReadToken(buffer);
+            token.Length.ShouldBe(buffer.Length);
         }
     }
 }
