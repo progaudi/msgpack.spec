@@ -291,7 +291,7 @@ namespace ProGaudi.MsgPack.Tests.Reader
         public void NeverUsedRead()
         {
             var e = Should.Throw<ArgumentOutOfRangeException>(() => MsgPackSpec.ReadToken(new [] {DataCodes.NeverUsed}));
-            e.Message.ShouldBe($"Data code is 0xc1 and it is invalid data code.{Environment.NewLine}Parameter name: buffer");
+            e.Message.ShouldBe($"Data code at buffer[0] is 0xc1 and it is invalid data code.{Environment.NewLine}Parameter name: buffer");
             e.ParamName.ShouldBe("buffer");
         }
 
