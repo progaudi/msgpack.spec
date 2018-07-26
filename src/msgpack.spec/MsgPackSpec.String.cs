@@ -234,7 +234,7 @@ namespace ProGaudi.MsgPack
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ushort ReadString16Header(ReadOnlySpan<byte> buffer, out int readSize)
         {
-            readSize = 2;
+            readSize = 3;
             if (buffer[0] != String16) throw WrongCodeException(buffer[0], String16);
             return ReadUInt16BigEndian(buffer.Slice(1));
         }

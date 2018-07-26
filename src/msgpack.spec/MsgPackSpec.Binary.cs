@@ -502,13 +502,12 @@ namespace ProGaudi.MsgPack
         /// Read Binary8 into buffer, rented from <see cref="MemoryPool{T}.Shared"/>.
         /// </summary>
         /// <param name="buffer">Buffer to read from.</param>
-        /// <param name="resultLength">Length of returned buffer.</param>
         /// <param name="readSize">Count of bytes, read from <paramref name="buffer"/>.</param>
-        /// <returns>Buffer that can be larger, than <paramref name="resultLength"/>.</returns>
+        /// <returns>Length of result is guaranteed to be equal of read length.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static IMemoryOwner<byte> ReadBinary8(ReadOnlySpan<byte> buffer, out int resultLength, out int readSize)
+        public static IMemoryOwner<byte> ReadBinary8(ReadOnlySpan<byte> buffer, out int readSize)
         {
-            resultLength = ReadBinary8Header(buffer, out readSize);
+            var resultLength = ReadBinary8Header(buffer, out readSize);
             return ReadBinaryBlob(buffer, ref readSize, resultLength);
         }
 
@@ -517,19 +516,16 @@ namespace ProGaudi.MsgPack
         /// </summary>
         /// <param name="buffer">Buffer to read from</param>
         /// <param name="result">Rented buffer from pool. If returned value is <c>false</c>, it will be null.</param>
-        /// <param name="resultLength">Length of binary, read into <paramref name="result"/>.</param>
         /// <param name="readSize">Count of bytes, read from <paramref name="buffer"/>.</param>
         /// <returns><c>true</c>, if everything is ok, <c>false</c> if not.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool TryReadBinary8(ReadOnlySpan<byte> buffer, out IMemoryOwner<byte> result, out int resultLength, out int readSize)
+        public static bool TryReadBinary8(ReadOnlySpan<byte> buffer, out IMemoryOwner<byte> result, out int readSize)
         {
             result = null;
-            resultLength = 0;
 
             if (TryReadBinary8Header(buffer, out var byteLength, out readSize))
             {
-                resultLength = byteLength;
-                return TryReadBinary(buffer, out result, resultLength, ref readSize);
+                return TryReadBinary(buffer, out result, byteLength, ref readSize);
             }
 
             return false;
@@ -539,13 +535,12 @@ namespace ProGaudi.MsgPack
         /// Read Binary16 into buffer, rented from <see cref="MemoryPool{T}.Shared"/>.
         /// </summary>
         /// <param name="buffer">Buffer to read from.</param>
-        /// <param name="resultLength">Length of returned buffer.</param>
         /// <param name="readSize">Count of bytes, read from <paramref name="buffer"/>.</param>
-        /// <returns>Buffer that can be larger, than <paramref name="resultLength"/>.</returns>
+        /// <returns>Length of result is guaranteed to be equal of read length.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static IMemoryOwner<byte> ReadBinary16(ReadOnlySpan<byte> buffer, out int resultLength, out int readSize)
+        public static IMemoryOwner<byte> ReadBinary16(ReadOnlySpan<byte> buffer, out int readSize)
         {
-            resultLength = ReadBinary8Header(buffer, out readSize);
+            var resultLength = ReadBinary8Header(buffer, out readSize);
             return ReadBinaryBlob(buffer, ref readSize, resultLength);
         }
 
@@ -554,19 +549,16 @@ namespace ProGaudi.MsgPack
         /// </summary>
         /// <param name="buffer">Buffer to read from</param>
         /// <param name="result">Rented buffer from pool. If returned value is <c>false</c>, it will be null.</param>
-        /// <param name="resultLength">Length of binary, read into <paramref name="result"/>.</param>
         /// <param name="readSize">Count of bytes, read from <paramref name="buffer"/>.</param>
         /// <returns><c>true</c>, if everything is ok, <c>false</c> if not.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool TryReadBinary16(ReadOnlySpan<byte> buffer, out IMemoryOwner<byte> result, out int resultLength, out int readSize)
+        public static bool TryReadBinary16(ReadOnlySpan<byte> buffer, out IMemoryOwner<byte> result, out int readSize)
         {
             result = null;
-            resultLength = 0;
 
             if (TryReadBinary16Header(buffer, out var ushortLength, out readSize))
             {
-                resultLength = ushortLength;
-                return TryReadBinary(buffer, out result, resultLength, ref readSize);
+                return TryReadBinary(buffer, out result, ushortLength, ref readSize);
             }
 
             return false;
@@ -576,15 +568,14 @@ namespace ProGaudi.MsgPack
         /// Read Binary32 into buffer, rented from <see cref="MemoryPool{T}.Shared"/>.
         /// </summary>
         /// <param name="buffer">Buffer to read from.</param>
-        /// <param name="resultLength">Length of returned buffer.</param>
         /// <param name="readSize">Count of bytes, read from <paramref name="buffer"/>.</param>
-        /// <returns>Buffer that can be larger, than <paramref name="resultLength"/>.</returns>
+        /// <returns>Length of result is guaranteed to be equal of read length.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static IMemoryOwner<byte> ReadBinary32(ReadOnlySpan<byte> buffer, out int resultLength, out int readSize)
+        public static IMemoryOwner<byte> ReadBinary32(ReadOnlySpan<byte> buffer, out int readSize)
         {
             var length = ReadBinary32Header(buffer, out readSize);
             if (length > int.MaxValue) throw DataIsTooLarge(length);
-            resultLength = (int)length;
+            var resultLength = (int)length;
             return ReadBinaryBlob(buffer, ref readSize, resultLength);
         }
 
@@ -593,19 +584,16 @@ namespace ProGaudi.MsgPack
         /// </summary>
         /// <param name="buffer">Buffer to read from</param>
         /// <param name="result">Rented buffer from pool. If returned value is <c>false</c>, it will be null.</param>
-        /// <param name="resultLength">Length of binary, read into <paramref name="result"/>.</param>
         /// <param name="readSize">Count of bytes, read from <paramref name="buffer"/>.</param>
         /// <returns><c>true</c>, if everything is ok, <c>false</c> if not.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool TryReadBinary32(ReadOnlySpan<byte> buffer, out IMemoryOwner<byte> result, out int resultLength, out int readSize)
+        public static bool TryReadBinary32(ReadOnlySpan<byte> buffer, out IMemoryOwner<byte> result, out int readSize)
         {
             result = null;
-            resultLength = 0;
 
             if (TryReadBinary32Header(buffer, out var uintLength, out readSize) && uintLength <= int.MaxValue)
             {
-                resultLength = (int) uintLength;
-                return TryReadBinary(buffer, out result, resultLength, ref readSize);
+                return TryReadBinary(buffer, out result, (int) uintLength, ref readSize);
             }
 
             return false;
@@ -615,13 +603,12 @@ namespace ProGaudi.MsgPack
         /// Read binary into buffer, rented from <see cref="MemoryPool{T}.Shared"/>.
         /// </summary>
         /// <param name="buffer">Buffer to read from.</param>
-        /// <param name="resultLength">Length of returned buffer.</param>
         /// <param name="readSize">Count of bytes, read from <paramref name="buffer"/>.</param>
-        /// <returns>Buffer that can be larger, than <paramref name="resultLength"/>.</returns>
+        /// <returns>Length of result is guaranteed to be equal of read length.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static IMemoryOwner<byte> ReadBinary(ReadOnlySpan<byte> buffer, out int resultLength, out int readSize)
+        public static IMemoryOwner<byte> ReadBinary(ReadOnlySpan<byte> buffer, out int readSize)
         {
-            resultLength = ReadBinary8Header(buffer, out readSize);
+            var resultLength = ReadBinary8Header(buffer, out readSize);
             return ReadBinaryBlob(buffer, ref readSize, resultLength);
         }
 
@@ -630,21 +617,20 @@ namespace ProGaudi.MsgPack
         /// </summary>
         /// <param name="buffer">Buffer to read from</param>
         /// <param name="result">Rented buffer from pool. If returned value is <c>false</c>, it will be null.</param>
-        /// <param name="resultLength">Length of binary, read into <paramref name="result"/>.</param>
         /// <param name="readSize">Count of bytes, read from <paramref name="buffer"/>.</param>
         /// <returns><c>true</c>, if everything is ok, <c>false</c> if not.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool TryReadBinary(ReadOnlySpan<byte> buffer, out IMemoryOwner<byte> result, out int resultLength, out int readSize)
+        public static bool TryReadBinary(ReadOnlySpan<byte> buffer, out IMemoryOwner<byte> result, out int readSize)
         {
-            return TryReadBinary8(buffer, out result, out resultLength, out readSize)
-                || TryReadBinary16(buffer, out result, out resultLength, out readSize)
-                || TryReadBinary32(buffer, out result, out resultLength, out readSize);
+            return TryReadBinary8(buffer, out result, out readSize)
+                || TryReadBinary16(buffer, out result, out readSize)
+                || TryReadBinary32(buffer, out result, out readSize);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static IMemoryOwner<byte> ReadBinaryBlob(ReadOnlySpan<byte> buffer, ref int readSize, int length)
         {
-            var result = MemoryPool<byte>.Shared.Rent(length);
+            var result = _pool.Rent(length);
             buffer.Slice(readSize, length).CopyTo(result.Memory.Span);
             readSize += length;
             return result;
@@ -653,7 +639,7 @@ namespace ProGaudi.MsgPack
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static bool TryReadBinary(ReadOnlySpan<byte> buffer, out IMemoryOwner<byte> result, int resultLength, ref int readSize)
         {
-            result = MemoryPool<byte>.Shared.Rent(resultLength);
+            result = _pool.Rent(resultLength);
             if (buffer.Slice(readSize, resultLength).TryCopyTo(result.Memory.Span))
             {
                 readSize += resultLength;
