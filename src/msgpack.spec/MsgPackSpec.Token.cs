@@ -1,6 +1,5 @@
 using System;
 using System.Buffers;
-using System.Collections.Generic;
 
 namespace ProGaudi.MsgPack
 {
@@ -33,11 +32,9 @@ namespace ProGaudi.MsgPack
 
             var offset = 0;
             var elementsToRead = 1L;
-            var stack = new Stack<byte>();
             do
             {
                 var code = buffer[offset];
-                stack.Push(code);
                 if (code <= DataCodes.FixPositiveMax)
                 {
                     elementsToRead--;
@@ -238,7 +235,7 @@ namespace ProGaudi.MsgPack
                         offset += readSize;
                         continue;
 
-                    // case "NeverUsed" be here to have happy compilator
+                    // case "NeverUsed" be here to have happy compiler
                     default:
                         throw new ArgumentOutOfRangeException(nameof(buffer), $"Data code at {nameof(buffer)}[{offset}] is 0xc1 and it is invalid data code.");
                 }
