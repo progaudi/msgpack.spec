@@ -16,8 +16,8 @@ namespace ProGaudi.MsgPack
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int WriteFixInt16(Span<byte> buffer, short value)
         {
+            BinaryPrimitives.WriteInt16BigEndian(buffer.Slice(1), value);
             buffer[0] = DataCodes.Int16;
-            BinaryPrimitives.TryWriteInt16BigEndian(buffer.Slice(1), value);
             return 3;
         }
 

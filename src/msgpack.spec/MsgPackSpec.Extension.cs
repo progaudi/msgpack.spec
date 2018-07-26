@@ -52,8 +52,8 @@ namespace ProGaudi.MsgPack
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int WriteFixExtension2(Span<byte> buffer, sbyte type, ReadOnlySpan<byte> extension)
         {
-            buffer[2] = extension[0];
             buffer[3] = extension[1];
+            buffer[2] = extension[0];
             return WriteFixExtension2Header(buffer, type) + 2;
         }
 

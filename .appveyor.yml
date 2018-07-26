@@ -62,4 +62,4 @@ artifacts:
 # providers: Local, FTP, WebDeploy, AzureCS, AzureBlob, S3, NuGet, Environment
 # provider names are case-sensitive!
 deploy_script:
-  -  ps: dotnet nuget push .nupkgs\progaudi.msgpack.spec.nupkg -k $env:NUGET_API_KEY -s https://api.nuget.org/v3/index.json
+  -  ps: dotnet nuget push .nupkgs\progaudi.msgpack.spec.$env:APPVEYOR_BUILD_VERSION.nupkg -k $env:NUGET_API_KEY -s https://api.nuget.org/v3/index.json

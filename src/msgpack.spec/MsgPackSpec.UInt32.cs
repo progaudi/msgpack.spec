@@ -14,9 +14,12 @@ namespace ProGaudi.MsgPack
         /// </summary>
         /// <returns>Count of bytes, written to <paramref name="buffer"/>.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int WriteFixUInt32(Span<byte> buffer, uint value) => TryWriteFixUInt32(buffer, value, out var wroteSize)
-            ? wroteSize
-            : throw new InvalidOperationException();
+        public static int WriteFixUInt32(Span<byte> buffer, uint value)
+        {
+            BinaryPrimitives.WriteUInt32BigEndian(buffer.Slice(1), value);
+            buffer[0] = DataCodes.UInt32;
+            return 5;
+        }
 
         /// <summary>
         /// Tries to write uint32 <paramref name="value"/> into <paramref name="buffer"/>.

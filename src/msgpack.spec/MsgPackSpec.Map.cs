@@ -58,8 +58,8 @@ namespace ProGaudi.MsgPack
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int WriteMap16Header(Span<byte> buffer, ushort length)
         {
-            buffer[0] = Map16;
             WriteUInt16BigEndian(buffer.Slice(1), length);
+            buffer[0] = Map16;
             return 3;
         }
 
@@ -89,8 +89,8 @@ namespace ProGaudi.MsgPack
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int WriteMap32Header(Span<byte> buffer, uint length)
         {
-            buffer[0] = Map32;
             WriteUInt32BigEndian(buffer.Slice(1), length);
+            buffer[0] = Map32;
             return 5;
         }
 
