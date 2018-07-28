@@ -166,7 +166,11 @@ See https://blogs.msdn.microsoft.com/joshwil/2005/08/10/bigarrayt-getting-around
         );
 
         private static Exception WrongExtensionTypeException(sbyte extension, sbyte expected) => new InvalidOperationException(
-            $"Wrong extension type: {extension}. Expected: {expected}."
+            $"Wrong extension type: 0x{extension:x2}. Expected: 0x{expected:x2}."
+        );
+
+        private static Exception WrongExtensionLengthException(byte length, int expected) => new InvalidOperationException(
+            $"Wrong extension length: {length}. Expected: {expected}."
         );
     }
 }
