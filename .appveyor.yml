@@ -1,0 +1,65 @@
+
+# version format
+version: 0.0.{build}
+
+# Do not build on tags (GitHub and BitBucket)
+skip_tags: false
+
+# Start builds on tags only (GitHub and BitBucket)
+skip_non_tags: false
+
+# Skipping commits with particular message or from specific user
+skip_commits:
+  message: /Skip CI/      # Regex for matching commit message
+
+# Do not build feature branch with open Pull Requests
+skip_branch_with_pr: true
+
+#---------------------------------#
+#    environment configuration    #
+#---------------------------------#
+
+# Build worker image (VM template)
+image: Visual Studio 2017
+
+# scripts that are called at very beginning, before repo cloning
+init:
+  - git config --global core.autocrlf input
+
+# environment variables
+environment:
+  # this is how to set encrypted variable. Go to "Encrypt data" page in account menu to encrypt data.
+  NUGET_API_KEY:
+    secure: +Qor7qH6REVQKnwKWnPnTt9vMIlk3knVatE7zySAPvm+ZQdedf4GllTUYg2mmlCC
+
+# scripts that run after cloning repository
+install:
+  # to run script as a PowerShell command prepend it with ps:
+  - ps: .\scripts\set-version.ps1
+  - ps: mkdir -Force $env:APPVEYOR_BUILD_FOLDER\.nupkgs | Out-Null
+  - ps: Get-ChildItem $env:APPVEYOR_BUILD_FOLDER\.nupkgs | Remove-Item
+
+#---------------------------------#
+#       build configuration       #
+#---------------------------------#
+configuration: Release
+
+# to run your custom scripts instead of automatic MSBuild
+build_script:
+  - ps: dotnet build -c Release
+  - ps: dotnet pack --no-build -c Release /property:Version=$env:APPVEYOR_BUILD_VERSION /property:PackageOutputPath=$env:APPVEYOR_BUILD_FOLDER\.nupkgs
+
+# to run your custom scripts instead of automatic tests
+test_script:
+  - dotnet test -c Release --no-build ./tests/msgpack.spec.tests/msgpack.spec.tests.csproj
+
+#---------------------------------#
+#     deployment configuration    #
+#---------------------------------#
+artifacts:
+  - path: .nupkgs\*.nupkg
+
+# providers: Local, FTP, WebDeploy, AzureCS, AzureBlob, S3, NuGet, Environment
+# provider names are case-sensitive!
+deploy_script:
+  -  ps: dotnet nuget push .nupkgs\progaudi.msgpack.spec.$env:APPVEYOR_BUILD_VERSION.nupkg -k $env:NUGET_API_KEY -s https://api.nuget.org/v3/index.json
