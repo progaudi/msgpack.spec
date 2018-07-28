@@ -32,6 +32,13 @@ namespace ProGaudi.MsgPack.Tests.Writer
                 })]
         [InlineData("Мама мыла раму", new byte[] { 186, 208, 156, 208, 176, 208, 188, 208, 176, 32, 208, 188, 209, 139, 208, 187, 208, 176, 32, 209, 128, 208, 176, 208, 188, 209, 131 })]
         [InlineData("Шла Саша по шоссе и сосала сушку", new byte[] { 217, 58, 208, 168, 208, 187, 208, 176, 32, 208, 161, 208, 176, 209, 136, 208, 176, 32, 208, 191, 208, 190, 32, 209, 136, 208, 190, 209, 129, 209, 129, 208, 181, 32, 208, 184, 32, 209, 129, 208, 190, 209, 129, 208, 176, 208, 187, 208, 176, 32, 209, 129, 209, 131, 209, 136, 208, 186, 209, 131 })]
+        [InlineData("❤", new byte [] { 0xa3, 0xe2, 0x9d, 0xa4 })]
+        [InlineData("🍺", new byte [] { 0xa4, 0xf0, 0x9f, 0x8d, 0xba })]
+        [InlineData("Кириллица", new byte[] { 0xb2, 0xd0, 0x9a, 0xd0, 0xb8, 0xd1, 0x80, 0xd0, 0xb8, 0xd0, 0xbb, 0xd0, 0xbb, 0xd0, 0xb8, 0xd1, 0x86, 0xd0, 0xb0})]
+        [InlineData("ひらがな", new byte[] { 0xac, 0xe3, 0x81, 0xb2, 0xe3, 0x82, 0x89, 0xe3, 0x81, 0x8c, 0xe3, 0x81, 0xaa})]
+        [InlineData("한글", new byte[] { 0xa6, 0xed, 0x95, 0x9c, 0xea, 0xb8, 0x80})]
+        [InlineData("汉字", new byte[] { 0xa6, 0xe6, 0xb1, 0x89, 0xe5, 0xad, 0x97})]
+        [InlineData("漢字", new byte[] { 0xa6, 0xe6, 0xbc, 0xa2, 0xe5, 0xad, 0x97 })]
         public void TestStringPack(string s, byte[] data)
         {
             using (var buffer = MemoryPool<byte>.Shared.Rent(data.Length))
