@@ -10,12 +10,14 @@ namespace ProGaudi.MsgPack
 #pragma warning disable IDE1006 // Naming Styles
         private const long TicksPerSecond = 10000000;
         private const long MaxNanoSeconds = 999999999;
-        private static readonly long EpochSecondsAD = new DateTimeOffset(1970, 1, 1, 0, 0, 0, 0, TimeSpan.Zero).UtcTicks / TicksPerSecond;
+        private static readonly DateTimeOffset Epoch = new DateTimeOffset(1970, 1, 1, 0, 0, 0, 0, TimeSpan.Zero).ToUniversalTime();
 #pragma warning restore IDE1006 // Naming Styles
+
+        public static readonly Timestamp Zero = new Timestamp(0);
 
         public Timestamp(DateTimeOffset dto)
         {
-            var ticks = dto.UtcTicks;
+            var ticks = (dto - Epoch).Ticks;
             Seconds = ticks / TicksPerSecond;
             NanoSeconds = (uint) (ticks % TicksPerSecond * 100);
         }
@@ -31,7 +33,7 @@ namespace ProGaudi.MsgPack
         public Timestamp(long unixSeconds)
         {
             NanoSeconds = 0;
-            Seconds = unixSeconds + EpochSecondsAD;
+            Seconds = unixSeconds;
         }
 
         public Timestamp(ulong epoch64)
@@ -43,8 +45,6 @@ namespace ProGaudi.MsgPack
         public long Seconds { get; }
 
         public uint NanoSeconds { get; }
-
-        public uint EpochSeconds => (uint) (Seconds - EpochSecondsAD);
 
         public ulong Epoch64 => unchecked(((ulong)NanoSeconds << 34) | (ulong)Seconds);
 

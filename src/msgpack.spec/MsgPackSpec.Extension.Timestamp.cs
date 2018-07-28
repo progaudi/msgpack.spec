@@ -14,7 +14,7 @@ namespace ProGaudi.MsgPack
         /// <returns>Count of bytes, written to <paramref name="buffer"/>.</returns>
         public static int WriteTimestamp32(Span<byte> buffer, in Timestamp timestamp)
         {
-            WriteUInt32BigEndian(buffer.Slice(2), timestamp.EpochSeconds);
+            WriteUInt32BigEndian(buffer.Slice(2), (uint) timestamp.Seconds);
             WriteFixExtension4Header(buffer, ExtensionTypes.Timestamp);
             return 6;
         }
@@ -53,9 +53,7 @@ namespace ProGaudi.MsgPack
             if (timestamp.Seconds >> 34 != 0)
                 return WriteTimestamp96(buffer, timestamp);
 
-            var data64 = (timestamp.NanoSeconds << 34) | (ulong)timestamp.Seconds;
-
-            return (data64 & 0xffffffff00000000UL) == 0
+            return (timestamp.Epoch64 & 0xffffffff00000000UL) == 0
                 ? WriteTimestamp32(buffer, timestamp)
                 : WriteTimestamp64(buffer, timestamp);
         }
@@ -77,7 +75,7 @@ namespace ProGaudi.MsgPack
             wroteSize = 6;
             if (buffer.Length < wroteSize) return false;
             if (!(0 <= timestamp.Seconds && timestamp.Seconds <= uint.MaxValue)) return false;
-            WriteUInt32BigEndian(buffer.Slice(2), timestamp.EpochSeconds);
+            WriteUInt32BigEndian(buffer.Slice(2), (uint) timestamp.Seconds);
             WriteFixExtension4Header(buffer, ExtensionTypes.Timestamp);
             return true;
         }
@@ -138,35 +136,185 @@ namespace ProGaudi.MsgPack
             if (timestamp.Seconds >> 34 != 0)
                 return TryWriteTimestamp96(buffer, timestamp, out wroteSize);
 
-            var data64 = (timestamp.NanoSeconds << 34) | (ulong)timestamp.Seconds;
-
-            return (data64 & 0xffffffff00000000UL) == 0
+            return (timestamp.Epoch64 & 0xffffffff00000000UL) == 0
                 ? TryWriteTimestamp32(buffer, timestamp, out wroteSize)
                 : TryWriteTimestamp64(buffer, timestamp, out wroteSize);
         }
 
         /// <summary>
-        /// Writes unsigned 32bit seconds since unix epoch.
+        /// Reads unsigned 32bit seconds since unix epoch.
         /// </summary>
-        /// <returns>Count of bytes, written to <paramref name="buffer"/>.</returns>
+        /// <paramref name="buffer">Buffer to read from.</paramref>
+        /// <paramref name="readSize">Count of bytes, read from <paramref name="buffer"/>.</paramref>
+        /// <returns>Timestamp</returns>
         public static Timestamp ReadTimestamp32(ReadOnlySpan<byte> buffer, out int readSize)
         {
             readSize = 6;
-            var extension = ReadFixExtension4Header(buffer, out _);
+            var extension = ReadFixExtension4Header(buffer, out var headerSize);
             if (extension != ExtensionTypes.Timestamp) throw WrongExtensionTypeException(extension, ExtensionTypes.Timestamp);
-            return new Timestamp(ReadUInt32BigEndian(buffer.Slice(readSize)));
+            return new Timestamp(ReadUInt32BigEndian(buffer.Slice(headerSize)));
         }
 
         /// <summary>
-        /// Writes unsigned 64bit seconds since unix epoch.
+        /// Reads unsigned 64bit seconds since unix epoch.
         /// </summary>
-        /// <returns>Count of bytes, written to <paramref name="buffer"/>.</returns>
+        /// <paramref name="buffer">Buffer to read from.</paramref>
+        /// <paramref name="readSize">Count of bytes, read from <paramref name="buffer"/>.</paramref>
+        /// <returns>Timestamp</returns>
         public static Timestamp ReadTimestamp64(ReadOnlySpan<byte> buffer, out int readSize)
         {
             readSize = 10;
-            var extension = ReadFixExtension8Header(buffer, out _);
+            var extension = ReadFixExtension8Header(buffer, out var headerSize);
             if (extension != ExtensionTypes.Timestamp) throw WrongExtensionTypeException(extension, ExtensionTypes.Timestamp);
-            return new Timestamp(ReadUInt64BigEndian(buffer.Slice(readSize)));
+            return new Timestamp(ReadUInt64BigEndian(buffer.Slice(headerSize)));
+        }
+
+        /// <summary>
+        /// Reads 96bit timestamp.
+        /// </summary>
+        /// <paramref name="buffer">Buffer to read from.</paramref>
+        /// <paramref name="readSize">Count of bytes, read from <paramref name="buffer"/>.</paramref>
+        /// <returns>Timestamp</returns>
+        public static Timestamp ReadTimestamp96(ReadOnlySpan<byte> buffer, out int readSize)
+        {
+            readSize = 15;
+            var (extension, length) = ReadExtension8Header(buffer, out var headerSize);
+            if (extension != ExtensionTypes.Timestamp) throw WrongExtensionTypeException(extension, ExtensionTypes.Timestamp);
+            if (length != 12) throw WrongExtensionLengthException(length, 12);
+            return new Timestamp(ReadInt64BigEndian(buffer.Slice(headerSize + 4)), ReadUInt32BigEndian(buffer.Slice(headerSize)));
+        }
+
+        /// <summary>
+        /// Reads timestamp.
+        /// </summary>
+        /// <paramref name="buffer">Buffer to read from.</paramref>
+        /// <paramref name="readSize">Count of bytes, read from <paramref name="buffer"/>.</paramref>
+        /// <returns>Timestamp</returns>
+        public static Timestamp ReadTimestamp(ReadOnlySpan<byte> buffer, out int readSize)
+        {
+            switch (buffer[0])
+            {
+                case DataCodes.FixExtension4:
+                    return ReadTimestamp32(buffer, out readSize);
+                case DataCodes.FixExtension8:
+                    return ReadTimestamp64(buffer, out readSize);
+                case DataCodes.Extension8:
+                    return ReadTimestamp96(buffer, out readSize);
+                default:
+                    throw WrongCodeException(
+                        buffer[0],
+                        DataCodes.FixExtension4,
+                        DataCodes.FixExtension8,
+                        DataCodes.Extension8);
+            }
+        }
+
+        /// <summary>
+        /// Reads unsigned 32bit seconds since unix epoch.
+        /// </summary>
+        /// <paramref name="buffer">Buffer to read from.</paramref>
+        /// <paramref name="timestamp">Timestamp</paramref>
+        /// <paramref name="readSize">Count of bytes, read from <paramref name="buffer"/>.</paramref>
+        /// <returns><c>true</c> if everything is ok, <c>false</c> if: 
+        /// <list type="bullet">
+        ///     <item><description><paramref name="buffer"/> is too small or</description></item>
+        ///     <item><description><paramref name="buffer"/>[0] is not <see cref="DataCodes.FixExtension4"/> or</description></item>
+        ///     <item><description>extension type is not <see cref="ExtensionTypes.Timestamp"/> or</description></item>
+        ///     <item><description>we could not read uint seconds from buffer.</description></item>
+        /// </list>
+        /// </returns>
+        public static bool TryReadTimestamp32(ReadOnlySpan<byte> buffer, out Timestamp timestamp, out int readSize)
+        {
+            readSize = 6;
+            timestamp = Timestamp.Zero;
+            if (buffer.Length < readSize) return false;
+            if (!TryReadFixExtension4Header(buffer, out var extension, out var headerSize)) return false;
+            if (extension != ExtensionTypes.Timestamp) return false;
+            if (TryReadUInt32BigEndian(buffer.Slice(headerSize), out var seconds)) return false;
+            timestamp = new Timestamp(seconds);
+            return true;
+        }
+
+        /// <summary>
+        /// Reads unsigned 64bit seconds since unix epoch.
+        /// </summary>
+        /// <paramref name="buffer">Buffer to read from.</paramref>
+        /// <paramref name="timestamp">Timestamp</paramref>
+        /// <paramref name="readSize">Count of bytes, read from <paramref name="buffer"/>.</paramref>
+        /// <returns><c>true</c> if everything is ok, <c>false</c> if: 
+        /// <list type="bullet">
+        ///     <item><description><paramref name="buffer"/> is too small or</description></item>
+        ///     <item><description><paramref name="buffer"/>[0] is not <see cref="DataCodes.FixExtension8"/> or</description></item>
+        ///     <item><description>extension type is not <see cref="ExtensionTypes.Timestamp"/> or</description></item>
+        ///     <item><description>we could not read ulong seconds from buffer.</description></item>
+        /// </list></returns>
+        public static bool TryReadTimestamp64(ReadOnlySpan<byte> buffer, out Timestamp timestamp, out int readSize)
+        {
+            readSize = 10;
+            timestamp = Timestamp.Zero;
+            if (buffer.Length < readSize) return false;
+            if (!TryReadFixExtension8Header(buffer, out var extension, out var headerSize)) return false;
+            if (extension != ExtensionTypes.Timestamp) return false;
+            if (TryReadUInt64BigEndian(buffer.Slice(headerSize), out var seconds)) return false;
+            timestamp = new Timestamp(seconds);
+            return true;
+        }
+
+        /// <summary>
+        /// Reads 96bit timestamp.
+        /// </summary>
+        /// <paramref name="buffer">Buffer to read from.</paramref>
+        /// <paramref name="timestamp">Timestamp</paramref>
+        /// <paramref name="readSize">Count of bytes, read from <paramref name="buffer"/>.</paramref>
+        /// <returns><c>true</c> if everything is ok, <c>false</c> if: 
+        /// <list type="bullet">
+        ///     <item><description><paramref name="buffer"/> is too small or</description></item>
+        ///     <item><description><paramref name="buffer"/>[0] is not <see cref="DataCodes.Extension8"/> or</description></item>
+        ///     <item><description>extension type is not <see cref="ExtensionTypes.Timestamp"/> or</description></item>
+        ///     <item><description>we could not read long seconds and/or uint nanoseconds from buffer.</description></item>
+        /// </list></returns>
+        public static bool TryReadTimestamp96(ReadOnlySpan<byte> buffer, out Timestamp timestamp, out int readSize)
+        {
+            readSize = 15;
+            timestamp = Timestamp.Zero;
+            if (buffer.Length < readSize) return false;
+            if (!TryReadExtension8Header(buffer, out var extension, out var length, out var headerSize)) return false;
+            if (extension != ExtensionTypes.Timestamp) return false;
+            if (length != 12) return false;
+            if (TryReadUInt32BigEndian(buffer.Slice(headerSize), out var nanoseconds)) return false;
+            if (TryReadInt64BigEndian(buffer.Slice(headerSize + 4), out var seconds)) return false;
+            timestamp = new Timestamp(seconds, nanoseconds);
+            return true;
+        }
+
+        /// <summary>
+        /// Reads timestamp.
+        /// </summary>
+        /// <paramref name="buffer">Buffer to read from.</paramref>
+        /// <paramref name="timestamp">Timestamp</paramref>
+        /// <paramref name="readSize">Count of bytes, read from <paramref name="buffer"/>.</paramref>
+        /// <returns><c>true</c> if everything is ok, <c>false</c> if: 
+        /// <list type="bullet">
+        ///     <item><description><paramref name="buffer"/> is too small or</description></item>
+        ///     <item><description><paramref name="buffer"/>[0] is not <see cref="DataCodes.FixExtension4"/>, <see cref="DataCodes.FixExtension8"/> or <see cref="DataCodes.Extension8"/> or</description></item>
+        ///     <item><description>extension type is not <see cref="ExtensionTypes.Timestamp"/> or</description></item>
+        ///     <item><description>we could not read data from buffer.</description></item>
+        /// </list></returns>
+        public static bool TryReadTimestamp(ReadOnlySpan<byte> buffer, out Timestamp timestamp, out int readSize)
+        {
+            switch (buffer[0])
+            {
+                case DataCodes.FixExtension4:
+                    return TryReadTimestamp32(buffer, out timestamp, out readSize);
+                case DataCodes.FixExtension8:
+                    return TryReadTimestamp64(buffer, out timestamp, out readSize);
+                case DataCodes.Extension8:
+                    return TryReadTimestamp96(buffer, out timestamp, out readSize);
+                default:
+                    readSize = 0;
+                    timestamp = Timestamp.Zero;
+                    return false;
+            }
         }
     }
 }

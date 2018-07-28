@@ -17,7 +17,7 @@ namespace ProGaudi.MsgPack
         /// <param name="type">Type code of extension.</param>
         /// <returns>Count of bytes, written into <paramref name="buffer"/>.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int WriteFixExtension1Header(Span<byte> buffer, sbyte type) => WriteExtensionHeader(buffer, DataCodes.FixExtension1, type);
+        public static int WriteFixExtension1Header(Span<byte> buffer, sbyte type) => WriteFixExtensionHeader(buffer, DataCodes.FixExtension1, type);
 
         /// <summary>
         /// Writes 1-byte extension.
@@ -40,7 +40,7 @@ namespace ProGaudi.MsgPack
         /// <param name="type">Type code of extension.</param>
         /// <returns>Count of bytes, written into <paramref name="buffer"/>.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int WriteFixExtension2Header(Span<byte> buffer, sbyte type) => WriteExtensionHeader(buffer, DataCodes.FixExtension2, type);
+        public static int WriteFixExtension2Header(Span<byte> buffer, sbyte type) => WriteFixExtensionHeader(buffer, DataCodes.FixExtension2, type);
 
         /// <summary>
         /// Writes 2-bytes extension.
@@ -64,7 +64,7 @@ namespace ProGaudi.MsgPack
         /// <param name="type">Type code of extension.</param>
         /// <returns>Count of bytes, written into <paramref name="buffer"/>.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int WriteFixExtension4Header(Span<byte> buffer, sbyte type) => WriteExtensionHeader(buffer, DataCodes.FixExtension4, type);
+        public static int WriteFixExtension4Header(Span<byte> buffer, sbyte type) => WriteFixExtensionHeader(buffer, DataCodes.FixExtension4, type);
 
         /// <summary>
         /// Writes 4-bytes extension.
@@ -89,7 +89,7 @@ namespace ProGaudi.MsgPack
         /// <param name="type">Type code of extension.</param>
         /// <returns>Count of bytes, written into <paramref name="buffer"/>.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int WriteFixExtension8Header(Span<byte> buffer, sbyte type) => WriteExtensionHeader(buffer, DataCodes.FixExtension8, type);
+        public static int WriteFixExtension8Header(Span<byte> buffer, sbyte type) => WriteFixExtensionHeader(buffer, DataCodes.FixExtension8, type);
 
         /// <summary>
         /// Writes 8-bytes extension.
@@ -114,7 +114,7 @@ namespace ProGaudi.MsgPack
         /// <param name="type">Type code of extension.</param>
         /// <returns>Count of bytes, written into <paramref name="buffer"/>.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int WriteFixExtension16Header(Span<byte> buffer, sbyte type) => WriteExtensionHeader(buffer, DataCodes.FixExtension16, type);
+        public static int WriteFixExtension16Header(Span<byte> buffer, sbyte type) => WriteFixExtensionHeader(buffer, DataCodes.FixExtension16, type);
 
         /// <summary>
         /// Writes 16-bytes extension.
@@ -142,8 +142,9 @@ namespace ProGaudi.MsgPack
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int WriteExtension8Header(Span<byte> buffer, sbyte type, byte length)
         {
-            WriteExtensionHeader(buffer, DataCodes.Extension8, type);
-            buffer[2] = length;
+            buffer[2] = unchecked((byte)type);
+            buffer[1] = length;
+            buffer[0] = DataCodes.Extension8;
             return 3;
         }
 
@@ -173,8 +174,9 @@ namespace ProGaudi.MsgPack
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int WriteExtension16Header(Span<byte> buffer, sbyte type, ushort length)
         {
-            WriteExtensionHeader(buffer, DataCodes.Extension16, type);
-            BinaryPrimitives.WriteUInt16BigEndian(buffer.Slice(2), length);
+            buffer[3] = unchecked((byte)type);
+            BinaryPrimitives.WriteUInt16BigEndian(buffer.Slice(1), length);
+            buffer[0] = DataCodes.Extension16;
             return 4;
         }
 
@@ -203,8 +205,9 @@ namespace ProGaudi.MsgPack
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int WriteExtension32Header(Span<byte> buffer, sbyte type, uint length)
         {
-            WriteExtensionHeader(buffer, DataCodes.Extension32, type);
-            BinaryPrimitives.WriteUInt32BigEndian(buffer.Slice(2), length);
+            buffer[5] = unchecked((byte)type);
+            BinaryPrimitives.WriteUInt32BigEndian(buffer.Slice(1), length);
+            buffer[0] = DataCodes.Extension32;
             return 6;
         }
 
@@ -217,7 +220,7 @@ namespace ProGaudi.MsgPack
         /// <returns>Count of bytes, written into <paramref name="buffer"/>.</returns>
         public static int WriteExtension32(Span<byte> buffer, sbyte type, ReadOnlySpan<byte> extension)
         {
-            var result = WriteExtension32Header(buffer, type, (ushort)extension.Length);
+            var result = WriteExtension32Header(buffer, type, (uint) extension.Length);
             extension.CopyTo(buffer.Slice(result));
             return result + extension.Length;
         }
@@ -277,7 +280,7 @@ namespace ProGaudi.MsgPack
         /// <param name="wroteSize">Count of bytes, written into <paramref name="buffer"/>.</param>
         /// <returns><c>true</c> if everything is ok, <c>false</c> if <paramref name="buffer"/> is too small.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool TryWriteFixExtension1Header(Span<byte> buffer, sbyte type, out int wroteSize) => TryWriteExtensionHeader(buffer, DataCodes.FixExtension1, type, out wroteSize);
+        public static bool TryWriteFixExtension1Header(Span<byte> buffer, sbyte type, out int wroteSize) => TryWriteFixExtensionHeader(buffer, DataCodes.FixExtension1, type, out wroteSize);
 
         /// <summary>
         /// Tries to write extension. Extension length is 1 byte.
@@ -307,7 +310,7 @@ namespace ProGaudi.MsgPack
         /// <param name="wroteSize">Count of bytes, written into <paramref name="buffer"/>.</param>
         /// <returns><c>true</c> if everything is ok, <c>false</c> if <paramref name="buffer"/> is too small.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool TryWriteFixExtension2Header(Span<byte> buffer, sbyte type, out int wroteSize) => TryWriteExtensionHeader(buffer, DataCodes.FixExtension2, type, out wroteSize);
+        public static bool TryWriteFixExtension2Header(Span<byte> buffer, sbyte type, out int wroteSize) => TryWriteFixExtensionHeader(buffer, DataCodes.FixExtension2, type, out wroteSize);
 
         /// <summary>
         /// Tries to write extension. Extension length is 2 bytes.
@@ -338,7 +341,7 @@ namespace ProGaudi.MsgPack
         /// <param name="wroteSize">Count of bytes, written into <paramref name="buffer"/>.</param>
         /// <returns><c>true</c> if everything is ok, <c>false</c> if <paramref name="buffer"/> is too small.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool TryWriteFixExtension4Header(Span<byte> buffer, sbyte type, out int wroteSize) => TryWriteExtensionHeader(buffer, DataCodes.FixExtension4, type, out wroteSize);
+        public static bool TryWriteFixExtension4Header(Span<byte> buffer, sbyte type, out int wroteSize) => TryWriteFixExtensionHeader(buffer, DataCodes.FixExtension4, type, out wroteSize);
 
         /// <summary>
         /// Tries to write extension. Extension length is 4 bytes.
@@ -369,7 +372,7 @@ namespace ProGaudi.MsgPack
         /// <param name="wroteSize">Count of bytes, written into <paramref name="buffer"/>.</param>
         /// <returns><c>true</c> if everything is ok, <c>false</c> if <paramref name="buffer"/> is too small.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool TryWriteFixExtension8Header(Span<byte> buffer, sbyte type, out int wroteSize) => TryWriteExtensionHeader(buffer, DataCodes.FixExtension8, type, out wroteSize);
+        public static bool TryWriteFixExtension8Header(Span<byte> buffer, sbyte type, out int wroteSize) => TryWriteFixExtensionHeader(buffer, DataCodes.FixExtension8, type, out wroteSize);
 
         /// <summary>
         /// Tries to write extension. Extension length is 8 bytes.
@@ -400,7 +403,7 @@ namespace ProGaudi.MsgPack
         /// <param name="wroteSize">Count of bytes, written into <paramref name="buffer"/>.</param>
         /// <returns><c>true</c> if everything is ok, <c>false</c> if <paramref name="buffer"/> is too small.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool TryWriteFixExtension16Header(Span<byte> buffer, sbyte type, out int wroteSize) => TryWriteExtensionHeader(buffer, DataCodes.FixExtension16, type, out wroteSize);
+        public static bool TryWriteFixExtension16Header(Span<byte> buffer, sbyte type, out int wroteSize) => TryWriteFixExtensionHeader(buffer, DataCodes.FixExtension16, type, out wroteSize);
 
         /// <summary>
         /// Tries to write extension. Extension length is 16 bytes.
@@ -594,7 +597,7 @@ namespace ProGaudi.MsgPack
         /// <param name="readSize">Count of bytes read from <paramref name="buffer"/>.</param>
         /// <returns>Extension code type.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static sbyte ReadFixExtension1Header(ReadOnlySpan<byte> buffer, out int readSize) => ReadExtensionHeader(buffer, DataCodes.FixExtension1, out readSize);
+        public static sbyte ReadFixExtension1Header(ReadOnlySpan<byte> buffer, out int readSize) => ReadFixExtensionHeader(buffer, DataCodes.FixExtension1, out readSize);
 
         /// <summary>
         /// Reads extension. Length of extension should be 1 byte.
@@ -616,7 +619,7 @@ namespace ProGaudi.MsgPack
         /// <param name="readSize">Count of bytes read from <paramref name="buffer"/>.</param>
         /// <returns>Extension code type,</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static sbyte ReadFixExtension2Header(ReadOnlySpan<byte> buffer, out int readSize) => ReadExtensionHeader(buffer, DataCodes.FixExtension2, out readSize);
+        public static sbyte ReadFixExtension2Header(ReadOnlySpan<byte> buffer, out int readSize) => ReadFixExtensionHeader(buffer, DataCodes.FixExtension2, out readSize);
 
         /// <summary>
         /// Reads extension. Length of extension should be 2 bytes.
@@ -638,7 +641,7 @@ namespace ProGaudi.MsgPack
         /// <param name="readSize">Count of bytes read from <paramref name="buffer"/>.</param>
         /// <returns>Extension code type.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static sbyte ReadFixExtension4Header(ReadOnlySpan<byte> buffer, out int readSize) => ReadExtensionHeader(buffer, DataCodes.FixExtension4, out readSize);
+        public static sbyte ReadFixExtension4Header(ReadOnlySpan<byte> buffer, out int readSize) => ReadFixExtensionHeader(buffer, DataCodes.FixExtension4, out readSize);
 
         /// <summary>
         /// Reads extension. Length of extension should be 4 bytes.
@@ -660,7 +663,7 @@ namespace ProGaudi.MsgPack
         /// <param name="readSize">Count of bytes read from <paramref name="buffer"/>.</param>
         /// <returns>Extension code type.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static sbyte ReadFixExtension8Header(ReadOnlySpan<byte> buffer, out int readSize) => ReadExtensionHeader(buffer, DataCodes.FixExtension8, out readSize);
+        public static sbyte ReadFixExtension8Header(ReadOnlySpan<byte> buffer, out int readSize) => ReadFixExtensionHeader(buffer, DataCodes.FixExtension8, out readSize);
 
         /// <summary>
         /// Reads extension. Length of extension should be 8 bytes.
@@ -682,7 +685,7 @@ namespace ProGaudi.MsgPack
         /// <param name="readSize">Count of bytes read from <paramref name="buffer"/>.</param>
         /// <returns>Extension code type.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static sbyte ReadFixExtension16Header(ReadOnlySpan<byte> buffer, out int readSize) => ReadExtensionHeader(buffer, DataCodes.FixExtension16, out readSize);
+        public static sbyte ReadFixExtension16Header(ReadOnlySpan<byte> buffer, out int readSize) => ReadFixExtensionHeader(buffer, DataCodes.FixExtension16, out readSize);
 
         /// <summary>
         /// Reads extension. Length of extension should be 16 bytes.
@@ -707,7 +710,10 @@ namespace ProGaudi.MsgPack
         public static (sbyte type, byte length) ReadExtension8Header(ReadOnlySpan<byte> buffer, out int readSize)
         {
             readSize = 3;
-            return (ReadExtensionHeader(buffer, DataCodes.Extension8, out _), buffer[2]);
+            var type = unchecked((sbyte)buffer[2]);
+            var length = buffer[1];
+            if (buffer[0] != DataCodes.Extension8) throw WrongCodeException(buffer[0], DataCodes.Extension8);
+            return (type, length);
         }
 
         /// <summary>
@@ -733,7 +739,10 @@ namespace ProGaudi.MsgPack
         public static (sbyte type, ushort length) ReadExtension16Header(ReadOnlySpan<byte> buffer, out int readSize)
         {
             readSize = 4;
-            return (ReadExtensionHeader(buffer, DataCodes.Extension16, out _), BinaryPrimitives.ReadUInt16BigEndian(buffer.Slice(2)));
+            var type = unchecked((sbyte)buffer[3]);
+            var length = BinaryPrimitives.ReadUInt16BigEndian(buffer.Slice(1));
+            if (buffer[0] != DataCodes.Extension16) throw WrongCodeException(buffer[0], DataCodes.Extension16);
+            return (type, length);
         }
 
         /// <summary>
@@ -758,7 +767,10 @@ namespace ProGaudi.MsgPack
         public static (sbyte type, uint length) ReadExtension32Header(ReadOnlySpan<byte> buffer, out int readSize)
         {
             readSize = 6;
-            return (ReadExtensionHeader(buffer, DataCodes.Extension32, out _), BinaryPrimitives.ReadUInt16BigEndian(buffer.Slice(2)));
+            var type = unchecked((sbyte)buffer[5]);
+            var length = BinaryPrimitives.ReadUInt32BigEndian(buffer.Slice(1));
+            if (buffer[0] != DataCodes.Extension32) throw WrongCodeException(buffer[0], DataCodes.Extension32);
+            return (type, length);
         }
 
         /// <summary>
@@ -1142,21 +1154,21 @@ namespace ProGaudi.MsgPack
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static int WriteExtensionHeader(Span<byte> buffer, byte code, sbyte type)
+        private static int WriteFixExtensionHeader(Span<byte> buffer, byte code, sbyte type)
         {
-            buffer[0] = code;
             buffer[1] = unchecked((byte)type);
+            buffer[0] = code;
             return 2;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static bool TryWriteExtensionHeader(Span<byte> buffer, byte code, sbyte type, out int wroteSize)
+        private static bool TryWriteFixExtensionHeader(Span<byte> buffer, byte code, sbyte type, out int wroteSize)
         {
             wroteSize = 0;
             const int size = 2;
             if (buffer.Length < size) return false;
 
-            WriteExtensionHeader(buffer, code, type);
+            WriteFixExtensionHeader(buffer, code, type);
             wroteSize = size;
             return true;
         }
@@ -1201,11 +1213,12 @@ namespace ProGaudi.MsgPack
 
         // ReSharper disable once ParameterOnlyUsedForPreconditionCheck.Local
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static sbyte ReadExtensionHeader(ReadOnlySpan<byte> buffer, byte code, out int readSize)
+        private static sbyte ReadFixExtensionHeader(ReadOnlySpan<byte> buffer, byte code, out int readSize)
         {
             readSize = 2;
+            var type = unchecked((sbyte)buffer[1]);
             if (buffer[0] != code) throw new InvalidOperationException();
-            return unchecked((sbyte)buffer[1]);
+            return type;
         }
     }
 }

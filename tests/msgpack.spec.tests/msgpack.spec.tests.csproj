@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk" ToolsVersion="15.0">
+<Project Sdk="Microsoft.NET.Sdk" ToolsVersion="15.0">
   <PropertyGroup>
     <Description>Tests for msgpack reference serialization library</Description>
     <AssemblyName>progaudi.msgpack.spec.tests</AssemblyName>
@@ -22,10 +22,6 @@
     <TargetFrameworks>netcoreapp1.0;netcoreapp1.1;netcoreapp2.0;netcoreapp2.1</TargetFrameworks>
   </PropertyGroup>
   <PropertyGroup>
-    <PatchLevelVersion Condition=" '$(BuildNumber)' == '' ">0</PatchLevelVersion>
-    <PatchLevelVersion Condition=" '$(BuildNumber)' != '' ">$(BuildNumber).1-prerelease</PatchLevelVersion>
-    <Version>1.0.$(PatchLevelVersion)</Version>
-
     <GenerateAssemblyTitleAttribute>true</GenerateAssemblyTitleAttribute>
     <GenerateAssemblyProductAttribute>true</GenerateAssemblyProductAttribute>
     <GenerateAssemblyCopyrightAttribute>true</GenerateAssemblyCopyrightAttribute>
