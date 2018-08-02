@@ -9,11 +9,12 @@ RUN apt-get -t stretch-backports install -y --no-install-recommends cmake
 
 RUN mkdir -p /tmp \
     && cd /tmp \
-    && git clone https://github.com/msgpack/msgpack-c.git \
-    && cd msgpack-c \
-    && cmake -DMSGPACK_CXX11=ON . \
+    && git clone https://github.com/rtsisyk/msgpuck.git \
+    && cd msgpuck \
+    && cmake . \
+    && make \
     && make install \
-    && rm -rf /tmp/msgpack-c
+    && rm -rf /tmp/msgpuck
 
 WORKDIR /app
 RUN mkdir -p src/msgpack.spec tests/msgpack.spec.tests benchmarks/msgpack.spec.linux
@@ -34,4 +35,5 @@ RUN (cd /app/benchmarks/msgpack.spec.linux/c \
     && make \
     && make install)
 
+RUN dotnet /app/benchmarks/msgpack.spec.linux/bin/Release/netcoreapp2.1/msgpack.spec.linux.dll
 CMD ["dotnet", "/app/benchmarks/msgpack.spec.linux/bin/Release/netcoreapp2.1/msgpack.spec.linux.dll"]

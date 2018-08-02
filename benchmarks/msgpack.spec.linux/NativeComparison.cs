@@ -17,8 +17,6 @@ namespace msgpack.spec.linux
         private const ushort length = 100;
         private const int baseInt = 1 << 30;
 
-        public NativeComparison() => Native.Init();
-
         [Benchmark]
         public void MsgPackSpecArray()
         {
@@ -40,9 +38,6 @@ namespace msgpack.spec.linux
 
             [DllImport(libPath, EntryPoint = "empty", CallingConvention = CallingConvention.Cdecl)]
             public static extern void Empty();
-
-            [DllImport(libPath, EntryPoint = "init", CallingConvention = CallingConvention.Cdecl)]
-            public static extern void Init();
 
             [DllImport(libPath, EntryPoint = "serializeIntArray", CallingConvention = CallingConvention.Cdecl)]
             public static extern void SerializeArray();
