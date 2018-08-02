@@ -11,10 +11,19 @@ RUN mkdir -p /tmp \
     && cd /tmp \
     && git clone https://github.com/rtsisyk/msgpuck.git \
     && cd msgpuck \
-    && cmake . \
+    && cmake -DCMAKE_BUILD_TYPE=Release . \
     && make \
     && make install \
     && rm -rf /tmp/msgpuck
+
+RUN mkdir -p /tmp \
+    && cd /tmp \
+    && git clone https://github.com/msgpack/msgpack-c.git \
+    && cd msgpack-c \
+    && cmake -DCMAKE_BUILD_TYPE=Release . \
+    && make \
+    && make install \
+    && rm -rf /tmp/msgpack-c
 
 WORKDIR /app
 RUN mkdir -p src/msgpack.spec tests/msgpack.spec.tests benchmarks/msgpack.spec.linux
@@ -31,7 +40,7 @@ ADD . /app
 RUN IsDocker=defined dotnet build --no-restore -c Release
 
 RUN (cd /app/benchmarks/msgpack.spec.linux/c \
-    && cmake . \
+    && cmake -DCMAKE_BUILD_TYPE=Release . \
     && make \
     && make install)
 

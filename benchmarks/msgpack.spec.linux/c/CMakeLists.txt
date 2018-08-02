@@ -2,6 +2,8 @@
 # project specific logic here.
 #
 cmake_minimum_required (VERSION 3.8)
+SET(CMAKE_CXX_FLAGS "-O2")
+SET(CMAKE_C_FLAGS "-O2")
 
 project ("cMsgPack")
 
@@ -20,6 +22,8 @@ MSGPUCK_LIBRARY MSGPUCK_LIBRARIES)
 include_directories(MSGPUCK_INCLUDE_DIR)
 
 add_library(cMsgPack SHARED "cMsgPack.c")
+add_library(cppMsgPack SHARED "cppMsgPack.cpp")
 
 target_link_libraries(cMsgPack ${MSGPUCK_LIBRARIES})
 install(TARGETS cMsgPack LIBRARY DESTINATION /lib)
+install(TARGETS cppMsgPack LIBRARY DESTINATION /lib)

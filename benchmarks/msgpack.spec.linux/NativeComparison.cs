@@ -1,9 +1,8 @@
 using System;
 using System.Buffers;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using BenchmarkDotNet.Attributes;
-using BenchmarkDotNet.Attributes.Columns;
-using BenchmarkDotNet.Attributes.Exporters;
 using ProGaudi.MsgPack;
 
 namespace msgpack.spec.linux
@@ -11,35 +10,51 @@ namespace msgpack.spec.linux
     [MemoryDiagnoser]
     [Q3Column]
     [MarkdownExporterAttribute.GitHub]
-    public class NativeComparison
+    public unsafe class NativeComparison
     {
-        private readonly byte[] _buffer = ArrayPool<byte>.Shared.Rent(short.MaxValue);
         private const ushort length = 100;
-        private const int baseInt = 1 << 30;
+        private const uint baseInt = 1 << 30;
+        private readonly byte[] _buffer = ArrayPool<byte>.Shared.Rent(short.MaxValue);
 
-        [Benchmark]
+        [Benchmark(Baseline = true)]
         public void MsgPackSpecArray()
         {
             var buffer = _buffer.AsSpan();
             var wroteSize = MsgPackSpec.WriteArray16Header(buffer, length);
-            for (var i = 0; i < length; i++)
-                wroteSize += MsgPackSpec.WriteInt32(buffer.Slice(wroteSize), baseInt - i);
+            for (var i = 0u; i < length; i++)
+                wroteSize += MsgPackSpec.WriteUInt32(buffer.Slice(wroteSize), baseInt - i);
         }
 
         [Benchmark]
-        public void EmptyPInvoke() => Native.Empty();
+        public void MsgPackSpecPointer()
+        {
+            fixed (byte* pointer = &_buffer.AsSpan().GetPinnableReference())
+            {
+                pointer[0] = DataCodes.Array16;
+                Unsafe.WriteUnaligned(ref pointer[1], length);
+                for (var i = 0u; i < length; i++)
+                {
+                    pointer[3 + 5 * i] = DataCodes.UInt32;
+                    Unsafe.WriteUnaligned(ref pointer[3 + 5 * i + 1], baseInt - i);
+                }
+            }
+        }
 
         [Benchmark]
-        public void CArray() => Native.SerializeArray();
+        public void CArray() => CNative.SerializeArray();
 
-        private static class Native
+        [Benchmark]
+        public void CppArray() => CppNative.SerializeArray();
+
+        private static class CNative
         {
-            private const string libPath = "libcMsgPack.so";
+            [DllImport("libcMsgPack.so", EntryPoint = "serializeIntArray", CallingConvention = CallingConvention.Cdecl)]
+            public static extern void SerializeArray();
+        }
 
-            [DllImport(libPath, EntryPoint = "empty", CallingConvention = CallingConvention.Cdecl)]
-            public static extern void Empty();
-
-            [DllImport(libPath, EntryPoint = "serializeIntArray", CallingConvention = CallingConvention.Cdecl)]
+        private static class CppNative
+        {
+            [DllImport("libcppMsgPack.so", EntryPoint = "serializeIntArray", CallingConvention = CallingConvention.Cdecl)]
             public static extern void SerializeArray();
         }
     }
