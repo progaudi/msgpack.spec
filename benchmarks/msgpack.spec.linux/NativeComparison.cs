@@ -30,7 +30,7 @@ namespace msgpack.spec.linux
         public void EmptyPInvoke() => Native.Empty();
 
         [Benchmark]
-        public void CPPArray() => Native.SerializeArray();
+        public void CArray() => Native.SerializeArray();
 
         private static class Native
         {

@@ -35,5 +35,4 @@ RUN (cd /app/benchmarks/msgpack.spec.linux/c \
     && make \
     && make install)
 
-RUN dotnet /app/benchmarks/msgpack.spec.linux/bin/Release/netcoreapp2.1/msgpack.spec.linux.dll
 CMD ["dotnet", "/app/benchmarks/msgpack.spec.linux/bin/Release/netcoreapp2.1/msgpack.spec.linux.dll"]
