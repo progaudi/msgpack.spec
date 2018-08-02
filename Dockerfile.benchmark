@@ -1,0 +1,37 @@
+FROM microsoft/dotnet:2.1-sdk
+
+RUN echo "deb http://ftp.debian.org/debian stretch-backports main" | tee /etc/apt/sources.list.d/stretch-backports.list
+
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends build-essential
+
+RUN apt-get -t stretch-backports install -y --no-install-recommends cmake
+
+RUN mkdir -p /tmp \
+    && cd /tmp \
+    && git clone https://github.com/msgpack/msgpack-c.git \
+    && cd msgpack-c \
+    && cmake -DMSGPACK_CXX11=ON . \
+    && make install \
+    && rm -rf /tmp/msgpack-c
+
+WORKDIR /app
+RUN mkdir -p src/msgpack.spec tests/msgpack.spec.tests benchmarks/msgpack.spec.linux
+
+ADD msgpack.spec.sln /app
+ADD src/msgpack.spec/msgpack.spec.csproj /app/src/msgpack.spec/
+ADD tests/msgpack.spec.tests/msgpack.spec.tests.csproj /app/tests/msgpack.spec.tests/
+ADD benchmarks/msgpack.spec.linux/msgpack.spec.linux.csproj /app/benchmarks/msgpack.spec.linux/
+
+RUN IsDocker=defined dotnet restore
+
+ADD . /app
+
+RUN IsDocker=defined dotnet build --no-restore -c Release
+
+RUN (cd /app/benchmarks/msgpack.spec.linux/c \
+    && cmake . \
+    && make \
+    && make install)
+
+CMD ["dotnet", "/app/benchmarks/msgpack.spec.linux/bin/Release/netcoreapp2.1/msgpack.spec.linux.dll"]

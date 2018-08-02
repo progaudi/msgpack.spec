@@ -4,3 +4,5 @@
 .git
 *.user
 **/*.user
+Dockerfile
+Dockerfile.*
