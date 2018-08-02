@@ -16,7 +16,7 @@ namespace msgpack.spec.linux
         private const uint baseInt = 1 << 30;
         private readonly byte[] _buffer = ArrayPool<byte>.Shared.Rent(short.MaxValue);
 
-        [Benchmark(Baseline = true)]
+        [Benchmark]
         public void MsgPackSpecArray()
         {
             var buffer = _buffer.AsSpan();
@@ -40,7 +40,7 @@ namespace msgpack.spec.linux
             }
         }
 
-        [Benchmark]
+        [Benchmark(Baseline = true)]
         public void CArray() => CNative.SerializeArray();
 
         [Benchmark]
