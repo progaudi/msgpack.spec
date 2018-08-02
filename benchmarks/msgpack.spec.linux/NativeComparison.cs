@@ -28,20 +28,38 @@ namespace msgpack.spec.linux
         [Benchmark]
         public void MsgPackSpecPointer()
         {
-            fixed (byte* pointer = &_buffer.AsSpan().GetPinnableReference())
+            fixed (byte* pointer = &_buffer[0])
             {
                 pointer[0] = DataCodes.Array16;
                 Unsafe.WriteUnaligned(ref pointer[1], length);
                 for (var i = 0u; i < length; i++)
                 {
                     pointer[3 + 5 * i] = DataCodes.UInt32;
-                    Unsafe.WriteUnaligned(ref pointer[3 + 5 * i + 1], baseInt - i);
+                    Unsafe.WriteUnaligned(ref pointer[3 + 5 * i + 1], baseInt);
                 }
+            }
+        }
+
+        [Benchmark]
+        public void MsgPackSpecSpan()
+        {
+            var pointer = _buffer.AsSpan();
+            var l = length;
+            pointer[0] = DataCodes.Array16;
+            MemoryMarshal.Write(pointer.Slice(1), ref l);
+            var x = baseInt;
+            for (var i = 0; i < length; i++)
+            {
+                pointer[3 + 5 * i] = DataCodes.UInt32;
+                MemoryMarshal.Write(pointer.Slice(3 + 5 * i + 1), ref x);
             }
         }
 
         [Benchmark(Baseline = true)]
         public void CArray() => CNative.SerializeArray();
+
+        [Benchmark]
+        public void EmptyPInvoke() => CNative.Empty();
 
         [Benchmark]
         public void CppArray() => CppNative.SerializeArray();
@@ -50,6 +68,9 @@ namespace msgpack.spec.linux
         {
             [DllImport("libcMsgPack.so", EntryPoint = "serializeIntArray", CallingConvention = CallingConvention.Cdecl)]
             public static extern void SerializeArray();
+
+            [DllImport("libcMsgPack.so", EntryPoint = "empty", CallingConvention = CallingConvention.Cdecl)]
+            public static extern void Empty();
         }
 
         private static class CppNative
