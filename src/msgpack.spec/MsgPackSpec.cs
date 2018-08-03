@@ -79,7 +79,7 @@ namespace ProGaudi.MsgPack
                 case Map32:
                     return DataFamily.Map;
 
-                // case "NeverUsed" be here to have happy compilator
+                // case "NeverUsed" be here to have happy compiler
                 default:
                     return DataFamily.NeverUsed;
             }

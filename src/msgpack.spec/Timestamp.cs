@@ -10,6 +10,7 @@ namespace ProGaudi.MsgPack
 #pragma warning disable IDE1006 // Naming Styles
         private const long TicksPerSecond = 10000000;
         private const long MaxNanoSeconds = 999999999;
+        private const int TicksPerNanoSecond = 100;
         private static readonly DateTimeOffset Epoch = new DateTimeOffset(1970, 1, 1, 0, 0, 0, 0, TimeSpan.Zero).ToUniversalTime();
 #pragma warning restore IDE1006 // Naming Styles
 
@@ -19,7 +20,7 @@ namespace ProGaudi.MsgPack
         {
             var ticks = (dto - Epoch).Ticks;
             Seconds = ticks / TicksPerSecond;
-            NanoSeconds = (uint) (ticks % TicksPerSecond * 100);
+            NanoSeconds = (uint) (ticks % TicksPerSecond * TicksPerNanoSecond);
         }
 
         public Timestamp(long seconds, uint nanoSeconds)
@@ -53,7 +54,7 @@ namespace ProGaudi.MsgPack
         public static explicit operator Timestamp(DateTime dto) => new Timestamp(dto);
 
         public static implicit operator DateTimeOffset(Timestamp ts) => new DateTimeOffset(
-            ts.Seconds * TicksPerSecond + ts.NanoSeconds / 100,
+            ts.Seconds * TicksPerSecond + ts.NanoSeconds / TicksPerNanoSecond,
             TimeSpan.Zero
         );
     }
