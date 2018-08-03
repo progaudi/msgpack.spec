@@ -36,11 +36,11 @@ public unsafe void PointerBigEndian()
     fixed (byte* pointer = &_buffer[0])
     {
         pointer[0] = DataCodes.Array16;
-        Unsafe.WriteUnaligned(ref pointer[1], length);
+        Unsafe.WriteUnaligned(ref pointer[1], BinaryPrimitives.ReverseEndianness(length));
         for (var i = 0u; i < length; i++)
         {
             pointer[3 + 5 * i] = DataCodes.UInt32;
-            Unsafe.WriteUnaligned(ref pointer[3 + 5 * i + 1], baseInt - i);
+            Unsafe.WriteUnaligned(ref pointer[3 + 5 * i + 1], BinaryPrimitives.ReverseEndianness(baseInt));
         }
     }
 }
