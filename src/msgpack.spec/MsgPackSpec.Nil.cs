@@ -44,7 +44,7 @@ namespace ProGaudi.MsgPack
         {
             readSize = 1;
             if (buffer[0] != Nil)
-                throw WrongCodeException(buffer[0], Nil);
+                ThrowWrongCodeException(buffer[0], Nil);
         }
 
         /// <summary>

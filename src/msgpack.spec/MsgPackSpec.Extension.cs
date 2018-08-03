@@ -158,7 +158,7 @@ namespace ProGaudi.MsgPack
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int WriteExtension8(Span<byte> buffer, sbyte type, ReadOnlySpan<byte> extension)
         {
-            if (extension.Length > byte.MaxValue) throw new InvalidOperationException();
+            if (extension.Length > byte.MaxValue) return ThrowDataIsTooLarge(extension.Length, byte.MaxValue, "extension", DataCodes.Extension8);
             var result = WriteExtension8Header(buffer, type, (byte)extension.Length);
             extension.CopyTo(buffer.Slice(result));
             return result + extension.Length;
@@ -189,7 +189,7 @@ namespace ProGaudi.MsgPack
         /// <returns>Count of bytes, written into <paramref name="buffer"/>.</returns>
         public static int WriteExtension16(Span<byte> buffer, sbyte type, ReadOnlySpan<byte> extension)
         {
-            if (extension.Length > ushort.MaxValue) throw new InvalidOperationException();
+            if (extension.Length > ushort.MaxValue) return ThrowDataIsTooLarge(extension.Length, ushort.MaxValue, "extension", DataCodes.Extension16);
             var result = WriteExtension16Header(buffer, type, (ushort)extension.Length);
             extension.CopyTo(buffer.Slice(result));
             return result + extension.Length;
@@ -712,7 +712,7 @@ namespace ProGaudi.MsgPack
             readSize = 3;
             var type = unchecked((sbyte)buffer[2]);
             var length = buffer[1];
-            if (buffer[0] != DataCodes.Extension8) throw WrongCodeException(buffer[0], DataCodes.Extension8);
+            if (buffer[0] != DataCodes.Extension8) ThrowWrongCodeException(buffer[0], DataCodes.Extension8);
             return (type, length);
         }
 
@@ -741,7 +741,7 @@ namespace ProGaudi.MsgPack
             readSize = 4;
             var type = unchecked((sbyte)buffer[3]);
             var length = BinaryPrimitives.ReadUInt16BigEndian(buffer.Slice(1));
-            if (buffer[0] != DataCodes.Extension16) throw WrongCodeException(buffer[0], DataCodes.Extension16);
+            if (buffer[0] != DataCodes.Extension16) ThrowWrongCodeException(buffer[0], DataCodes.Extension16);
             return (type, length);
         }
 
@@ -769,7 +769,7 @@ namespace ProGaudi.MsgPack
             readSize = 6;
             var type = unchecked((sbyte)buffer[5]);
             var length = BinaryPrimitives.ReadUInt32BigEndian(buffer.Slice(1));
-            if (buffer[0] != DataCodes.Extension32) throw WrongCodeException(buffer[0], DataCodes.Extension32);
+            if (buffer[0] != DataCodes.Extension32) ThrowWrongCodeException(buffer[0], DataCodes.Extension32);
             return (type, length);
         }
 
@@ -782,7 +782,7 @@ namespace ProGaudi.MsgPack
         public static (sbyte type, IMemoryOwner<byte> extension) ReadExtension32(ReadOnlySpan<byte> buffer, out int readSize)
         {
             var (type, uintSize) = ReadExtension32Header(buffer, out readSize);
-            if (uintSize > int.MaxValue) throw new InvalidOperationException();
+            if (uintSize > int.MaxValue) ThrowDataIsTooLarge(uintSize);
             return (type, ReadExtension(buffer, (int) uintSize, ref readSize));
         }
 
@@ -822,7 +822,8 @@ namespace ProGaudi.MsgPack
                     return ReadExtension32Header(buffer, out readSize);
 
                 default:
-                    throw WrongCodeException(
+                    readSize = 0;
+                    ThrowWrongCodeException(
                         buffer[0],
                         DataCodes.FixExtension1,
                         DataCodes.FixExtension2,
@@ -832,6 +833,7 @@ namespace ProGaudi.MsgPack
                         DataCodes.Extension8,
                         DataCodes.Extension16,
                         DataCodes.Extension32);
+                    return default;
             }
         }
 
@@ -844,7 +846,7 @@ namespace ProGaudi.MsgPack
         public static (sbyte type, IMemoryOwner<byte> extension) ReadExtension(ReadOnlySpan<byte> buffer, out int readSize)
         {
             var (type, uintSize) = ReadExtensionHeader(buffer, out readSize);
-            if (uintSize > int.MaxValue) throw new InvalidOperationException();
+            if (uintSize > int.MaxValue) ThrowDataIsTooLarge(uintSize);
             return (type, ReadExtension(buffer, (int) uintSize, ref readSize));
         }
 
@@ -1217,7 +1219,7 @@ namespace ProGaudi.MsgPack
         {
             readSize = 2;
             var type = unchecked((sbyte)buffer[1]);
-            if (buffer[0] != code) throw new InvalidOperationException();
+            if (buffer[0] != code) ThrowWrongCodeException(buffer[0], code);
             return type;
         }
     }

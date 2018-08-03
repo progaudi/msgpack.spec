@@ -47,7 +47,7 @@ namespace ProGaudi.MsgPack
         public static long ReadFixInt64(ReadOnlySpan<byte> buffer, out int readSize)
         {
             readSize = 9;
-            if (buffer[0] != DataCodes.Int64) throw WrongCodeException(buffer[0], DataCodes.Int64);
+            if (buffer[0] != DataCodes.Int64) ThrowWrongCodeException(buffer[0], DataCodes.Int64);
             return BinaryPrimitives.ReadInt64BigEndian(buffer.Slice(1));
         }
 
@@ -107,7 +107,7 @@ namespace ProGaudi.MsgPack
         /// </summary>
         public static long ReadInt64(ReadOnlySpan<byte> buffer, out int readSize)
         {
-            if (buffer.IsEmpty) throw CantReadEmptyBufferException();
+            if (buffer.IsEmpty) ThrowCantReadEmptyBufferException();
             var code = buffer[0];
 
             switch (code)
@@ -126,7 +126,7 @@ namespace ProGaudi.MsgPack
 
                 case DataCodes.UInt64:
                     var value = ReadFixUInt64(buffer, out readSize);
-                    if (value > long.MaxValue) throw ValueIsTooLargeException(value, long.MaxValue);
+                    if (value > long.MaxValue) ThrowValueIsTooLargeException(value, long.MaxValue);
                     return (long) value;
 
                 case DataCodes.UInt32:
@@ -149,7 +149,7 @@ namespace ProGaudi.MsgPack
                 return negative;
             }
 
-            throw WrongIntCodeException(code, DataCodes.Int8, DataCodes.Int16, DataCodes.Int32, DataCodes.Int64, DataCodes.UInt8, DataCodes.UInt16, DataCodes.UInt32, DataCodes.UInt64);
+            return ThrowWrongIntCodeException(code, DataCodes.Int8, DataCodes.Int16, DataCodes.Int32, DataCodes.Int64, DataCodes.UInt8, DataCodes.UInt16, DataCodes.UInt32, DataCodes.UInt64);
         }
 
         /// <summary>

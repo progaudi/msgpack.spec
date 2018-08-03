@@ -47,7 +47,7 @@ namespace ProGaudi.MsgPack
         public static ulong ReadFixUInt64(ReadOnlySpan<byte> buffer, out int readSize)
         {
             readSize = 9;
-            if (buffer[0] != DataCodes.UInt64) throw WrongCodeException(buffer[0], DataCodes.UInt64);
+            if (buffer[0] != DataCodes.UInt64) return ThrowWrongCodeException(buffer[0], DataCodes.UInt64);
             return BinaryPrimitives.ReadUInt64BigEndian(buffer.Slice(1));
         }
 
@@ -104,29 +104,34 @@ namespace ProGaudi.MsgPack
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ulong ReadUInt64(ReadOnlySpan<byte> buffer, out int readSize)
         {
-            if (buffer.IsEmpty) throw CantReadEmptyBufferException();
+            if (buffer.IsEmpty)
+            {
+                readSize = 0;
+                return ThrowCantReadEmptyBufferException();
+            }
+
             var code = buffer[0];
 
             switch (code)
             {
                 case DataCodes.Int64:
                     var int64 = ReadFixInt64(buffer, out readSize);
-                    if (int64 < 0) throw UnsignedIntException(int64);
+                    if (int64 < 0) return ThrowUnsignedIntException(int64);
                     return (ulong) int64;
 
                 case DataCodes.Int32:
                     var int32 = ReadFixInt32(buffer, out readSize);
-                    if (int32 < 0) throw UnsignedIntException(int32);
+                    if (int32 < 0) return ThrowUnsignedIntException(int32);
                     return (ulong) int32;
 
                 case DataCodes.Int16:
                     var int16 = ReadFixInt32(buffer, out readSize);
-                    if (int16 < 0) throw UnsignedIntException(int16);
+                    if (int16 < 0) return ThrowUnsignedIntException(int16);
                     return (ulong) int16;
 
                 case DataCodes.Int8:
                     var int8 = ReadFixInt32(buffer, out readSize);
-                    if (int8 < 0) throw UnsignedIntException(int8);
+                    if (int8 < 0) return ThrowUnsignedIntException(int8);
                     return (ulong) int8;
 
                 case DataCodes.UInt64:
@@ -147,7 +152,7 @@ namespace ProGaudi.MsgPack
                 return positive;
             }
 
-            throw WrongUIntCodeException(code, DataCodes.Int8, DataCodes.Int16, DataCodes.Int32, DataCodes.Int64, DataCodes.UInt8, DataCodes.UInt16, DataCodes.UInt32, DataCodes.UInt64);
+            return ThrowWrongUIntCodeException(code, DataCodes.Int8, DataCodes.Int16, DataCodes.Int32, DataCodes.Int64, DataCodes.UInt8, DataCodes.UInt16, DataCodes.UInt32, DataCodes.UInt64);
         }
 
         /// <summary>

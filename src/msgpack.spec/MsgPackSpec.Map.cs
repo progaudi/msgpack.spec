@@ -124,7 +124,7 @@ namespace ProGaudi.MsgPack
             if (FixMapMin <= buffer[0] && buffer[0] <= FixMapMax)
                 return (byte) (buffer[0] - FixMapMin);
 
-            throw WrongRangeCodeException(buffer[0], FixMapMin, FixMapMax);
+            return ThrowWrongRangeCodeException(buffer[0], FixMapMin, FixMapMax);
         }
 
         /// <summary>
@@ -230,7 +230,7 @@ namespace ProGaudi.MsgPack
         {
             if (length < 0)
             {
-                throw LengthShouldBeNonNegative(length);
+                return ThrowLengthShouldBeNonNegative(length);
             }
 
             if (length <= FixMapMaxLength)
@@ -296,7 +296,9 @@ namespace ProGaudi.MsgPack
             if (FixMapMin <= buffer[0] && buffer[0] <= FixMapMax)
                 return ReadFixMapHeader(buffer, out readSize);
 
-            throw WrongMapHeader(buffer[0]);
+            ThrowWrongMapHeader(buffer[0]);
+            readSize = 0;
+            return default;
         }
 
         /// <summary>

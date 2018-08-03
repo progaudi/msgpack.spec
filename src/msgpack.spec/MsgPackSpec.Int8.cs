@@ -47,7 +47,7 @@ namespace ProGaudi.MsgPack
         public static sbyte ReadFixInt8(ReadOnlySpan<byte> buffer, out int readSize)
         {
             readSize = 2;
-            if (buffer[0] != DataCodes.Int8) throw WrongCodeException(buffer[0], DataCodes.Int8);
+            if (buffer[0] != DataCodes.Int8) ThrowWrongCodeException(buffer[0], DataCodes.Int8);
             return unchecked((sbyte)buffer[1]);
         }
 
@@ -104,7 +104,7 @@ namespace ProGaudi.MsgPack
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static sbyte ReadInt8(ReadOnlySpan<byte> buffer, out int readSize)
         {
-            if (buffer.IsEmpty) throw CantReadEmptyBufferException();
+            if (buffer.IsEmpty) ThrowCantReadEmptyBufferException();
             var code = buffer[0];
 
             switch (code)
@@ -114,7 +114,7 @@ namespace ProGaudi.MsgPack
 
                 case DataCodes.UInt8:
                     var value = ReadFixUInt8(buffer, out readSize);
-                    if (value > sbyte.MaxValue) throw ValueIsTooLargeException(value, short.MaxValue);
+                    if (value > sbyte.MaxValue) ThrowValueIsTooLargeException(value, short.MaxValue);
                     return unchecked((sbyte) value);
             }
 
@@ -128,7 +128,8 @@ namespace ProGaudi.MsgPack
                 return negative;
             }
 
-            throw WrongIntCodeException(code, DataCodes.Int8, DataCodes.UInt8);
+            ThrowWrongIntCodeException(code, DataCodes.Int8, DataCodes.UInt8);
+            return default;
         }
 
         /// <summary>

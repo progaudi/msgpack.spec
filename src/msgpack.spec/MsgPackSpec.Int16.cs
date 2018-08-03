@@ -46,7 +46,7 @@ namespace ProGaudi.MsgPack
         public static short ReadFixInt16(ReadOnlySpan<byte> buffer, out int readSize)
         {
             readSize = 3;
-            if (buffer[0] != DataCodes.Int16) throw WrongCodeException(buffer[0], DataCodes.Int16);
+            if (buffer[0] != DataCodes.Int16) ThrowWrongCodeException(buffer[0], DataCodes.Int16);
             return BinaryPrimitives.ReadInt16BigEndian(buffer.Slice(1));
         }
 
@@ -103,7 +103,7 @@ namespace ProGaudi.MsgPack
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static short ReadInt16(ReadOnlySpan<byte> buffer, out int readSize)
         {
-            if (buffer.IsEmpty) throw CantReadEmptyBufferException();
+            if (buffer.IsEmpty) ThrowCantReadEmptyBufferException();
             var code = buffer[0];
 
             switch (code)
@@ -116,7 +116,7 @@ namespace ProGaudi.MsgPack
 
                 case DataCodes.UInt16:
                     var value = ReadFixUInt16(buffer, out readSize);
-                    if (value > short.MaxValue) throw ValueIsTooLargeException(value, short.MaxValue);
+                    if (value > short.MaxValue) ThrowValueIsTooLargeException(value, short.MaxValue);
                     return (short) value;
 
                 case DataCodes.UInt8:
@@ -133,7 +133,7 @@ namespace ProGaudi.MsgPack
                 return negative;
             }
 
-            throw WrongIntCodeException(code, DataCodes.Int8, DataCodes.Int16, DataCodes.UInt8, DataCodes.UInt16);
+            return ThrowWrongIntCodeException(code, DataCodes.Int8, DataCodes.Int16, DataCodes.UInt8, DataCodes.UInt16);
         }
 
         /// <summary>
