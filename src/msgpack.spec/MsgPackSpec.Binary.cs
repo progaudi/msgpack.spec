@@ -117,7 +117,7 @@ namespace ProGaudi.MsgPack
             if (buffer[0] == DataCodes.Binary8)
                 return buffer[1];
 
-            throw WrongCodeException(buffer[0], DataCodes.Binary8);
+            return ThrowWrongCodeException(buffer[0], DataCodes.Binary8);
         }
 
         /// <summary>
@@ -155,7 +155,7 @@ namespace ProGaudi.MsgPack
             if (buffer[0] == DataCodes.Binary16)
                 return BinaryPrimitives.ReadUInt16BigEndian(buffer.Slice(1));
 
-            throw WrongCodeException(buffer[0], DataCodes.Binary16);
+            return ThrowWrongCodeException(buffer[0], DataCodes.Binary16);
         }
 
         /// <summary>
@@ -193,7 +193,7 @@ namespace ProGaudi.MsgPack
             if (buffer[0] == DataCodes.Binary32)
                 return BinaryPrimitives.ReadUInt32BigEndian(buffer.Slice(1));
 
-            throw WrongCodeException(buffer[0], DataCodes.Binary32);
+            return ThrowWrongCodeException(buffer[0], DataCodes.Binary32);
         }
 
         /// <summary>
@@ -229,7 +229,7 @@ namespace ProGaudi.MsgPack
         {
             if (length < 0)
             {
-                throw LengthShouldBeNonNegative(length);
+                return ThrowLengthShouldBeNonNegative(length);
             }
 
             if (length <= byte.MaxValue)
@@ -296,9 +296,10 @@ namespace ProGaudi.MsgPack
                         return (int) uint32Value;
                     }
 
-                    throw DataIsTooLarge(uint32Value);
+                    return ThrowDataIsTooLarge(uint32Value);
                 default:
-                    throw WrongCodeException(buffer[0], DataCodes.Binary8, DataCodes.Binary16, DataCodes.Binary32);
+                    readSize = 0;
+                    return ThrowWrongCodeException(buffer[0], DataCodes.Binary8, DataCodes.Binary16, DataCodes.Binary32);
             }
         }
 
@@ -346,7 +347,7 @@ namespace ProGaudi.MsgPack
             var length = binary.Length;
             if (length > byte.MaxValue)
             {
-                throw DataIsTooLarge(binary.Length, byte.MaxValue, nameof(DataCodes.Binary8), DataCodes.Binary8);
+                return ThrowDataIsTooLarge(binary.Length, byte.MaxValue, nameof(DataCodes.Binary8), DataCodes.Binary8);
             }
 
             var result = WriteBinary8Header(buffer, (byte)length);
@@ -395,7 +396,7 @@ namespace ProGaudi.MsgPack
             var length = binary.Length;
             if (length > ushort.MaxValue)
             {
-                throw DataIsTooLarge(binary.Length, ushort.MaxValue, nameof(DataCodes.Binary16), DataCodes.Binary16);
+                return ThrowDataIsTooLarge(binary.Length, ushort.MaxValue, nameof(DataCodes.Binary16), DataCodes.Binary16);
             }
 
             var result = WriteBinary16Header(buffer, (ushort) length);
@@ -574,7 +575,7 @@ namespace ProGaudi.MsgPack
         public static IMemoryOwner<byte> ReadBinary32(ReadOnlySpan<byte> buffer, out int readSize)
         {
             var length = ReadBinary32Header(buffer, out readSize);
-            if (length > int.MaxValue) throw DataIsTooLarge(length);
+            if (length > int.MaxValue) ThrowDataIsTooLarge(length);
             var resultLength = (int)length;
             return ReadBinaryBlob(buffer, ref readSize, resultLength);
         }

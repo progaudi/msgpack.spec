@@ -47,7 +47,7 @@ namespace ProGaudi.MsgPack
         public static byte ReadFixUInt8(ReadOnlySpan<byte> buffer, out int readSize)
         {
             readSize = 2;
-            if (buffer[0] != DataCodes.UInt8) throw WrongCodeException(buffer[0], DataCodes.UInt8);
+            if (buffer[0] != DataCodes.UInt8) return ThrowWrongCodeException(buffer[0], DataCodes.UInt8);
             return buffer[1];
         }
 

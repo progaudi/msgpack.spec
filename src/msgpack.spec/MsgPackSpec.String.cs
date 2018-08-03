@@ -27,7 +27,7 @@ namespace ProGaudi.MsgPack
         public static int WriteFixStringHeader(Span<byte> buffer, byte length)
         {
             if (length > FixStringMaxLength) 
-                throw WrongRangeCodeException(length, FixStringMin, FixStringMax);
+                return ThrowWrongRangeCodeException(length, FixStringMin, FixStringMax);
 
             buffer[0] = (byte) (FixStringMin + length);
             return 1;
@@ -171,7 +171,7 @@ namespace ProGaudi.MsgPack
                 return (byte) (value - FixStringMin);
             }
 
-            throw WrongRangeCodeException(value, FixStringMin, FixStringMax);
+            return ThrowWrongRangeCodeException(value, FixStringMin, FixStringMax);
         }
 
         /// <summary>
@@ -204,7 +204,7 @@ namespace ProGaudi.MsgPack
         public static byte ReadString8Header(ReadOnlySpan<byte> buffer, out int readSize)
         {
             readSize = 2;
-            if (buffer[0] != String8) throw WrongCodeException(buffer[0], String8);
+            if (buffer[0] != String8) ThrowWrongCodeException(buffer[0], String8);
             return buffer[1];
         }
 
@@ -235,7 +235,7 @@ namespace ProGaudi.MsgPack
         public static ushort ReadString16Header(ReadOnlySpan<byte> buffer, out int readSize)
         {
             readSize = 3;
-            if (buffer[0] != String16) throw WrongCodeException(buffer[0], String16);
+            if (buffer[0] != String16) ThrowWrongCodeException(buffer[0], String16);
             return ReadUInt16BigEndian(buffer.Slice(1));
         }
 
@@ -265,7 +265,7 @@ namespace ProGaudi.MsgPack
         public static uint ReadString32Header(ReadOnlySpan<byte> buffer, out int readSize)
         {
             readSize = 5;
-            if (buffer[0] != String32) throw WrongCodeException(buffer[0], String32);
+            if (buffer[0] != String32) ThrowWrongCodeException(buffer[0], String32);
             return ReadUInt32BigEndian(buffer.Slice(1));
         }
 
@@ -368,7 +368,7 @@ namespace ProGaudi.MsgPack
                     return ReadString16Header(buffer, out readSize);
                 case String32:
                     var uint32Value = ReadString32Header(buffer, out readSize);
-                    if (uint32Value > int.MaxValue) throw DataIsTooLarge(uint32Value);
+                    if (uint32Value > int.MaxValue) ThrowDataIsTooLarge(uint32Value);
                     return (int) uint32Value;
             }
 
@@ -428,7 +428,7 @@ namespace ProGaudi.MsgPack
         public static int WriteFixString(Span<byte> buffer, ReadOnlySpan<char> chars, Encoding encoding = null)
         {
             if (chars.Length > FixStringMaxLength)
-                throw DataIsTooLarge(chars.Length, FixStringMaxLength, "string", FixStringMin, FixStringMax);
+                return ThrowDataIsTooLarge(chars.Length, FixStringMaxLength, "string", FixStringMin, FixStringMax);
 
             var length = (encoding ?? _defaultEncoding).GetBytes(chars, buffer.Slice(1));
 
@@ -458,7 +458,8 @@ namespace ProGaudi.MsgPack
 
             var length = (encoding ?? _defaultEncoding).GetByteCount(chars);
             if (length > FixStringMaxLength)
-                throw DataIsTooLarge(chars.Length, FixStringMaxLength, "string", FixStringMin, FixStringMax);
+                return false;
+
             if (!TryWriteFixStringHeader(buffer, (byte) length, out wroteSize)) return false;
 
             var stringBuffer = buffer.Slice(wroteSize);
@@ -479,11 +480,11 @@ namespace ProGaudi.MsgPack
         public static int WriteString8(Span<byte> buffer, ReadOnlySpan<char> chars, Encoding encoding = null)
         {
             if (chars.Length > byte.MaxValue)
-                throw DataIsTooLarge(chars.Length, byte.MaxValue, "string", String8);
+                return ThrowDataIsTooLarge(chars.Length, byte.MaxValue, "string", String8);
 
             var length = (encoding ?? _defaultEncoding).GetBytes(chars, buffer.Slice(2));
             if (length > byte.MaxValue)
-                throw DataIsTooLarge(chars.Length, byte.MaxValue, "string", String8);
+                return ThrowDataIsTooLarge(chars.Length, byte.MaxValue, "string", String8);
 
             var result = WriteString8Header(buffer, (byte) length);
 
@@ -530,11 +531,11 @@ namespace ProGaudi.MsgPack
         public static int WriteString16(Span<byte> buffer, ReadOnlySpan<char> chars, Encoding encoding = null)
         {
             if (chars.Length > ushort.MaxValue)
-                throw DataIsTooLarge(chars.Length, ushort.MaxValue, "string", String16);
+                return ThrowDataIsTooLarge(chars.Length, ushort.MaxValue, "string", String16);
 
             var length = (encoding ?? _defaultEncoding).GetBytes(chars, buffer.Slice(2));
             if (length > ushort.MaxValue)
-                throw DataIsTooLarge(chars.Length, ushort.MaxValue, "string", String16);
+                return ThrowDataIsTooLarge(chars.Length, ushort.MaxValue, "string", String16);
 
             var result = WriteString16Header(buffer, (ushort) length);
 
@@ -802,7 +803,7 @@ namespace ProGaudi.MsgPack
         public static string ReadString32(ReadOnlySpan<byte> buffer, out int readSize, Encoding encoding = null)
         {
             var length = ReadString32Header(buffer, out readSize);
-            if (length > int.MaxValue) throw DataIsTooLarge(length);
+            if (length > int.MaxValue) ThrowDataIsTooLarge(length);
             return ReadString(buffer, (int) length, ref readSize, encoding);
         }
 

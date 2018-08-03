@@ -15,7 +15,7 @@ namespace ProGaudi.MsgPack
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int WriteNegativeFixInt(Span<byte> buffer, sbyte value)
         {
-            if (value < DataCodes.FixNegativeMinSByte || value > DataCodes.FixNegativeMaxSByte) throw WrongRangeCodeException(value, DataCodes.FixNegativeMinSByte, DataCodes.FixNegativeMaxSByte);
+            if (value < DataCodes.FixNegativeMinSByte || value > DataCodes.FixNegativeMaxSByte) ThrowWrongRangeCodeException(value, DataCodes.FixNegativeMinSByte, DataCodes.FixNegativeMaxSByte);
             buffer[0] = unchecked((byte)value);
             return 1;
         }
@@ -49,8 +49,9 @@ namespace ProGaudi.MsgPack
         {
             readSize = 1;
             var result = unchecked((sbyte)buffer[0]);
-            if (result < DataCodes.FixNegativeMinSByte || result > DataCodes.FixNegativeMaxSByte)
-                throw WrongRangeCodeException(result, DataCodes.FixNegativeMinSByte, DataCodes.FixNegativeMaxSByte);
+            if (result >= DataCodes.FixNegativeMinSByte && result <= DataCodes.FixNegativeMaxSByte)
+                return result;
+            ThrowWrongRangeCodeException(result, DataCodes.FixNegativeMinSByte, DataCodes.FixNegativeMaxSByte);
             return result;
         }
 

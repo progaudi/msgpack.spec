@@ -151,7 +151,7 @@ namespace ProGaudi.MsgPack
         {
             readSize = 6;
             var extension = ReadFixExtension4Header(buffer, out var headerSize);
-            if (extension != ExtensionTypes.Timestamp) throw WrongExtensionTypeException(extension, ExtensionTypes.Timestamp);
+            if (extension != ExtensionTypes.Timestamp) ThrowWrongExtensionTypeException(extension, ExtensionTypes.Timestamp);
             return new Timestamp(ReadUInt32BigEndian(buffer.Slice(headerSize)));
         }
 
@@ -165,7 +165,7 @@ namespace ProGaudi.MsgPack
         {
             readSize = 10;
             var extension = ReadFixExtension8Header(buffer, out var headerSize);
-            if (extension != ExtensionTypes.Timestamp) throw WrongExtensionTypeException(extension, ExtensionTypes.Timestamp);
+            if (extension != ExtensionTypes.Timestamp) ThrowWrongExtensionTypeException(extension, ExtensionTypes.Timestamp);
             return new Timestamp(ReadUInt64BigEndian(buffer.Slice(headerSize)));
         }
 
@@ -179,8 +179,8 @@ namespace ProGaudi.MsgPack
         {
             readSize = 15;
             var (extension, length) = ReadExtension8Header(buffer, out var headerSize);
-            if (extension != ExtensionTypes.Timestamp) throw WrongExtensionTypeException(extension, ExtensionTypes.Timestamp);
-            if (length != 12) throw WrongExtensionLengthException(length, 12);
+            if (extension != ExtensionTypes.Timestamp) ThrowWrongExtensionTypeException(extension, ExtensionTypes.Timestamp);
+            if (length != 12) ThrowWrongExtensionLengthException(length, 12);
             return new Timestamp(ReadInt64BigEndian(buffer.Slice(headerSize + 4)), ReadUInt32BigEndian(buffer.Slice(headerSize)));
         }
 
@@ -201,11 +201,13 @@ namespace ProGaudi.MsgPack
                 case DataCodes.Extension8:
                     return ReadTimestamp96(buffer, out readSize);
                 default:
-                    throw WrongCodeException(
+                    ThrowWrongCodeException(
                         buffer[0],
                         DataCodes.FixExtension4,
                         DataCodes.FixExtension8,
                         DataCodes.Extension8);
+                    readSize = 0;
+                    return default;
             }
         }
 

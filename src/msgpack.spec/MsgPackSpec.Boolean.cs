@@ -46,7 +46,7 @@ namespace ProGaudi.MsgPack
         {
             readSize = 1;
             var result = buffer[0];
-            if (result != DataCodes.True && result != DataCodes.False) throw WrongCodeException(result, DataCodes.True, DataCodes.False);
+            if (result != DataCodes.True && result != DataCodes.False) ThrowWrongCodeException(result, DataCodes.True, DataCodes.False);
             return result == DataCodes.True;
         }
 

@@ -15,7 +15,7 @@ namespace ProGaudi.MsgPack
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int WritePositiveFixInt(Span<byte> buffer, byte value)
         {
-            if (value > DataCodes.FixPositiveMax) throw WrongRangeCodeException(value, DataCodes.FixPositiveMin, DataCodes.FixPositiveMax);
+            if (value > DataCodes.FixPositiveMax) return ThrowWrongRangeCodeException(value, DataCodes.FixPositiveMin, DataCodes.FixPositiveMax);
 
             buffer[0] = value;
             return 1;
@@ -49,7 +49,7 @@ namespace ProGaudi.MsgPack
         public static byte ReadPositiveFixInt(ReadOnlySpan<byte> buffer, out int readSize)
         {
             readSize = 1;
-            if (buffer[0] > DataCodes.FixPositiveMax) throw WrongRangeCodeException(buffer[0], DataCodes.FixPositiveMin, DataCodes.FixPositiveMax);
+            if (buffer[0] > DataCodes.FixPositiveMax) return ThrowWrongRangeCodeException(buffer[0], DataCodes.FixPositiveMin, DataCodes.FixPositiveMax);
             return buffer[0];
         }
 

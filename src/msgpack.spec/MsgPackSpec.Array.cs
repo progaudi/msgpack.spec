@@ -123,7 +123,7 @@ namespace ProGaudi.MsgPack
             if (FixArrayMin <= buffer[0] && buffer[0] <= FixArrayMax)
                 return (byte) (buffer[0] - FixArrayMin);
 
-            throw WrongRangeCodeException(buffer[0], FixArrayMin, FixArrayMax);
+            return ThrowWrongRangeCodeException(buffer[0], FixArrayMin, FixArrayMax);
         }
 
         /// <summary>
@@ -162,7 +162,7 @@ namespace ProGaudi.MsgPack
             readSize = 3;
             if (buffer[0] == Array16)
                 return BinaryPrimitives.ReadUInt16BigEndian(buffer.Slice(1));
-            throw WrongCodeException(buffer[0], Array16);
+            return ThrowWrongCodeException(buffer[0], Array16);
         }
 
         /// <summary>
@@ -198,7 +198,7 @@ namespace ProGaudi.MsgPack
             readSize = 5;
             if (buffer[0] == Array32)
                 return BinaryPrimitives.ReadUInt32BigEndian(buffer.Slice(1));
-            throw WrongCodeException(buffer[0], Array32);
+            return ThrowWrongCodeException(buffer[0], Array32);
         }
 
         /// <summary>
@@ -233,7 +233,7 @@ namespace ProGaudi.MsgPack
         {
             if (length < 0)
             {
-                throw LengthShouldBeNonNegative(length);
+                return ThrowLengthShouldBeNonNegative(length);
             }
 
             if (length <= FixArrayMaxLength)
@@ -306,10 +306,11 @@ namespace ProGaudi.MsgPack
                     return (int) uint32Value;
                 }
 
-                throw DataIsTooLarge(uint32Value);
+                return ThrowDataIsTooLarge(uint32Value);
             }
 
-            throw WrongArrayHeader(buffer[0]);
+            readSize = 0;
+            return ThrowWrongArrayHeader(buffer[0]);
         }
 
         /// <summary>

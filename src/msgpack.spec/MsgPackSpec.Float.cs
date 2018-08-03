@@ -65,7 +65,7 @@ namespace ProGaudi.MsgPack
         public static float ReadFixFloat32(ReadOnlySpan<byte> buffer, out int readSize)
         {
             readSize = 5;
-            if (buffer[0] != DataCodes.Float32) throw WrongCodeException(buffer[0], DataCodes.Float32);
+            if (buffer[0] != DataCodes.Float32) ThrowWrongCodeException(buffer[0], DataCodes.Float32);
             return new FloatBinary(buffer.Slice(1)).Value;
         }
 

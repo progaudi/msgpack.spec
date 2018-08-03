@@ -47,7 +47,7 @@ namespace ProGaudi.MsgPack
         public static uint ReadFixUInt32(ReadOnlySpan<byte> buffer, out int readSize)
         {
             readSize = 5;
-            if (buffer[0] != DataCodes.UInt32) throw WrongCodeException(buffer[0], DataCodes.UInt32);
+            if (buffer[0] != DataCodes.UInt32) return ThrowWrongCodeException(buffer[0], DataCodes.UInt32);
             return BinaryPrimitives.ReadUInt32BigEndian(buffer.Slice(1));
         }
 
@@ -103,24 +103,29 @@ namespace ProGaudi.MsgPack
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static uint ReadUInt32(ReadOnlySpan<byte> buffer, out int readSize)
         {
-            if (buffer.IsEmpty) throw CantReadEmptyBufferException();
+            if (buffer.IsEmpty)
+            {
+                readSize = 0;
+                return ThrowCantReadEmptyBufferException();
+            }
+
             var code = buffer[0];
 
             switch (code)
             {
                 case DataCodes.Int32:
                     var int32 = ReadFixInt32(buffer, out readSize);
-                    if (int32 < 0) throw UnsignedIntException(int32);
+                    if (int32 < 0) return ThrowUnsignedIntException(int32);
                     return (uint) int32;
 
                 case DataCodes.Int16:
                     var int16 = ReadFixInt32(buffer, out readSize);
-                    if (int16 < 0) throw UnsignedIntException(int16);
+                    if (int16 < 0) return ThrowUnsignedIntException(int16);
                     return (uint) int16;
 
                 case DataCodes.Int8:
                     var int8 = ReadFixInt32(buffer, out readSize);
-                    if (int8 < 0) throw UnsignedIntException(int8);
+                    if (int8 < 0) return ThrowUnsignedIntException(int8);
                     return (uint) int8;
 
                 case DataCodes.UInt32:
@@ -138,7 +143,7 @@ namespace ProGaudi.MsgPack
                 return positive;
             }
 
-            throw WrongUIntCodeException(code, DataCodes.Int8, DataCodes.Int16, DataCodes.Int32, DataCodes.UInt8, DataCodes.UInt16, DataCodes.UInt32);
+            return ThrowWrongUIntCodeException(code, DataCodes.Int8, DataCodes.Int16, DataCodes.Int32, DataCodes.UInt8, DataCodes.UInt16, DataCodes.UInt32);
         }
 
         /// <summary>
