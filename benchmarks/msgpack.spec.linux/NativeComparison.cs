@@ -1,5 +1,6 @@
 using System;
 using System.Buffers;
+using System.Buffers.Binary;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using BenchmarkDotNet.Attributes;
@@ -26,7 +27,7 @@ namespace msgpack.spec.linux
         }
 
         [Benchmark]
-        public void MsgPackSpecPointer()
+        public void PointerLittleEndian()
         {
             fixed (byte* pointer = &_buffer[0])
             {
@@ -41,13 +42,43 @@ namespace msgpack.spec.linux
         }
 
         [Benchmark]
-        public void MsgPackSpecSpan()
+        public void SpanLittleEndian()
         {
             var pointer = _buffer.AsSpan();
             var l = length;
             pointer[0] = DataCodes.Array16;
             MemoryMarshal.Write(pointer.Slice(1), ref l);
             var x = baseInt;
+            for (var i = 0; i < length; i++)
+            {
+                pointer[3 + 5 * i] = DataCodes.UInt32;
+                MemoryMarshal.Write(pointer.Slice(3 + 5 * i + 1), ref x);
+            }
+        }
+
+        [Benchmark]
+        public void PointerBigEndian()
+        {
+            fixed (byte* pointer = &_buffer[0])
+            {
+                pointer[0] = DataCodes.Array16;
+                Unsafe.WriteUnaligned(ref pointer[1], BinaryPrimitives.ReverseEndianness(length));
+                for (var i = 0u; i < length; i++)
+                {
+                    pointer[3 + 5 * i] = DataCodes.UInt32;
+                    Unsafe.WriteUnaligned(ref pointer[3 + 5 * i + 1], BinaryPrimitives.ReverseEndianness(baseInt));
+                }
+            }
+        }
+
+        [Benchmark]
+        public void SpanBigEndian()
+        {
+            var pointer = _buffer.AsSpan();
+            var l = BinaryPrimitives.ReverseEndianness(length);
+            pointer[0] = DataCodes.Array16;
+            MemoryMarshal.Write(pointer.Slice(1), ref l);
+            var x = BinaryPrimitives.ReverseEndianness(baseInt);
             for (var i = 0; i < length; i++)
             {
                 pointer[3 + 5 * i] = DataCodes.UInt32;
