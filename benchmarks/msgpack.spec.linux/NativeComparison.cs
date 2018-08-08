@@ -19,6 +19,16 @@ namespace msgpack.spec.linux
         private readonly byte[] _buffer = ArrayPool<byte>.Shared.Rent(short.MaxValue);
 
         [Benchmark]
+        public int MsgPackSpecArray()
+        {
+            var buffer = _buffer.AsSpan();
+            var wroteSize = MsgPackSpec.WriteArray16Header(buffer, length);
+            for (var i = 0u; i < length; i++)
+                wroteSize += MsgPackSpec.WriteUInt32(buffer.Slice(wroteSize), baseInt);
+
+            return wroteSize;
+        }
+        [Benchmark]
         public int MsgPackSpecArrayMinus()
         {
             var buffer = _buffer.AsSpan();
@@ -58,6 +68,18 @@ namespace msgpack.spec.linux
                 }
             }
         }
+
+        [Benchmark(Baseline = true)]
+        public void CArray() => CNative.SerializeArray();
+
+        [Benchmark]
+        public void CArrayMinus() => CNative.SerializeArrayMinus();
+
+        [Benchmark]
+        public void CppArray() => CppNative.SerializeArray();
+
+        [Benchmark]
+        public void CppArrayMinus() => CppNative.SerializeArrayMinus();
 
         [Benchmark]
         public unsafe void PointerBigEndian()
@@ -118,30 +140,7 @@ namespace msgpack.spec.linux
         }
 
         [Benchmark]
-        public int MsgPackSpecArray()
-        {
-            var buffer = _buffer.AsSpan();
-            var wroteSize = MsgPackSpec.WriteArray16Header(buffer, length);
-            for (var i = 0u; i < length; i++)
-                wroteSize += MsgPackSpec.WriteUInt32(buffer.Slice(wroteSize), baseInt);
-
-            return wroteSize;
-        }
-
-        [Benchmark(Baseline = true)]
-        public void CArray() => CNative.SerializeArray();
-
-        [Benchmark]
-        public void CArrayMinus() => CNative.SerializeArrayMinus();
-
-        [Benchmark]
         public void Empty() => CNative.Empty();
-
-        [Benchmark]
-        public void CppArray() => CppNative.SerializeArray();
-
-        [Benchmark]
-        public void CppArrayMinus() => CppNative.SerializeArrayMinus();
 
         private static class CNative
         {
