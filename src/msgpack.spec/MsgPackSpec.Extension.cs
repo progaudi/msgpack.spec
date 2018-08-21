@@ -2,6 +2,7 @@ using System;
 using System.Buffers;
 using System.Buffers.Binary;
 using System.Runtime.CompilerServices;
+using ProGaudi.Buffers;
 
 namespace ProGaudi.MsgPack
 {
@@ -1180,7 +1181,7 @@ namespace ProGaudi.MsgPack
         {
             if (buffer.Length - readSize < size) return false;
 
-            extension = _pool.Rent(size);
+            extension = FixedLengthMemoryPool<byte>.Shared.Rent(size);
             if (buffer.Slice(readSize).TryCopyTo(extension.Memory.Span))
             {
                 readSize += size;
@@ -1207,7 +1208,7 @@ namespace ProGaudi.MsgPack
             int size,
             ref int readSize)
         {
-            var owner = _pool.Rent(size);
+            var owner = FixedLengthMemoryPool<byte>.Shared.Rent(size);
             buffer.Slice(readSize, size).CopyTo(owner.Memory.Span);
             readSize += size;
             return owner;
