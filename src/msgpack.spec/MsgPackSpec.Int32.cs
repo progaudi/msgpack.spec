@@ -76,7 +76,7 @@ namespace ProGaudi.MsgPack
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int WriteInt32(Span<byte> buffer, int value)
         {
-            if (value >= 0) return WriteUInt64(buffer, (ulong) value);
+            if (value >= 0) return WriteUInt32(buffer, (uint) value);
             if (value >= DataCodes.FixNegativeMinSByte) return WriteNegativeFixInt(buffer, (sbyte) value);
             if (value >= sbyte.MinValue) return WriteFixInt8(buffer, (sbyte) value);
             if (value >= short.MinValue) return WriteFixInt16(buffer, (short) value);

@@ -1,4 +1,4 @@
-FROM microsoft/dotnet:2.1-sdk as builder
+FROM microsoft/dotnet:2.1.302-sdk as builder
 
 WORKDIR /app
 ADD . /app

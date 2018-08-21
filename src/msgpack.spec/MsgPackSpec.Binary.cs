@@ -2,6 +2,7 @@ using System;
 using System.Buffers;
 using System.Buffers.Binary;
 using System.Runtime.CompilerServices;
+using ProGaudi.Buffers;
 
 namespace ProGaudi.MsgPack
 {
@@ -631,7 +632,7 @@ namespace ProGaudi.MsgPack
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static IMemoryOwner<byte> ReadBinaryBlob(ReadOnlySpan<byte> buffer, ref int readSize, int length)
         {
-            var result = _pool.Rent(length);
+            var result = FixedLengthMemoryPool<byte>.Shared.Rent(length);
             buffer.Slice(readSize, length).CopyTo(result.Memory.Span);
             readSize += length;
             return result;
@@ -640,7 +641,7 @@ namespace ProGaudi.MsgPack
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static bool TryReadBinary(ReadOnlySpan<byte> buffer, out IMemoryOwner<byte> result, int resultLength, ref int readSize)
         {
-            result = _pool.Rent(resultLength);
+            result = FixedLengthMemoryPool<byte>.Shared.Rent(resultLength);
             if (buffer.Slice(readSize, resultLength).TryCopyTo(result.Memory.Span))
             {
                 readSize += resultLength;

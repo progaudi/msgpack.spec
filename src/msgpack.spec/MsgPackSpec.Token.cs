@@ -1,5 +1,6 @@
 using System;
 using System.Buffers;
+using ProGaudi.Buffers;
 
 namespace ProGaudi.MsgPack
 {
@@ -15,7 +16,7 @@ namespace ProGaudi.MsgPack
         public static IMemoryOwner<byte> CopyToken(ReadOnlySpan<byte> buffer)
         {
             var token = ReadToken(buffer);
-            var result = _pool.Rent(token.Length);
+            var result = FixedLengthMemoryPool<byte>.Shared.Rent(token.Length);
             token.CopyTo(result.Memory.Span);
             return result;
         }

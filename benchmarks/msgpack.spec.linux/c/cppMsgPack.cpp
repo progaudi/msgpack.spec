@@ -2,30 +2,19 @@
 
 using namespace msgpack;
 
-extern "C" void serializeIntArray()
+extern "C" uint32_t serializeInts(uint32_t size)
 {
-    const uint32_t size = 100;
-    const int64_t base = 1L << 30;
+    uint32_t base = 99000;
     sbuffer buffer;
     packer<sbuffer> pk(&buffer);
 
-    pk.pack_array(size);
+    uint32_t idx = 0;
 
-    int64_t idx = 0;
     for (; idx < size; ++idx)
+    {
+        base -= 1000;
         pk.pack(base);
-}
+    }
 
-extern "C" void serializeIntArrayMinus()
-{
-    const uint32_t size = 100;
-    const int64_t base = 1L << 30;
-    sbuffer buffer;
-    packer<sbuffer> pk(&buffer);
-
-    pk.pack_array(size);
-
-    int64_t idx = 0;
-    for (; idx < size; ++idx)
-        pk.pack(base-idx);
+    return idx;
 }
