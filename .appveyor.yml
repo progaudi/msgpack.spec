@@ -30,7 +30,7 @@ init:
 environment:
   # this is how to set encrypted variable. Go to "Encrypt data" page in account menu to encrypt data.
   NUGET_API_KEY:
-    secure: +Qor7qH6REVQKnwKWnPnTt9vMIlk3knVatE7zySAPvm+ZQdedf4GllTUYg2mmlCC
+    secure: FAFEGEJgtKio/U/LIb4la1fOwPnFBenh58MciTjhEJgR+RbERs0sJE6mvaYF8rSv
 
 # scripts that run after cloning repository
 install:
