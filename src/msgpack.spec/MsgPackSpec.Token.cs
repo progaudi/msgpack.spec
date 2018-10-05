@@ -121,77 +121,77 @@ namespace ProGaudi.MsgPack
 
                     case DataCodes.Float32:
                         elementsToRead--;
-                        offset += 5;
+                        offset += DataLengths.Float32;
                         continue;
 
                     case DataCodes.Float64:
                         elementsToRead--;
-                        offset += 9;
+                        offset += DataLengths.Float64;
                         continue;
 
                     case DataCodes.UInt8:
                         elementsToRead--;
-                        offset += 2;
+                        offset += DataLengths.UInt8;
                         continue;
 
                     case DataCodes.UInt16:
                         elementsToRead--;
-                        offset += 3;
+                        offset += DataLengths.UInt16;
                         continue;
 
                     case DataCodes.UInt32:
                         elementsToRead--;
-                        offset += 5;
+                        offset += DataLengths.UInt32;
                         continue;
 
                     case DataCodes.UInt64:
                         elementsToRead--;
-                        offset += 9;
+                        offset += DataLengths.UInt64;
                         continue;
 
                     case DataCodes.Int8:
                         elementsToRead--;
-                        offset += 2;
+                        offset += DataLengths.Int8;
                         continue;
 
                     case DataCodes.Int16:
                         elementsToRead--;
-                        offset += 3;
+                        offset += DataLengths.Int16;
                         continue;
 
                     case DataCodes.Int32:
                         elementsToRead--;
-                        offset += 5;
+                        offset += DataLengths.Int32;
                         continue;
 
                     case DataCodes.Int64:
                         elementsToRead--;
-                        offset += 9;
+                        offset += DataLengths.Int64;
                         continue;
 
                     case DataCodes.FixExtension1:
                         elementsToRead--;
-                        offset += 3;
+                        offset += DataLengths.FixExtensionHeader + 1;
                         continue;
 
                     case DataCodes.FixExtension2:
                         elementsToRead--;
-                        offset += 4;
+                        offset += DataLengths.FixExtensionHeader + 2;
                         continue;
 
                     case DataCodes.FixExtension4:
                         elementsToRead--;
-                        offset += 6;
+                        offset += DataLengths.FixExtensionHeader + 4;
                         continue;
 
                     case DataCodes.FixExtension8:
                         elementsToRead--;
-                        offset += 10;
+                        offset += DataLengths.FixExtensionHeader + 8;
                         continue;
 
                     case DataCodes.FixExtension16:
                         elementsToRead--;
-                        offset += 18;
+                        offset += DataLengths.FixExtensionHeader + 16;
                         continue;
 
                     case DataCodes.String8:

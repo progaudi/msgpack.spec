@@ -18,7 +18,7 @@ namespace ProGaudi.MsgPack
         {
             BinaryPrimitives.WriteInt32BigEndian(buffer.Slice(1), value);
             buffer[0] = DataCodes.Int32;
-            return 5;
+            return DataLengths.Int32;
         }
 
         /// <summary>
@@ -31,7 +31,7 @@ namespace ProGaudi.MsgPack
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool TryWriteFixInt32(Span<byte> buffer, int value, out int wroteSize)
         {
-            wroteSize = 5;
+            wroteSize = DataLengths.Int32;
             if (buffer.Length < wroteSize) return false;
             buffer[0] = DataCodes.Int32;
             return BinaryPrimitives.TryWriteInt32BigEndian(buffer.Slice(1), value);
@@ -46,7 +46,7 @@ namespace ProGaudi.MsgPack
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int ReadFixInt32(ReadOnlySpan<byte> buffer, out int readSize)
         {
-            readSize = 5;
+            readSize = DataLengths.Int32;
             if (buffer[0] != DataCodes.Int32) return ThrowWrongCodeException(buffer[0], DataCodes.Int32);
             return BinaryPrimitives.ReadInt32BigEndian(buffer.Slice(1));
         }
@@ -61,7 +61,7 @@ namespace ProGaudi.MsgPack
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool TryReadFixInt32(ReadOnlySpan<byte> buffer, out int value, out int readSize)
         {
-            readSize = 5;
+            readSize = DataLengths.Int32;
             value = default;
             if (buffer.Length < readSize) return false;
             var result = buffer[0] == DataCodes.Int32;

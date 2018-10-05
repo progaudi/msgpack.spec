@@ -17,7 +17,7 @@ namespace ProGaudi.MsgPack
         public static int WriteNil(Span<byte> buffer)
         {
             buffer[0] = Nil;
-            return 1;
+            return DataLengths.Nil;
         }
 
         /// <summary>
@@ -29,7 +29,7 @@ namespace ProGaudi.MsgPack
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool TryWriteNil(Span<byte> buffer, out int wroteSize)
         {
-            wroteSize = 1;
+            wroteSize = DataLengths.Nil;
             if (buffer.Length < wroteSize) return false;
             buffer[0] = Nil;
             return true;
@@ -42,7 +42,7 @@ namespace ProGaudi.MsgPack
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void ReadNil(ReadOnlySpan<byte> buffer, out int readSize)
         {
-            readSize = 1;
+            readSize = DataLengths.Nil;
             if (buffer[0] != Nil)
                 ThrowWrongCodeException(buffer[0], Nil);
         }
@@ -56,7 +56,7 @@ namespace ProGaudi.MsgPack
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool TryReadNil(ReadOnlySpan<byte> buffer, out int readSize)
         {
-            readSize = 1;
+            readSize = DataLengths.Nil;
             return buffer.Length > 0 && buffer[0] == Nil;
         }
     }

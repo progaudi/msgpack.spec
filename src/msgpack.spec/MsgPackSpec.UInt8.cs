@@ -17,7 +17,7 @@ namespace ProGaudi.MsgPack
         {
             buffer[1] = value;
             buffer[0] = DataCodes.UInt8;
-            return 2;
+            return DataLengths.UInt8;
         }
 
         /// <summary>
@@ -30,7 +30,7 @@ namespace ProGaudi.MsgPack
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool TryWriteFixUInt8(Span<byte> buffer, byte value, out int wroteSize)
         {
-            wroteSize = 2;
+            wroteSize = DataLengths.UInt8;
             if (buffer.Length < wroteSize) return false;
             buffer[1] = value;
             buffer[0] = DataCodes.UInt8;
@@ -46,7 +46,7 @@ namespace ProGaudi.MsgPack
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static byte ReadFixUInt8(ReadOnlySpan<byte> buffer, out int readSize)
         {
-            readSize = 2;
+            readSize = DataLengths.UInt8;
             if (buffer[0] != DataCodes.UInt8) return ThrowWrongCodeException(buffer[0], DataCodes.UInt8);
             return buffer[1];
         }
@@ -61,7 +61,7 @@ namespace ProGaudi.MsgPack
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool TryReadFixUInt8(ReadOnlySpan<byte> buffer, out byte value, out int readSize)
         {
-            readSize = 2;
+            readSize = DataLengths.UInt8;
             value = default;
             if (buffer.Length < readSize) return false;
             var result = buffer[0] == DataCodes.UInt8;

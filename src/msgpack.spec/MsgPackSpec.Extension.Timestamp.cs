@@ -16,7 +16,7 @@ namespace ProGaudi.MsgPack
         {
             WriteUInt32BigEndian(buffer.Slice(2), (uint) timestamp.Seconds);
             WriteFixExtension4Header(buffer, ExtensionTypes.Timestamp);
-            return 6;
+            return DataLengths.TimeStamp32;
         }
 
         /// <summary>
@@ -28,7 +28,7 @@ namespace ProGaudi.MsgPack
         {
             WriteUInt64BigEndian(buffer.Slice(2), timestamp.Epoch64);
             WriteFixExtension8Header(buffer, ExtensionTypes.Timestamp);
-            return 10;
+            return DataLengths.TimeStamp64;
         }
 
         /// <summary>
@@ -41,7 +41,7 @@ namespace ProGaudi.MsgPack
             WriteInt64BigEndian(buffer.Slice(7), timestamp.Seconds);
             WriteUInt32BigEndian(buffer.Slice(3), timestamp.NanoSeconds);
             WriteExtension8Header(buffer, ExtensionTypes.Timestamp, 12);
-            return 15;
+            return DataLengths.TimeStamp96;
         }
 
         /// <summary>
@@ -72,7 +72,7 @@ namespace ProGaudi.MsgPack
         /// </returns>
         public static bool TryWriteTimestamp32(Span<byte> buffer, in Timestamp timestamp, out int wroteSize)
         {
-            wroteSize = 6;
+            wroteSize = DataLengths.TimeStamp32;
             if (buffer.Length < wroteSize) return false;
             if (!(0 <= timestamp.Seconds && timestamp.Seconds <= uint.MaxValue)) return false;
             WriteUInt32BigEndian(buffer.Slice(2), (uint) timestamp.Seconds);
@@ -94,7 +94,7 @@ namespace ProGaudi.MsgPack
         /// </returns>
         public static bool TryWriteTimestamp64(Span<byte> buffer, in Timestamp timestamp, out int wroteSize)
         {
-            wroteSize = 10;
+            wroteSize = DataLengths.TimeStamp64;
             if (buffer.Length < wroteSize) return false;
             if (timestamp.Seconds >> 34 != 0) return false;
             WriteUInt64BigEndian(buffer.Slice(2), timestamp.Epoch64);
@@ -116,7 +116,7 @@ namespace ProGaudi.MsgPack
         /// </returns>
         public static bool TryWriteTimestamp96(Span<byte> buffer, in Timestamp timestamp, out int wroteSize)
         {
-            wroteSize = 15;
+            wroteSize = DataLengths.TimeStamp96;
             if (buffer.Length < wroteSize) return false;
             WriteInt64BigEndian(buffer.Slice(7), timestamp.Seconds);
             WriteUInt32BigEndian(buffer.Slice(3), timestamp.NanoSeconds);
@@ -125,7 +125,7 @@ namespace ProGaudi.MsgPack
         }
 
         /// <summary>
-        /// Tries to write smallest possible representation of <paramref name="timestamp"/> into 
+        /// Tries to write smallest possible representation of <paramref name="timestamp"/> into
         /// </summary>
         /// <paramref name="buffer">Buffer to write to.</paramref>
         /// <paramref name="timestamp">Timestamp to write.</paramref>
@@ -149,7 +149,7 @@ namespace ProGaudi.MsgPack
         /// <returns>Timestamp</returns>
         public static Timestamp ReadTimestamp32(ReadOnlySpan<byte> buffer, out int readSize)
         {
-            readSize = 6;
+            readSize = DataLengths.TimeStamp32;
             var extension = ReadFixExtension4Header(buffer, out var headerSize);
             if (extension != ExtensionTypes.Timestamp) ThrowWrongExtensionTypeException(extension, ExtensionTypes.Timestamp);
             return new Timestamp(ReadUInt32BigEndian(buffer.Slice(headerSize)));
@@ -163,7 +163,7 @@ namespace ProGaudi.MsgPack
         /// <returns>Timestamp</returns>
         public static Timestamp ReadTimestamp64(ReadOnlySpan<byte> buffer, out int readSize)
         {
-            readSize = 10;
+            readSize = DataLengths.TimeStamp64;
             var extension = ReadFixExtension8Header(buffer, out var headerSize);
             if (extension != ExtensionTypes.Timestamp) ThrowWrongExtensionTypeException(extension, ExtensionTypes.Timestamp);
             return new Timestamp(ReadUInt64BigEndian(buffer.Slice(headerSize)));
@@ -177,7 +177,7 @@ namespace ProGaudi.MsgPack
         /// <returns>Timestamp</returns>
         public static Timestamp ReadTimestamp96(ReadOnlySpan<byte> buffer, out int readSize)
         {
-            readSize = 15;
+            readSize = DataLengths.TimeStamp96;
             var (extension, length) = ReadExtension8Header(buffer, out var headerSize);
             if (extension != ExtensionTypes.Timestamp) ThrowWrongExtensionTypeException(extension, ExtensionTypes.Timestamp);
             if (length != 12) ThrowWrongExtensionLengthException(length, 12);
@@ -217,7 +217,7 @@ namespace ProGaudi.MsgPack
         /// <paramref name="buffer">Buffer to read from.</paramref>
         /// <paramref name="timestamp">Timestamp</paramref>
         /// <paramref name="readSize">Count of bytes, read from <paramref name="buffer"/>.</paramref>
-        /// <returns><c>true</c> if everything is ok, <c>false</c> if: 
+        /// <returns><c>true</c> if everything is ok, <c>false</c> if:
         /// <list type="bullet">
         ///     <item><description><paramref name="buffer"/> is too small or</description></item>
         ///     <item><description><paramref name="buffer"/>[0] is not <see cref="DataCodes.FixExtension4"/> or</description></item>
@@ -227,7 +227,7 @@ namespace ProGaudi.MsgPack
         /// </returns>
         public static bool TryReadTimestamp32(ReadOnlySpan<byte> buffer, out Timestamp timestamp, out int readSize)
         {
-            readSize = 6;
+            readSize = DataLengths.TimeStamp32;
             timestamp = Timestamp.Zero;
             if (buffer.Length < readSize) return false;
             if (!TryReadFixExtension4Header(buffer, out var extension, out var headerSize)) return false;
@@ -243,7 +243,7 @@ namespace ProGaudi.MsgPack
         /// <paramref name="buffer">Buffer to read from.</paramref>
         /// <paramref name="timestamp">Timestamp</paramref>
         /// <paramref name="readSize">Count of bytes, read from <paramref name="buffer"/>.</paramref>
-        /// <returns><c>true</c> if everything is ok, <c>false</c> if: 
+        /// <returns><c>true</c> if everything is ok, <c>false</c> if:
         /// <list type="bullet">
         ///     <item><description><paramref name="buffer"/> is too small or</description></item>
         ///     <item><description><paramref name="buffer"/>[0] is not <see cref="DataCodes.FixExtension8"/> or</description></item>
@@ -252,7 +252,7 @@ namespace ProGaudi.MsgPack
         /// </list></returns>
         public static bool TryReadTimestamp64(ReadOnlySpan<byte> buffer, out Timestamp timestamp, out int readSize)
         {
-            readSize = 10;
+            readSize = DataLengths.TimeStamp64;
             timestamp = Timestamp.Zero;
             if (buffer.Length < readSize) return false;
             if (!TryReadFixExtension8Header(buffer, out var extension, out var headerSize)) return false;
@@ -268,7 +268,7 @@ namespace ProGaudi.MsgPack
         /// <paramref name="buffer">Buffer to read from.</paramref>
         /// <paramref name="timestamp">Timestamp</paramref>
         /// <paramref name="readSize">Count of bytes, read from <paramref name="buffer"/>.</paramref>
-        /// <returns><c>true</c> if everything is ok, <c>false</c> if: 
+        /// <returns><c>true</c> if everything is ok, <c>false</c> if:
         /// <list type="bullet">
         ///     <item><description><paramref name="buffer"/> is too small or</description></item>
         ///     <item><description><paramref name="buffer"/>[0] is not <see cref="DataCodes.Extension8"/> or</description></item>
@@ -277,7 +277,7 @@ namespace ProGaudi.MsgPack
         /// </list></returns>
         public static bool TryReadTimestamp96(ReadOnlySpan<byte> buffer, out Timestamp timestamp, out int readSize)
         {
-            readSize = 15;
+            readSize = DataLengths.TimeStamp96;
             timestamp = Timestamp.Zero;
             if (buffer.Length < readSize) return false;
             if (!TryReadExtension8Header(buffer, out var extension, out var length, out var headerSize)) return false;
@@ -295,7 +295,7 @@ namespace ProGaudi.MsgPack
         /// <paramref name="buffer">Buffer to read from.</paramref>
         /// <paramref name="timestamp">Timestamp</paramref>
         /// <paramref name="readSize">Count of bytes, read from <paramref name="buffer"/>.</paramref>
-        /// <returns><c>true</c> if everything is ok, <c>false</c> if: 
+        /// <returns><c>true</c> if everything is ok, <c>false</c> if:
         /// <list type="bullet">
         ///     <item><description><paramref name="buffer"/> is too small or</description></item>
         ///     <item><description><paramref name="buffer"/>[0] is not <see cref="DataCodes.FixExtension4"/>, <see cref="DataCodes.FixExtension8"/> or <see cref="DataCodes.Extension8"/> or</description></item>

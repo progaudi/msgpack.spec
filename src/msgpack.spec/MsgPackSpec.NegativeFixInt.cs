@@ -17,7 +17,7 @@ namespace ProGaudi.MsgPack
         {
             if (value < DataCodes.FixNegativeMinSByte || value > DataCodes.FixNegativeMaxSByte) ThrowWrongRangeCodeException(value, DataCodes.FixNegativeMinSByte, DataCodes.FixNegativeMaxSByte);
             buffer[0] = unchecked((byte)value);
-            return 1;
+            return DataLengths.NegativeFixInt;
         }
 
         /// <summary>
@@ -30,7 +30,7 @@ namespace ProGaudi.MsgPack
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool TryWriteNegativeFixInt(Span<byte> buffer, sbyte value, out int wroteSize)
         {
-            wroteSize = 1;
+            wroteSize = DataLengths.NegativeFixInt;
             if (buffer.Length < wroteSize) return false;
             if (value < DataCodes.FixNegativeMinSByte || value > DataCodes.FixNegativeMaxSByte) return false;
 
@@ -47,7 +47,7 @@ namespace ProGaudi.MsgPack
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static sbyte ReadNegativeFixInt(ReadOnlySpan<byte> buffer, out int readSize)
         {
-            readSize = 1;
+            readSize = DataLengths.NegativeFixInt;
             var result = unchecked((sbyte)buffer[0]);
             if (result >= DataCodes.FixNegativeMinSByte && result <= DataCodes.FixNegativeMaxSByte)
                 return result;
@@ -66,7 +66,7 @@ namespace ProGaudi.MsgPack
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool TryReadNegativeFixInt(ReadOnlySpan<byte> buffer, out sbyte value, out int readSize)
         {
-            readSize = 1;
+            readSize = DataLengths.NegativeFixInt;
             value = default;
             if (buffer.Length < readSize) return false;
             value = unchecked((sbyte)buffer[0]);
