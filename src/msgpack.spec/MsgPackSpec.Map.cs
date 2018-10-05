@@ -14,37 +14,37 @@ namespace ProGaudi.MsgPack
         /// Writes FixMap header into <paramref name="buffer"/>.
         /// </summary>
         /// <remarks>
-        /// DOES NOT check if <paramref name="length"/> is less or equal that <see cref="FixMapMaxLength"/>.
+        /// DOES NOT check if <paramref name="length"/> is less or equal that <see cref="DataLengths.FixMapMaxLength"/>.
         /// If you need that check, use <see cref="TryWriteFixMapHeader"/>.
         /// </remarks>
         /// <param name="buffer">Buffer to write. Ensure that is at least 1 byte long.</param>
-        /// <param name="length">Length of map. Should be less or equal to <see cref="FixMapMaxLength"/>.</param>
+        /// <param name="length">Length of map. Should be less or equal to <see cref="DataLengths.FixMapMaxLength"/>.</param>
         /// <returns>Count of bytes, written to <paramref name="buffer"/></returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int WriteFixMapHeader(Span<byte> buffer, byte length)
         {
             buffer[0] = (byte) (FixMapMin + length);
-            return 1;
+            return DataLengths.FixMapHeader;
         }
 
         /// <summary>
         /// Tries to write FixMap header into <paramref name="buffer"/>.
         /// </summary>
         /// <param name="buffer">Buffer to write.</param>
-        /// <param name="length">Length of map. Should be less or equal to <see cref="FixMapMaxLength"/>.</param>
+        /// <param name="length">Length of map. Should be less or equal to <see cref="DataLengths.FixMapMaxLength"/>.</param>
         /// <param name="wroteSize">Count of bytes, written to <paramref name="buffer"/>. If return value is <c>false</c>, value is unspecified.</param>
         /// <returns><c>true</c>, if everything is ok, <c>false</c> if:
         /// <list type="bullet">
         ///     <item><description><paramref name="buffer"/> is too small or</description></item>
-        ///     <item><description><paramref name="length"/> is greater <see cref="FixMapMaxLength"/>.</description></item>
+        ///     <item><description><paramref name="length"/> is greater <see cref="DataLengths.FixMapMaxLength"/>.</description></item>
         /// </list>
         /// </returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool TryWriteFixMapHeader(Span<byte> buffer, byte length, out int wroteSize)
         {
-            wroteSize = 1;
+            wroteSize = DataLengths.FixMapHeader;
             if (buffer.Length < wroteSize) return false;
-            if (length < FixMapMaxLength) return false;
+            if (length < DataLengths.FixMapMaxLength) return false;
             buffer[0] = (byte) (FixMapMin + length);
             return true;
         }
@@ -60,7 +60,7 @@ namespace ProGaudi.MsgPack
         {
             WriteUInt16BigEndian(buffer.Slice(1), length);
             buffer[0] = Map16;
-            return 3;
+            return DataLengths.Map16Header;
         }
 
         /// <summary>
@@ -74,7 +74,7 @@ namespace ProGaudi.MsgPack
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool TryWriteMap16Header(Span<byte> buffer, ushort length, out int wroteSize)
         {
-            wroteSize = 3;
+            wroteSize = DataLengths.Map16Header;
             if (buffer.Length < wroteSize) return false;
             buffer[0] = Map16;
             return TryWriteUInt16BigEndian(buffer.Slice(1), length);
@@ -91,7 +91,7 @@ namespace ProGaudi.MsgPack
         {
             WriteUInt32BigEndian(buffer.Slice(1), length);
             buffer[0] = Map32;
-            return 5;
+            return DataLengths.Map32Header;
         }
 
         /// <summary>
@@ -105,7 +105,7 @@ namespace ProGaudi.MsgPack
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool TryWriteMap32Header(Span<byte> buffer, uint length, out int wroteSize)
         {
-            wroteSize = 5;
+            wroteSize = DataLengths.Map32Header;
             if (buffer.Length < wroteSize) return false;
             buffer[0] = Map32;
             return TryWriteUInt32BigEndian(buffer.Slice(1), length);
@@ -120,7 +120,7 @@ namespace ProGaudi.MsgPack
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static byte ReadFixMapHeader(ReadOnlySpan<byte> buffer, out int readSize)
         {
-            readSize = 1;
+            readSize = DataLengths.FixMapHeader;
             if (FixMapMin <= buffer[0] && buffer[0] <= FixMapMax)
                 return (byte) (buffer[0] - FixMapMin);
 
@@ -131,19 +131,19 @@ namespace ProGaudi.MsgPack
         /// Tries to read FixMap header from <paramref name="buffer"/>.
         /// </summary>
         /// <param name="buffer">Buffer to read.</param>
-        /// <param name="length">Length of map. Should be less or equal to <see cref="FixMapMaxLength"/>.</param>
+        /// <param name="length">Length of map. Should be less or equal to <see cref="DataLengths.FixMapMaxLength"/>.</param>
         /// <param name="readSize">Count of bytes read from <paramref name="buffer"/>. If return value is <c>false</c>, value is unspecified.</param>
         /// <returns><c>true</c>, if everything is ok, <c>false</c> if:
         /// <list type="bullet">
         ///     <item><description><paramref name="buffer"/> is too small or</description></item>
         ///     <item><description><paramref name="buffer"/>[0] contains wrong data code or</description></item>
-        ///     <item><description><paramref name="length"/> is greater <see cref="FixMapMaxLength"/>.</description></item>
+        ///     <item><description><paramref name="length"/> is greater <see cref="DataLengths.FixMapMaxLength"/>.</description></item>
         /// </list>
         /// </returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool TryReadFixMapHeader(ReadOnlySpan<byte> buffer, out byte length, out int readSize)
         {
-            readSize = 1;
+            readSize = DataLengths.FixMapHeader;
             length = default;
             if (buffer.Length < readSize) return false;
             var result = FixMapMin <= buffer[0] && buffer[0] <= FixMapMax;
@@ -160,7 +160,7 @@ namespace ProGaudi.MsgPack
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ushort ReadMap16Header(ReadOnlySpan<byte> buffer, out int readSize)
         {
-            readSize = 3;
+            readSize = DataLengths.Map16Header;
             return ReadUInt16BigEndian(buffer.Slice(1));
         }
 
@@ -179,7 +179,7 @@ namespace ProGaudi.MsgPack
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool TryReadMap16Header(ReadOnlySpan<byte> buffer, out ushort length, out int readSize)
         {
-            readSize = 3;
+            readSize = DataLengths.Map16Header;
             length = default;
             if (buffer.Length < readSize) return false;
             return TryReadUInt16BigEndian(buffer.Slice(1), out length) && buffer[0] == Map16;
@@ -194,7 +194,7 @@ namespace ProGaudi.MsgPack
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static uint ReadMap32Header(ReadOnlySpan<byte> buffer, out int readSize)
         {
-            readSize = 5;
+            readSize = DataLengths.Map32Header;
             return ReadUInt32BigEndian(buffer.Slice(1));
         }
 
@@ -213,7 +213,7 @@ namespace ProGaudi.MsgPack
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool TryReadMap32Header(ReadOnlySpan<byte> buffer, out uint length, out int readSize)
         {
-            readSize = 3;
+            readSize = DataLengths.Map32Header;
             length = default;
             if (buffer.Length < readSize) return false;
             return TryReadUInt32BigEndian(buffer.Slice(1), out length) && buffer[0] == Map32;
@@ -233,7 +233,7 @@ namespace ProGaudi.MsgPack
                 return ThrowLengthShouldBeNonNegative(length);
             }
 
-            if (length <= FixMapMaxLength)
+            if (length <= DataLengths.FixMapMaxLength)
             {
                 return WriteFixMapHeader(buffer, (byte) length);
             }
@@ -263,7 +263,7 @@ namespace ProGaudi.MsgPack
                 return false;
             }
 
-            if (length <= FixMapMaxLength)
+            if (length <= DataLengths.FixMapMaxLength)
             {
                 return TryWriteFixMapHeader(buffer, (byte) length, out wroteSize);
             }

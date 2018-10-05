@@ -18,7 +18,7 @@ namespace ProGaudi.MsgPack
         {
             BinaryPrimitives.WriteInt16BigEndian(buffer.Slice(1), value);
             buffer[0] = DataCodes.Int16;
-            return 3;
+            return DataLengths.Int16;
         }
 
         /// <summary>
@@ -31,7 +31,7 @@ namespace ProGaudi.MsgPack
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool TryWriteFixInt16(Span<byte> buffer, short value, out int wroteSize)
         {
-            wroteSize = 3;
+            wroteSize = DataLengths.Int16;
             buffer[0] = DataCodes.Int16;
             return BinaryPrimitives.TryWriteInt16BigEndian(buffer.Slice(1), value);
         }
@@ -45,7 +45,7 @@ namespace ProGaudi.MsgPack
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static short ReadFixInt16(ReadOnlySpan<byte> buffer, out int readSize)
         {
-            readSize = 3;
+            readSize = DataLengths.Int16;
             if (buffer[0] != DataCodes.Int16) ThrowWrongCodeException(buffer[0], DataCodes.Int16);
             return BinaryPrimitives.ReadInt16BigEndian(buffer.Slice(1));
         }
@@ -60,7 +60,7 @@ namespace ProGaudi.MsgPack
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool TryReadFixInt16(ReadOnlySpan<byte> buffer, out short value, out int readSize)
         {
-            readSize = 3;
+            readSize = DataLengths.Int16;
             value = default;
             if (buffer.Length < readSize) return false;
             var result = buffer[0] == DataCodes.Int16;

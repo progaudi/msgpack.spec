@@ -16,7 +16,7 @@ namespace ProGaudi.MsgPack
         public static int WriteBoolean(Span<byte> buffer, bool value)
         {
             buffer[0] = value ? DataCodes.True : DataCodes.False;
-            return 1;
+            return DataLengths.Boolean;
         }
 
         /// <summary>
@@ -29,7 +29,7 @@ namespace ProGaudi.MsgPack
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool TryWriteBoolean(Span<byte> buffer, bool value, out int wroteSize)
         {
-            wroteSize = 1;
+            wroteSize = DataLengths.Boolean;
             if (buffer.Length < wroteSize) return false;
             buffer[0] = value ? DataCodes.True : DataCodes.False;
             return true;
@@ -44,7 +44,7 @@ namespace ProGaudi.MsgPack
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool ReadBoolean(ReadOnlySpan<byte> buffer, out int readSize)
         {
-            readSize = 1;
+            readSize = DataLengths.Boolean;
             var result = buffer[0];
             if (result != DataCodes.True && result != DataCodes.False) ThrowWrongCodeException(result, DataCodes.True, DataCodes.False);
             return result == DataCodes.True;
@@ -60,7 +60,7 @@ namespace ProGaudi.MsgPack
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool TryReadBoolean(ReadOnlySpan<byte> buffer, out bool value, out int readSize)
         {
-            readSize = 1;
+            readSize = DataLengths.Boolean;
             value = false;
             if (buffer.Length < readSize) return false;
             value = buffer[0] == DataCodes.True;

@@ -22,7 +22,7 @@ namespace ProGaudi.MsgPack
         {
             buffer[1] = length;
             buffer[0] = DataCodes.Binary8;
-            return 2;
+            return DataLengths.Binary8Header;
         }
 
         /// <summary>
@@ -36,7 +36,7 @@ namespace ProGaudi.MsgPack
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool TryWriteBinary8Header(Span<byte> buffer, byte length, out int wroteSize)
         {
-            wroteSize = 2;
+            wroteSize = DataLengths.Binary8Header;
             if (buffer.Length < wroteSize) return false;
             buffer[1] = length;
             buffer[0] = DataCodes.Binary8;
@@ -54,7 +54,7 @@ namespace ProGaudi.MsgPack
         {
             BinaryPrimitives.WriteUInt16BigEndian(buffer.Slice(1), length);
             buffer[0] = DataCodes.Binary16;
-            return 3;
+            return DataLengths.Binary16Header;
         }
 
         /// <summary>
@@ -68,7 +68,7 @@ namespace ProGaudi.MsgPack
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool TryWriteBinary16Header(Span<byte> buffer, ushort length, out int wroteSize)
         {
-            wroteSize = 3;
+            wroteSize = DataLengths.Binary16Header;
             if (buffer.Length < wroteSize) return false;
             buffer[0] = DataCodes.Binary16;
             return BinaryPrimitives.TryWriteUInt16BigEndian(buffer.Slice(1), length);
@@ -85,7 +85,7 @@ namespace ProGaudi.MsgPack
         {
             BinaryPrimitives.WriteUInt32BigEndian(buffer.Slice(1), length);
             buffer[0] = DataCodes.Binary32;
-            return 5;
+            return DataLengths.Binary32Header;
         }
 
         /// <summary>
@@ -99,7 +99,7 @@ namespace ProGaudi.MsgPack
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool TryWriteBinary32Header(Span<byte> buffer, uint length, out int wroteSize)
         {
-            wroteSize = 5;
+            wroteSize = DataLengths.Binary32Header;
             if (buffer.Length < wroteSize) return false;
             buffer[0] = DataCodes.Binary32;
             return BinaryPrimitives.TryWriteUInt32BigEndian(buffer.Slice(1), length);
@@ -114,7 +114,7 @@ namespace ProGaudi.MsgPack
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static byte ReadBinary8Header(ReadOnlySpan<byte> buffer, out int readSize)
         {
-            readSize = 2;
+            readSize = DataLengths.Binary8Header;
             if (buffer[0] == DataCodes.Binary8)
                 return buffer[1];
 
@@ -136,7 +136,7 @@ namespace ProGaudi.MsgPack
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool TryReadBinary8Header(ReadOnlySpan<byte> buffer, out byte length, out int readSize)
         {
-            readSize = 2;
+            readSize = DataLengths.Binary8Header;
             length = 0;
             if (buffer.Length < readSize) return false;
             length = buffer[1];
@@ -152,7 +152,7 @@ namespace ProGaudi.MsgPack
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ushort ReadBinary16Header(ReadOnlySpan<byte> buffer, out int readSize)
         {
-            readSize = 3;
+            readSize = DataLengths.Binary16Header;
             if (buffer[0] == DataCodes.Binary16)
                 return BinaryPrimitives.ReadUInt16BigEndian(buffer.Slice(1));
 
@@ -174,7 +174,7 @@ namespace ProGaudi.MsgPack
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool TryReadBinary16Header(ReadOnlySpan<byte> buffer, out ushort length, out int readSize)
         {
-            readSize = 3;
+            readSize = DataLengths.Binary16Header;
             length = 0;
             return buffer.Length >= readSize
                 && buffer[0] == DataCodes.Binary16
@@ -190,7 +190,7 @@ namespace ProGaudi.MsgPack
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static uint ReadBinary32Header(ReadOnlySpan<byte> buffer, out int readSize)
         {
-            readSize = 5;
+            readSize = DataLengths.Binary32Header;
             if (buffer[0] == DataCodes.Binary32)
                 return BinaryPrimitives.ReadUInt32BigEndian(buffer.Slice(1));
 
@@ -212,7 +212,7 @@ namespace ProGaudi.MsgPack
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool TryReadBinary32Header(ReadOnlySpan<byte> buffer, out uint length, out int readSize)
         {
-            readSize = 5;
+            readSize = DataLengths.Binary32Header;
             length = 0;
             return buffer.Length >= readSize
                 && buffer[0] == DataCodes.Binary32

@@ -146,7 +146,7 @@ namespace ProGaudi.MsgPack
             buffer[2] = unchecked((byte)type);
             buffer[1] = length;
             buffer[0] = DataCodes.Extension8;
-            return 3;
+            return DataLengths.Extension8Header;
         }
 
         /// <summary>
@@ -178,7 +178,7 @@ namespace ProGaudi.MsgPack
             buffer[3] = unchecked((byte)type);
             BinaryPrimitives.WriteUInt16BigEndian(buffer.Slice(1), length);
             buffer[0] = DataCodes.Extension16;
-            return 4;
+            return DataLengths.Extension16Header;
         }
 
         /// <summary>
@@ -209,7 +209,7 @@ namespace ProGaudi.MsgPack
             buffer[5] = unchecked((byte)type);
             BinaryPrimitives.WriteUInt32BigEndian(buffer.Slice(1), length);
             buffer[0] = DataCodes.Extension32;
-            return 6;
+            return DataLengths.Extension32Header;
         }
 
         /// <summary>
@@ -1161,18 +1161,17 @@ namespace ProGaudi.MsgPack
         {
             buffer[1] = unchecked((byte)type);
             buffer[0] = code;
-            return 2;
+            return DataLengths.FixExtensionHeader;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static bool TryWriteFixExtensionHeader(Span<byte> buffer, byte code, sbyte type, out int wroteSize)
         {
             wroteSize = 0;
-            const int size = 2;
-            if (buffer.Length < size) return false;
+            if (buffer.Length < DataLengths.FixExtensionHeader) return false;
 
             WriteFixExtensionHeader(buffer, code, type);
-            wroteSize = size;
+            wroteSize = DataLengths.FixExtensionHeader;
             return true;
         }
 
@@ -1195,8 +1194,8 @@ namespace ProGaudi.MsgPack
         private static bool TryReadExtensionHeader(ReadOnlySpan<byte> buffer, byte code, out sbyte type, out int readSize)
         {
             type = 0;
-            readSize = 2;
-            if (buffer.Length < 2) return false;
+            readSize = DataLengths.FixExtensionHeader;
+            if (buffer.Length < DataLengths.FixExtensionHeader) return false;
             if (buffer[0] != code) return false;
             type = unchecked((sbyte)buffer[1]);
             return true;
@@ -1218,7 +1217,7 @@ namespace ProGaudi.MsgPack
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static sbyte ReadFixExtensionHeader(ReadOnlySpan<byte> buffer, byte code, out int readSize)
         {
-            readSize = 2;
+            readSize = DataLengths.FixExtensionHeader;
             var type = unchecked((sbyte)buffer[1]);
             if (buffer[0] != code) ThrowWrongCodeException(buffer[0], code);
             return type;

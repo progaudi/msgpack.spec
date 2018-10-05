@@ -18,7 +18,7 @@ namespace ProGaudi.MsgPack
         {
             BinaryPrimitives.WriteUInt64BigEndian(buffer.Slice(1), value);
             buffer[0] = DataCodes.UInt64;
-            return 9;
+            return DataLengths.UInt64;
         }
 
         /// <summary>
@@ -31,7 +31,7 @@ namespace ProGaudi.MsgPack
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool TryWriteFixUInt64(Span<byte> buffer, ulong value, out int wroteSize)
         {
-            wroteSize = 9;
+            wroteSize = DataLengths.UInt64;
             if (buffer.Length < wroteSize) return false;
             buffer[0] = DataCodes.UInt64;
             return BinaryPrimitives.TryWriteUInt64BigEndian(buffer.Slice(1), value);
@@ -46,7 +46,7 @@ namespace ProGaudi.MsgPack
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ulong ReadFixUInt64(ReadOnlySpan<byte> buffer, out int readSize)
         {
-            readSize = 9;
+            readSize = DataLengths.UInt64;
             if (buffer[0] != DataCodes.UInt64) return ThrowWrongCodeException(buffer[0], DataCodes.UInt64);
             return BinaryPrimitives.ReadUInt64BigEndian(buffer.Slice(1));
         }
@@ -61,7 +61,7 @@ namespace ProGaudi.MsgPack
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool TryReadFixUInt64(ReadOnlySpan<byte> buffer, out ulong value, out int readSize)
         {
-            readSize = 9;
+            readSize = DataLengths.UInt64;
             value = default;
             if (buffer.Length < readSize) return false;
             var result = buffer[0] == DataCodes.UInt64;

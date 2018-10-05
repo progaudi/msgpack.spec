@@ -34,7 +34,7 @@ namespace ProGaudi.MsgPack
             }
             buffer[0] = DataCodes.Float32;
 
-            return 5;
+            return DataLengths.Float32;
         }
 
         /// <summary>
@@ -47,7 +47,7 @@ namespace ProGaudi.MsgPack
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool TryWriteFixFloat32(Span<byte> buffer, float value, out int wroteSize)
         {
-            wroteSize = 5;
+            wroteSize = DataLengths.Float32;
             if (buffer.Length < wroteSize) return false;
 
             WriteFixFloat32(buffer, value);
@@ -64,7 +64,7 @@ namespace ProGaudi.MsgPack
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static float ReadFixFloat32(ReadOnlySpan<byte> buffer, out int readSize)
         {
-            readSize = 5;
+            readSize = DataLengths.Float32;
             if (buffer[0] != DataCodes.Float32) ThrowWrongCodeException(buffer[0], DataCodes.Float32);
             return new FloatBinary(buffer.Slice(1)).Value;
         }
@@ -79,7 +79,7 @@ namespace ProGaudi.MsgPack
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool TryReadFixFloat32(ReadOnlySpan<byte> buffer, out float value, out int readSize)
         {
-            readSize = 5;
+            readSize = DataLengths.Float32;
             var result = buffer[0] == DataCodes.Float32;
             var binary = new FloatBinary(buffer.Slice(1));
             value = binary.Value;

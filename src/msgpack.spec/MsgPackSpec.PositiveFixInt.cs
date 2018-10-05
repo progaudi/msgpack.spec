@@ -18,7 +18,7 @@ namespace ProGaudi.MsgPack
             if (value > DataCodes.FixPositiveMax) return ThrowWrongRangeCodeException(value, DataCodes.FixPositiveMin, DataCodes.FixPositiveMax);
 
             buffer[0] = value;
-            return 1;
+            return DataLengths.PositiveFixInt;
         }
 
         /// <summary>
@@ -31,7 +31,7 @@ namespace ProGaudi.MsgPack
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool TryWritePositiveFixInt(Span<byte> buffer, byte value, out int wroteSize)
         {
-            wroteSize = 1;
+            wroteSize = DataLengths.PositiveFixInt;
             if (buffer.Length < wroteSize) return false;
             if (value > DataCodes.FixPositiveMax) return false;
 
@@ -48,7 +48,7 @@ namespace ProGaudi.MsgPack
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static byte ReadPositiveFixInt(ReadOnlySpan<byte> buffer, out int readSize)
         {
-            readSize = 1;
+            readSize = DataLengths.PositiveFixInt;
             if (buffer[0] > DataCodes.FixPositiveMax) return ThrowWrongRangeCodeException(buffer[0], DataCodes.FixPositiveMin, DataCodes.FixPositiveMax);
             return buffer[0];
         }
@@ -64,7 +64,7 @@ namespace ProGaudi.MsgPack
         public static bool TryReadPositiveFixInt(ReadOnlySpan<byte> buffer, out byte value, out int readSize)
         {
             value = default;
-            readSize = 1;
+            readSize = DataLengths.PositiveFixInt;
             return buffer.Length >= readSize && (value = buffer[0]) <= DataCodes.FixPositiveMax;
         }
     }
