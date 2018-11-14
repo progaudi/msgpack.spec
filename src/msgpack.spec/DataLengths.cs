@@ -96,6 +96,21 @@ namespace ProGaudi.MsgPack
             return Binary32Header;
         }
 
+        public static int GetArrayHeaderLength(int length)
+        {
+            if (length <= FixArrayMaxLength)
+            {
+                return FixArrayHeader;
+            }
+
+            if (length <= ushort.MaxValue)
+            {
+                return Array16Header;
+            }
+
+            return Array32Header;
+        }
+
         public static int GetCompatibilityBinaryHeaderLength(int length)
         {
             if (length <= 31)
@@ -188,6 +203,64 @@ namespace ProGaudi.MsgPack
                 // case "NeverUsed" be here to have happy compiler
                 default:
                     throw new ArgumentOutOfRangeException(nameof(code), $"Can't get length for {DataCodes.NeverUsed}.");
+            }
+        }
+
+        public static int GetHeaderLength(byte code)
+        {
+            if (code <= DataCodes.FixPositiveMax) return PositiveFixInt;
+            if (DataCodes.FixMapMin <= code && code <= DataCodes.FixMapMax) return FixMapHeader;
+            if (DataCodes.FixArrayMin <= code && code <= DataCodes.FixArrayMax) return FixArrayHeader;
+            if (DataCodes.FixStringMin <= code && code <= DataCodes.FixStringMax) return FixStringHeader;
+            if (DataCodes.FixNegativeMin <= code) return NegativeFixInt;
+            switch (code)
+            {
+                case DataCodes.Nil: return Nil;
+
+                case DataCodes.True:
+                case DataCodes.False:
+                    return Boolean;
+
+                case DataCodes.Binary8: return Binary8Header;
+                case DataCodes.Binary16: return Binary16Header;
+                case DataCodes.Binary32: return Binary32Header;
+
+                case DataCodes.Extension8: return Extension8Header;
+                case DataCodes.Extension16: return Extension16Header;
+                case DataCodes.Extension32: return Extension32Header;
+
+                case DataCodes.Float32: return Float32;
+                case DataCodes.Float64: return Float64;
+
+                case DataCodes.Int8: return Int8;
+                case DataCodes.UInt8: return UInt8;
+                case DataCodes.Int16: return Int16;
+                case DataCodes.UInt16: return UInt16;
+                case DataCodes.Int32: return Int32;
+                case DataCodes.UInt32: return UInt32;
+                case DataCodes.Int64: return Int64;
+                case DataCodes.UInt64: return UInt64;
+
+                case DataCodes.FixExtension1:
+                case DataCodes.FixExtension2:
+                case DataCodes.FixExtension4:
+                case DataCodes.FixExtension8:
+                case DataCodes.FixExtension16:
+                    return FixExtensionHeader;
+
+                case DataCodes.String8: return String8Header;
+                case DataCodes.String16: return String16Header;
+                case DataCodes.String32: return String32Header;
+
+                case DataCodes.Array16: return Array16Header;
+                case DataCodes.Array32: return Array32Header;
+
+                case DataCodes.Map16: return Map16Header;
+                case DataCodes.Map32: return Map32Header;
+
+                // case "NeverUsed" be here to have happy compiler
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(code), $"Can't get header length for {DataCodes.NeverUsed}.");
             }
         }
     }

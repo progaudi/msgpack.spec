@@ -2,6 +2,7 @@ using System;
 using System.Buffers;
 using System.Buffers.Binary;
 using System.Runtime.CompilerServices;
+
 using ProGaudi.Buffers;
 
 namespace ProGaudi.MsgPack
