@@ -1,4 +1,5 @@
 using System;
+using System.Text;
 
 using JetBrains.Annotations;
 
@@ -136,6 +137,22 @@ namespace ProGaudi.MsgPack
 
             return String32Header;
         }
+
+        public static int GetMapHeaderLength(int count)
+        {
+            if (count <= FixMapMaxLength)
+            {
+                return FixMapHeader;
+            }
+
+            if (count <= ushort.MaxValue)
+            {
+                return Map16Header;
+            }
+
+            return Map32Header;
+        }
+
         public static (int min, int max) GetMinAndMaxLength(byte code)
         {
             if (code <= DataCodes.FixPositiveMax) return (1, 1);
