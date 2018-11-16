@@ -16,7 +16,7 @@ namespace ProGaudi.MsgPack
     /// </summary>
     public static partial class MsgPackSpec
     {
-        private static readonly Encoding _defaultEncoding = new UTF8Encoding(false, true);
+        public static readonly Encoding DefaultEncoding = new UTF8Encoding(false, true);
 
         /// <summary>
         /// Writes FixString header into <paramref name="buffer"/>.
@@ -431,7 +431,7 @@ namespace ProGaudi.MsgPack
             if (chars.Length > DataLengths.FixStringMaxLength)
                 return ThrowDataIsTooLarge(chars.Length, DataLengths.FixStringMaxLength, "string", FixStringMin, FixStringMax);
 
-            var length = (encoding ?? _defaultEncoding).GetBytes(chars, buffer.Slice(1));
+            var length = (encoding ?? DefaultEncoding).GetBytes(chars, buffer.Slice(1));
 
             var result = WriteFixStringHeader(buffer, (byte) length);
 
@@ -457,7 +457,7 @@ namespace ProGaudi.MsgPack
             if (chars.Length > DataLengths.FixStringMaxLength) return false;
             if (chars.Length > buffer.Length + 1) return false;
 
-            var length = (encoding ?? _defaultEncoding).GetByteCount(chars);
+            var length = (encoding ?? DefaultEncoding).GetByteCount(chars);
             if (length > DataLengths.FixStringMaxLength)
                 return false;
 
@@ -466,7 +466,7 @@ namespace ProGaudi.MsgPack
             var stringBuffer = buffer.Slice(wroteSize);
             if (length > stringBuffer.Length) return false;
 
-            wroteSize += (encoding ?? _defaultEncoding).GetBytes(chars, stringBuffer);
+            wroteSize += (encoding ?? DefaultEncoding).GetBytes(chars, stringBuffer);
 
             return true;
         }
@@ -483,7 +483,7 @@ namespace ProGaudi.MsgPack
             if (chars.Length > byte.MaxValue)
                 return ThrowDataIsTooLarge(chars.Length, byte.MaxValue, "string", String8);
 
-            var length = (encoding ?? _defaultEncoding).GetBytes(chars, buffer.Slice(2));
+            var length = (encoding ?? DefaultEncoding).GetBytes(chars, buffer.Slice(2));
             if (length > byte.MaxValue)
                 return ThrowDataIsTooLarge(chars.Length, byte.MaxValue, "string", String8);
 
@@ -511,13 +511,13 @@ namespace ProGaudi.MsgPack
             if (chars.Length > byte.MaxValue) return false;
             if (chars.Length > buffer.Length + DataLengths.String8Header) return false;
 
-            var length = (encoding ?? _defaultEncoding).GetByteCount(chars);
+            var length = (encoding ?? DefaultEncoding).GetByteCount(chars);
             if (!TryWriteString8Header(buffer, (byte) length, out wroteSize)) return false;
 
             var stringBuffer = buffer.Slice(wroteSize);
             if (length > stringBuffer.Length) return false;
 
-            wroteSize += (encoding ?? _defaultEncoding).GetBytes(chars, stringBuffer);
+            wroteSize += (encoding ?? DefaultEncoding).GetBytes(chars, stringBuffer);
 
             return true;
         }
@@ -534,7 +534,7 @@ namespace ProGaudi.MsgPack
             if (chars.Length > ushort.MaxValue)
                 return ThrowDataIsTooLarge(chars.Length, ushort.MaxValue, "string", String16);
 
-            var length = (encoding ?? _defaultEncoding).GetBytes(chars, buffer.Slice(2));
+            var length = (encoding ?? DefaultEncoding).GetBytes(chars, buffer.Slice(2));
             if (length > ushort.MaxValue)
                 return ThrowDataIsTooLarge(chars.Length, ushort.MaxValue, "string", String16);
 
@@ -562,14 +562,14 @@ namespace ProGaudi.MsgPack
             if (chars.Length > ushort.MaxValue) return false;
             if (chars.Length > buffer.Length + DataLengths.String16Header) return false;
 
-            var length = (encoding ?? _defaultEncoding).GetByteCount(chars);
+            var length = (encoding ?? DefaultEncoding).GetByteCount(chars);
             if (length > ushort.MaxValue) return false;
             if (!TryWriteString16Header(buffer, (ushort) length, out wroteSize)) return false;
 
             var stringBuffer = buffer.Slice(wroteSize);
             if (length > stringBuffer.Length) return false;
 
-            wroteSize += (encoding ?? _defaultEncoding).GetBytes(chars, stringBuffer);
+            wroteSize += (encoding ?? DefaultEncoding).GetBytes(chars, stringBuffer);
 
             return true;
         }
@@ -583,7 +583,7 @@ namespace ProGaudi.MsgPack
         /// <returns>Count of bytes, written to <paramref name="buffer"/>.</returns>
         public static int WriteString32(Span<byte> buffer, ReadOnlySpan<char> chars, Encoding encoding = null)
         {
-            var length = (encoding ?? _defaultEncoding).GetBytes(chars, buffer.Slice(2));
+            var length = (encoding ?? DefaultEncoding).GetBytes(chars, buffer.Slice(2));
 
             var result = WriteString32Header(buffer, (uint) length);
 
@@ -604,13 +604,13 @@ namespace ProGaudi.MsgPack
             wroteSize = 0;
             if (chars.Length > buffer.Length + DataLengths.String32Header) return false;
 
-            var length = (encoding ?? _defaultEncoding).GetByteCount(chars);
+            var length = (encoding ?? DefaultEncoding).GetByteCount(chars);
             if (!TryWriteString32Header(buffer, (uint) length, out wroteSize)) return false;
 
             var stringBuffer = buffer.Slice(wroteSize);
             if (length > stringBuffer.Length) return false;
 
-            wroteSize += (encoding ?? _defaultEncoding).GetBytes(chars, stringBuffer);
+            wroteSize += (encoding ?? DefaultEncoding).GetBytes(chars, stringBuffer);
 
             return true;
         }
@@ -624,7 +624,7 @@ namespace ProGaudi.MsgPack
         /// <returns>Count of bytes, written to <paramref name="buffer"/>.</returns>
         public static int WriteString(Span<byte> buffer, ReadOnlySpan<char> chars, Encoding encoding = null)
         {
-            var length = (encoding ?? _defaultEncoding).GetByteCount(chars);
+            var length = (encoding ?? DefaultEncoding).GetByteCount(chars);
             if (length <= DataLengths.FixStringMaxLength)
             {
                 return WriteFixString(buffer, chars, encoding);
@@ -660,13 +660,13 @@ namespace ProGaudi.MsgPack
             wroteSize = 0;
             if (chars.Length > buffer.Length) return false;
 
-            var length = (encoding ?? _defaultEncoding).GetByteCount(chars);
+            var length = (encoding ?? DefaultEncoding).GetByteCount(chars);
             if (length <= DataLengths.FixStringMaxLength)
             {
                 if (chars.Length > length + DataLengths.FixStringHeader) return false;
                 if (TryWriteFixStringHeader(buffer, (byte) length, out wroteSize))
                 {
-                    wroteSize += (encoding ?? _defaultEncoding).GetBytes(chars, buffer.Slice(wroteSize));
+                    wroteSize += (encoding ?? DefaultEncoding).GetBytes(chars, buffer.Slice(wroteSize));
                     return true;
                 }
 
@@ -678,7 +678,7 @@ namespace ProGaudi.MsgPack
                 if (chars.Length > length + DataLengths.String8Header) return false;
                 if (TryWriteString8Header(buffer, (byte) length, out wroteSize))
                 {
-                    wroteSize += (encoding ?? _defaultEncoding).GetBytes(chars, buffer.Slice(wroteSize));
+                    wroteSize += (encoding ?? DefaultEncoding).GetBytes(chars, buffer.Slice(wroteSize));
                     return true;
                 }
 
@@ -690,7 +690,7 @@ namespace ProGaudi.MsgPack
                 if (chars.Length > length + DataLengths.String16Header) return false;
                 if (TryWriteString16Header(buffer, (ushort) length, out wroteSize))
                 {
-                    wroteSize += (encoding ?? _defaultEncoding).GetBytes(chars, buffer.Slice(wroteSize));
+                    wroteSize += (encoding ?? DefaultEncoding).GetBytes(chars, buffer.Slice(wroteSize));
                     return true;
                 }
 
@@ -700,7 +700,7 @@ namespace ProGaudi.MsgPack
             if (chars.Length > length + DataLengths.String32Header) return false;
             if (TryWriteString32Header(buffer, (uint) length, out wroteSize))
             {
-                wroteSize += (encoding ?? _defaultEncoding).GetBytes(chars, buffer.Slice(wroteSize));
+                wroteSize += (encoding ?? DefaultEncoding).GetBytes(chars, buffer.Slice(wroteSize));
                 return true;
             }
 
@@ -856,14 +856,14 @@ namespace ProGaudi.MsgPack
 
         private static string ReadString(ReadOnlySpan<byte> buffer, int length, ref int readSize, Encoding encoding)
         {
-            var result = (encoding ?? _defaultEncoding).GetString(buffer.Slice(readSize, length));
+            var result = (encoding ?? DefaultEncoding).GetString(buffer.Slice(readSize, length));
             readSize += length;
             return result;
         }
 
         private static bool TryReadStringImpl(ReadOnlySpan<byte> buffer, out string value, ref int readSize, Encoding encoding)
         {
-            value = (encoding ?? _defaultEncoding).GetString(buffer);
+            value = (encoding ?? DefaultEncoding).GetString(buffer);
             readSize += buffer.Length;
             return true;
         }
