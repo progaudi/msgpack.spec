@@ -113,7 +113,7 @@ namespace ProGaudi.MsgPack
 
         public static int GetCompatibilityBinaryHeaderLength(int length)
         {
-            if (length <= 31)
+            if (length <= FixStringMaxLength)
             {
                 return FixStringHeader;
             }
@@ -126,6 +126,16 @@ namespace ProGaudi.MsgPack
             return String32Header;
         }
 
+        public static int GetStringHeaderLengthByBytesCount(int length)
+        {
+            if (length <= FixStringMaxLength) return FixStringHeader;
+
+            if (length <= sbyte.MaxValue) return String8Header;
+
+            if (length <= ushort.MaxValue) return String16Header;
+
+            return String32Header;
+        }
         public static (int min, int max) GetMinAndMaxLength(byte code)
         {
             if (code <= DataCodes.FixPositiveMax) return (1, 1);
