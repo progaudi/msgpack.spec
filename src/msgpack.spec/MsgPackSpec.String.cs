@@ -431,7 +431,7 @@ namespace ProGaudi.MsgPack
             if (chars.Length > DataLengths.FixStringMaxLength)
                 return ThrowDataIsTooLarge(chars.Length, DataLengths.FixStringMaxLength, "string", FixStringMin, FixStringMax);
 
-            var length = (encoding ?? DefaultEncoding).GetBytes(chars, buffer.Slice(1));
+            var length = (encoding ?? DefaultEncoding).GetBytes(chars, buffer.Slice(DataLengths.FixStringHeader));
 
             var result = WriteFixStringHeader(buffer, (byte) length);
 
@@ -455,7 +455,7 @@ namespace ProGaudi.MsgPack
         {
             wroteSize = 0;
             if (chars.Length > DataLengths.FixStringMaxLength) return false;
-            if (chars.Length > buffer.Length + 1) return false;
+            if (chars.Length > buffer.Length + DataLengths.FixStringHeader) return false;
 
             var length = (encoding ?? DefaultEncoding).GetByteCount(chars);
             if (length > DataLengths.FixStringMaxLength)
@@ -483,7 +483,7 @@ namespace ProGaudi.MsgPack
             if (chars.Length > byte.MaxValue)
                 return ThrowDataIsTooLarge(chars.Length, byte.MaxValue, "string", String8);
 
-            var length = (encoding ?? DefaultEncoding).GetBytes(chars, buffer.Slice(2));
+            var length = (encoding ?? DefaultEncoding).GetBytes(chars, buffer.Slice(DataLengths.String8Header));
             if (length > byte.MaxValue)
                 return ThrowDataIsTooLarge(chars.Length, byte.MaxValue, "string", String8);
 
@@ -534,7 +534,7 @@ namespace ProGaudi.MsgPack
             if (chars.Length > ushort.MaxValue)
                 return ThrowDataIsTooLarge(chars.Length, ushort.MaxValue, "string", String16);
 
-            var length = (encoding ?? DefaultEncoding).GetBytes(chars, buffer.Slice(2));
+            var length = (encoding ?? DefaultEncoding).GetBytes(chars, buffer.Slice(DataLengths.String16Header));
             if (length > ushort.MaxValue)
                 return ThrowDataIsTooLarge(chars.Length, ushort.MaxValue, "string", String16);
 
@@ -583,7 +583,7 @@ namespace ProGaudi.MsgPack
         /// <returns>Count of bytes, written to <paramref name="buffer"/>.</returns>
         public static int WriteString32(Span<byte> buffer, ReadOnlySpan<char> chars, Encoding encoding = null)
         {
-            var length = (encoding ?? DefaultEncoding).GetBytes(chars, buffer.Slice(2));
+            var length = (encoding ?? DefaultEncoding).GetBytes(chars, buffer.Slice(DataLengths.String32Header));
 
             var result = WriteString32Header(buffer, (uint) length);
 
