@@ -611,7 +611,7 @@ namespace ProGaudi.MsgPack
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static IMemoryOwner<byte> ReadBinary(ReadOnlySpan<byte> buffer, out int readSize)
         {
-            var resultLength = ReadBinary8Header(buffer, out readSize);
+            var resultLength = ReadBinaryHeader(buffer, out readSize);
             return ReadBinaryBlob(buffer, ref readSize, resultLength);
         }
 
