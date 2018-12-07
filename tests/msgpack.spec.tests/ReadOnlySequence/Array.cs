@@ -7,7 +7,7 @@ namespace ProGaudi.MsgPack.Tests.ReadOnlySequence
     public sealed class Array
     {
         [Fact]
-        public void WriteTestNonFixedArray()
+        public void SingleSegmentTestNonFixedArray()
         {
             var tests = new[]
             {
@@ -27,19 +27,56 @@ namespace ProGaudi.MsgPack.Tests.ReadOnlySequence
                 0x01, 0x02, 0x03, 0x04, 0x05,
                 0x01, 0x02, 0x03, 0x04, 0x05,
                 0x01, 0x02, 0x03, 0x04, 0x05,
+            }.ToSingleSegment();
+
+            var length = MsgPackSpec.ReadArrayHeader(bytes, out var readSize);
+            length.ShouldBe(tests.Length);
+
+            var actual = new int[length];
+            for (var i = 0; i < length; i++)
+            {
+                actual[i] = MsgPackSpec.ReadInt32(bytes.Slice(readSize), out var temp);
+                readSize += temp;
+            }
+
+            actual.ShouldBe(tests);
+        }
+
+
+        [Fact]
+        public void MultipleSegmentsTestNonFixedArray()
+        {
+            var tests = new[]
+            {
+                1, 2, 3, 4, 5,
+                1, 2, 3, 4, 5,
+                1, 2, 3, 4, 5,
+                1, 2, 3, 4, 5,
             };
 
-            using (var buffer = MemoryPool<byte>.Shared.Rent(bytes.Length))
+            var bytes = new byte[]
             {
-                var wroteSize = MsgPackSpec.WriteArrayHeader(buffer.Memory.Span, tests.Length);
-                foreach (var test in tests)
-                {
-                    wroteSize += MsgPackSpec.WriteInt32(buffer.Memory.Span.Slice(wroteSize), test);
-                }
+                0xdc,
+                0x00,
+                0x14,
 
-                wroteSize.ShouldBe(bytes.Length);
-                buffer.Memory.Span.Slice(0, wroteSize).ToArray().ShouldBe(bytes);
+                0x01, 0x02, 0x03, 0x04, 0x05,
+                0x01, 0x02, 0x03, 0x04, 0x05,
+                0x01, 0x02, 0x03, 0x04, 0x05,
+                0x01, 0x02, 0x03, 0x04, 0x05,
+            }.ToMultipleSegments();
+
+            var length = MsgPackSpec.ReadArrayHeader(bytes, out var readSize);
+            length.ShouldBe(tests.Length);
+
+            var actual = new int[length];
+            for (var i = 0; i < length; i++)
+            {
+                actual[i] = MsgPackSpec.ReadInt32(bytes.Slice(readSize), out var temp);
+                readSize += temp;
             }
+
+            actual.ShouldBe(tests);
         }
     }
 }
