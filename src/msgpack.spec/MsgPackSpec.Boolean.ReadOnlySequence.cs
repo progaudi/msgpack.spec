@@ -18,17 +18,27 @@ namespace ProGaudi.MsgPack
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool ReadBoolean(ReadOnlySequence<byte> sequence, out int readSize)
         {
-            if (sequence.IsSingleSegment) return ReadBoolean(sequence.First.Span, out readSize);
+            const int length = DataLengths.Boolean;
+
+            if (sequence.First.Length >= length)
+                return ReadBoolean(sequence.First.Span, out readSize);
+
+            Span<byte> buffer = stackalloc byte[length];
+            var index = 0;
             foreach (var memory in sequence)
             {
-                if (memory.Length <= DataLengths.Boolean)
-                    return ReadBoolean(memory.Span, out readSize);
+                for (var i = 0; i < memory.Length; i++)
+                {
+                    buffer[index++] = memory.Span[i];
+                    if (index == length)
+                        return ReadBoolean(buffer, out readSize);
+                }
             }
             throw new IndexOutOfRangeException();
         }
 
         /// <summary>
-        /// Tries to write boolean value into <paramref name="sequence"/>.
+        /// Tries to read boolean value into <paramref name="sequence"/>.
         /// </summary>
         /// <param name="sequence">Sequence to read form.</param>
         /// <param name="value">Result. If return false is <c>false</c>, value is unspecified.</param>
@@ -37,11 +47,21 @@ namespace ProGaudi.MsgPack
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool TryReadBoolean(ReadOnlySequence<byte> sequence, out bool value, out int readSize)
         {
-            if (sequence.IsSingleSegment) return TryReadBoolean(sequence.First.Span, out value, out readSize);
+            const int length = DataLengths.Boolean;
+
+            if (sequence.First.Length >= length)
+                return TryReadBoolean(sequence.First.Span, out value, out readSize);
+
+            Span<byte> buffer = stackalloc byte[length];
+            var index = 0;
             foreach (var memory in sequence)
             {
-                if (memory.Length <= DataLengths.Boolean)
-                    return TryReadBoolean(memory.Span, out value, out readSize);
+                for (var i = 0; i < memory.Length; i++)
+                {
+                    buffer[index++] = memory.Span[i];
+                    if (index == length)
+                        return TryReadBoolean(buffer, out value, out readSize);
+                }
             }
             throw new IndexOutOfRangeException();
         }

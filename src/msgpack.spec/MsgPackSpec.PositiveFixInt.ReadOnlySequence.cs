@@ -5,23 +5,23 @@ using System.Runtime.CompilerServices;
 namespace ProGaudi.MsgPack
 {
     /// <summary>
-    /// Methods for working with NegativeFixInt
+    /// Methods for working with PositiveFixInt
     /// </summary>
     public static partial class MsgPackSpec
     {
         /// <summary>
-        /// Reads negative fix int from <paramref name="sequence"/>.
+        /// Reads positive fix int from <paramref name="sequence"/>.
         /// </summary>
-        /// <param name="sequence">Sequence to read from</param>
+        /// <param name="sequence">Buffer to read from</param>
         /// <param name="readSize">Count of bytes, read from <paramref name="sequence"/></param>
         /// <returns>Read value</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static sbyte ReadNegativeFixInt(ReadOnlySequence<byte> sequence, out int readSize)
+        public static byte ReadPositiveFixInt(ReadOnlySequence<byte> sequence, out int readSize)
         {
-            const int length = DataLengths.NegativeFixInt;
+            const int length = DataLengths.PositiveFixInt;
 
             if (sequence.First.Length >= length)
-                return ReadNegativeFixInt(sequence.First.Span, out readSize);
+                return ReadPositiveFixInt(sequence.First.Span, out readSize);
 
             Span<byte> buffer = stackalloc byte[length];
             var index = 0;
@@ -31,7 +31,7 @@ namespace ProGaudi.MsgPack
                 {
                     buffer[index++] = memory.Span[i];
                     if (index == length)
-                        return ReadNegativeFixInt(buffer, out readSize);
+                        return ReadPositiveFixInt(buffer, out readSize);
                 }
             }
             throw new IndexOutOfRangeException();
@@ -40,18 +40,17 @@ namespace ProGaudi.MsgPack
         /// <summary>
         /// Tries to read from <paramref name="sequence"/>
         /// </summary>
-        /// <param name="sequence">Sequence to read from.</param>
+        /// <param name="sequence">Buffer to read from.</param>
         /// <param name="value">Value, read from <paramref name="sequence"/>. If return value is false, value is unspecified.</param>
         /// <param name="readSize">Count of bytes, read from <paramref name="sequence"/>. If return value is false, value is unspecified.</param>
-        /// <returns><c>true</c>, if everything is ok, <c>false</c> if <paramref name="sequence"/> is too small or <paramref name="sequence"/>[0]
-        /// is not between <see cref="DataCodes.FixNegativeMinSByte"/> and <see cref="DataCodes.FixNegativeMaxSByte"/>.</returns>
+        /// <returns><c>true</c>, if everything is ok, <c>false</c> if <paramref name="sequence"/> is too small or <paramref name="sequence"/>[0] is greater than <see cref="DataCodes.FixPositiveMax"/>.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool TryReadNegativeFixInt(ReadOnlySequence<byte> sequence, out sbyte value, out int readSize)
+        public static bool TryReadPositiveFixInt(ReadOnlySequence<byte> sequence, out byte value, out int readSize)
         {
-            const int length = DataLengths.NegativeFixInt;
+            const int length = DataLengths.PositiveFixInt;
 
             if (sequence.First.Length >= length)
-                return TryReadNegativeFixInt(sequence.First.Span, out value, out readSize);
+                return TryReadPositiveFixInt(sequence.First.Span, out value, out readSize);
 
             Span<byte> buffer = stackalloc byte[length];
             var index = 0;
@@ -61,7 +60,7 @@ namespace ProGaudi.MsgPack
                 {
                     buffer[index++] = memory.Span[i];
                     if (index == length)
-                        return TryReadNegativeFixInt(buffer, out value, out readSize);
+                        return TryReadPositiveFixInt(buffer, out value, out readSize);
                 }
             }
             throw new IndexOutOfRangeException();
