@@ -74,7 +74,7 @@ namespace ProGaudi.MsgPack.Tests.Reader
         [InlineData(ushort.MaxValue, new byte[] { 0xcd, 0xff, 0xff })]
         [InlineData(uint.MaxValue, new byte[] { 0xce, 0xff, 0xff, 0xff, 0xff })]
         [InlineData(ulong.MaxValue, new byte[] { 0xcf, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff })]
-        public void TetsUnsignedLong(ulong number, byte[] data)
+        public void TestUnsignedLong(ulong number, byte[] data)
         {
             MsgPackSpec.ReadUInt64(data, out var readSize).ShouldBe(number);
             readSize.ShouldBe(data.Length);
@@ -87,7 +87,7 @@ namespace ProGaudi.MsgPack.Tests.Reader
         [InlineData(ushort.MaxValue, new byte[] { 0xcd, 0xff, 0xff })]
         [InlineData(uint.MaxValue, new byte[] { 0xce, 0xff, 0xff, 0xff, 0xff })]
         [InlineData(0x10000000, new byte[] { 0xce, 0x10, 0x00, 0x00, 0x00 })]
-        public void TetsUnsignedInt(uint number, byte[] data)
+        public void TestUnsignedInt(uint number, byte[] data)
         {
             MsgPackSpec.ReadUInt32(data, out var readSize).ShouldBe(number);
             readSize.ShouldBe(data.Length);
@@ -98,7 +98,7 @@ namespace ProGaudi.MsgPack.Tests.Reader
         [InlineData(1, new byte[] { 1 })]
         [InlineData(byte.MaxValue, new byte[] { 0xcc, 0xff })]
         [InlineData(ushort.MaxValue, new byte[] { 0xcd, 0xff, 0xff })]
-        public void TetsUnsignedShort(ushort number, byte[] data)
+        public void TestUnsignedShort(ushort number, byte[] data)
         {
             MsgPackSpec.ReadUInt16(data, out var readSize).ShouldBe(number);
             readSize.ShouldBe(data.Length);
@@ -108,7 +108,7 @@ namespace ProGaudi.MsgPack.Tests.Reader
         [InlineData(0, new byte[] { 0x00 })]
         [InlineData(1, new byte[] { 1 })]
         [InlineData(byte.MaxValue, new byte[] { 0xcc, 0xff })]
-        public void TetsUnsignedByte(byte number, byte[] data)
+        public void TestUnsignedByte(byte number, byte[] data)
         {
             MsgPackSpec.ReadUInt8(data, out var readSize).ShouldBe(number);
             readSize.ShouldBe(data.Length);
