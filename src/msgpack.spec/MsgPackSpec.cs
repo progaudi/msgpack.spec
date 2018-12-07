@@ -98,8 +98,34 @@ namespace ProGaudi.MsgPack
                 }
             }
 
-            throw new IndexOutOfRangeException();
+            throw GetReadOnlySequenceIsTooShortException(1, 0);
         }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static bool TryRead<T>(this ReadOnlySequence<T> ros, Span<T> destination)
+        {
+            if (destination.IsEmpty) return true;
+            var index = 0;
+            foreach (var memory in ros)
+            {
+                for (var i = 0; i < memory.Length; i++)
+                {
+                    destination[index++] = memory.Span[i];
+                    if (index == destination.Length)
+                        return true;
+                }
+            }
+
+            return false;
+        }
+
+        private static Exception GetInvalidStateReadOnlySequenceException() => new InvalidOperationException("Reading of ReadOnlySequence is in invalid state");
+
+        private static Exception GetReadOnlySequenceIsTooShortException(int expected, long sequenceLength) => new ArgumentOutOfRangeException(
+            nameof(sequenceLength),
+            sequenceLength,
+            $"ReadOnlySequence is too short. Expected: {expected}"
+        );
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static byte ThrowWrongRangeCodeException(byte code, byte min, byte max) => throw new InvalidOperationException(

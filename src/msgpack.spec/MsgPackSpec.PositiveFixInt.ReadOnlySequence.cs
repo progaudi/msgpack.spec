@@ -21,18 +21,14 @@ namespace ProGaudi.MsgPack
             if (sequence.First.Length >= length)
                 return ReadPositiveFixInt(sequence.First.Span, out readSize);
 
+            var sequenceLength = sequence.Length;
+            if (sequenceLength < length)
+                throw GetReadOnlySequenceIsTooShortException(length, sequenceLength);
+
             Span<byte> buffer = stackalloc byte[length];
-            var index = 0;
-            foreach (var memory in sequence)
-            {
-                for (var i = 0; i < memory.Length; i++)
-                {
-                    buffer[index++] = memory.Span[i];
-                    if (index == length)
-                        return ReadPositiveFixInt(buffer, out readSize);
-                }
-            }
-            throw new IndexOutOfRangeException();
+            return sequence.TryRead(buffer)
+                ? ReadPositiveFixInt(buffer, out readSize)
+                : throw GetInvalidStateReadOnlySequenceException();
         }
 
         /// <summary>
@@ -49,18 +45,18 @@ namespace ProGaudi.MsgPack
             if (sequence.First.Length >= length)
                 return TryReadPositiveFixInt(sequence.First.Span, out value, out readSize);
 
-            Span<byte> buffer = stackalloc byte[length];
-            var index = 0;
-            foreach (var memory in sequence)
+            var sequenceLength = sequence.Length;
+            if (sequenceLength < length)
             {
-                for (var i = 0; i < memory.Length; i++)
-                {
-                    buffer[index++] = memory.Span[i];
-                    if (index == length)
-                        return TryReadPositiveFixInt(buffer, out value, out readSize);
-                }
+                value = default;
+                readSize = default;
+                return false;
             }
-            throw new IndexOutOfRangeException();
+
+            Span<byte> buffer = stackalloc byte[length];
+            return sequence.TryRead(buffer)
+                ? TryReadPositiveFixInt(buffer, out value, out readSize)
+                : throw GetInvalidStateReadOnlySequenceException();
         }
     }
 }

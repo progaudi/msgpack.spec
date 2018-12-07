@@ -24,18 +24,14 @@ namespace ProGaudi.MsgPack
             if (sequence.First.Length >= length)
                 return ReadFixUInt64(sequence.First.Span, out readSize);
 
+            var sequenceLength = sequence.Length;
+            if (sequenceLength < length)
+                throw GetReadOnlySequenceIsTooShortException(length, sequenceLength);
+
             Span<byte> buffer = stackalloc byte[length];
-            var index = 0;
-            foreach (var memory in sequence)
-            {
-                for (var i = 0; i < memory.Length; i++)
-                {
-                    buffer[index++] = memory.Span[i];
-                    if (index == length)
-                        return ReadFixUInt64(buffer, out readSize);
-                }
-            }
-            throw new IndexOutOfRangeException();
+            return sequence.TryRead(buffer)
+                ? ReadFixUInt64(buffer, out readSize)
+                : throw GetInvalidStateReadOnlySequenceException();
         }
 
         /// <summary>
@@ -53,18 +49,18 @@ namespace ProGaudi.MsgPack
             if (sequence.First.Length >= length)
                 return TryReadFixUInt64(sequence.First.Span, out value, out readSize);
 
-            Span<byte> buffer = stackalloc byte[length];
-            var index = 0;
-            foreach (var memory in sequence)
+            var sequenceLength = sequence.Length;
+            if (sequenceLength < length)
             {
-                for (var i = 0; i < memory.Length; i++)
-                {
-                    buffer[index++] = memory.Span[i];
-                    if (index == length)
-                        return TryReadFixUInt64(buffer, out value, out readSize);
-                }
+                value = default;
+                readSize = default;
+                return false;
             }
-            throw new IndexOutOfRangeException();
+
+            Span<byte> buffer = stackalloc byte[length];
+            return sequence.TryRead(buffer)
+                ? TryReadFixUInt64(buffer, out value, out readSize)
+                : throw GetInvalidStateReadOnlySequenceException();
         }
 
         /// <summary>

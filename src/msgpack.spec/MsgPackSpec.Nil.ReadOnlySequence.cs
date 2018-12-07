@@ -23,21 +23,13 @@ namespace ProGaudi.MsgPack
                 return;
             }
 
+            var sequenceLength = sequence.Length;
+            if (sequenceLength < length)
+                throw GetReadOnlySequenceIsTooShortException(length, sequenceLength);
+
             Span<byte> buffer = stackalloc byte[length];
-            var index = 0;
-            foreach (var memory in sequence)
-            {
-                for (var i = 0; i < memory.Length; i++)
-                {
-                    buffer[index++] = memory.Span[i];
-                    if (index == length)
-                    {
-                        ReadNil(buffer, out readSize);
-                        return;
-                    }
-                }
-            }
-            throw new IndexOutOfRangeException();
+            if (!sequence.TryRead(buffer)) throw GetInvalidStateReadOnlySequenceException();
+            ReadNil(buffer, out readSize);
         }
 
         /// <summary>
@@ -53,18 +45,17 @@ namespace ProGaudi.MsgPack
             if (sequence.First.Length >= length)
                 return TryReadNil(sequence.First.Span, out readSize);
 
-            Span<byte> buffer = stackalloc byte[length];
-            var index = 0;
-            foreach (var memory in sequence)
+            var sequenceLength = sequence.Length;
+            if (sequenceLength < length)
             {
-                for (var i = 0; i < memory.Length; i++)
-                {
-                    buffer[index++] = memory.Span[i];
-                    if (index == length)
-                        return TryReadNil(buffer, out readSize);
-                }
+                readSize = default;
+                return false;
             }
-            throw new IndexOutOfRangeException();
+
+            Span<byte> buffer = stackalloc byte[length];
+            return sequence.TryRead(buffer)
+                ? TryReadNil(buffer, out readSize)
+                : throw GetInvalidStateReadOnlySequenceException();
         }
     }
 }
