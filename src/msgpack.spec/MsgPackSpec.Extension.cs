@@ -32,7 +32,7 @@ namespace ProGaudi.MsgPack
         public static int WriteFixExtension1(Span<byte> buffer, sbyte type, byte extension)
         {
             buffer[2] = extension;
-            return WriteFixExtension1Header(buffer, type) + 1;
+            return WriteFixExtension1Header(buffer, type) + sizeof(byte);
         }
 
         /// <summary>
@@ -461,7 +461,7 @@ namespace ProGaudi.MsgPack
         {
             wroteSize = 0;
             if (extension.Length > byte.MaxValue) return false;
-            if (buffer.Length < extension.Length + 3) return false;
+            if (buffer.Length < extension.Length + DataLengths.Extension8Header) return false;
 
             wroteSize = WriteExtension8(buffer, type, extension);
             return true;
@@ -499,7 +499,7 @@ namespace ProGaudi.MsgPack
         {
             wroteSize = 0;
             if (extension.Length > ushort.MaxValue) return false;
-            if (buffer.Length < extension.Length + 4) return false;
+            if (buffer.Length < extension.Length + DataLengths.Extension16Header) return false;
 
             wroteSize = WriteExtension16(buffer, type, extension);
             return true;
@@ -536,7 +536,7 @@ namespace ProGaudi.MsgPack
         public static bool TryWriteExtension32(Span<byte> buffer, sbyte type, ReadOnlySpan<byte> extension, out int wroteSize)
         {
             wroteSize = 0;
-            if (buffer.Length < extension.Length + 6) return false;
+            if (buffer.Length < extension.Length + DataLengths.Extension32Header) return false;
 
             wroteSize = WriteExtension32(buffer, type, extension);
             return true;
@@ -1055,7 +1055,7 @@ namespace ProGaudi.MsgPack
         public static bool TryReadExtension32Header(ReadOnlySpan<byte> buffer, out sbyte type, out uint length, out int readSize)
         {
             length = 0;
-            if (!TryReadExtensionHeader(buffer, DataCodes.Extension8, out type, out readSize)) return false;
+            if (!TryReadExtensionHeader(buffer, DataCodes.Extension32, out type, out readSize)) return false;
             if (buffer.Length < 6) return false;
             length = BinaryPrimitives.ReadUInt32BigEndian(buffer.Slice(readSize));
             readSize = 6;
