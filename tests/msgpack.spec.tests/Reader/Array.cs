@@ -1,45 +1,45 @@
-using System.Buffers;
+using System;
 using Shouldly;
 using Xunit;
 
 namespace ProGaudi.MsgPack.Tests.Reader
 {
-    public class Array
+    public sealed class Array
     {
-        //[Fact]
-        //public void SimpleArray()
-        //{
-        //    var tests = new[]
-        //    {
-        //        "a",
-        //        "b",
-        //        "c",
-        //        "d",
-        //        "e"
-        //    };
+        [Fact]
+        public void SimpleArray()
+        {
+            var tests = new[]
+            {
+                "a",
+                "b",
+                "c",
+                "d",
+                "e"
+            };
 
-        //    var bytes = new byte[]
-        //    {
-        //        149,
-        //        161, 97,
-        //        161, 98,
-        //        161, 99,
-        //        161, 100,
-        //        161, 101
-        //    };
+            Span<byte> bytes = new byte[]
+            {
+                149,
+                161, 97,
+                161, 98,
+                161, 99,
+                161, 100,
+                161, 101
+            };
 
-        //    using (var buffer = MemoryPool<byte>.Shared.Rent(bytes.Length))
-        //    {
-        //        var wroteSize = MsgPackSpec.WriteArrayHeader(buffer.Memory.Span, tests.Length);
-        //        foreach (var test in tests)
-        //        {
-        //            wroteSize += MsgPackSpec.WriteString(buffer.Memory.Span.Slice(wroteSize), test.AsSpan());
-        //        }
+            var length = MsgPackSpec.ReadArrayHeader(bytes, out var readSize);
+            length.ShouldBe(tests.Length);
 
-        //        wroteSize.ShouldBe(bytes.Length);
-        //        buffer.Memory.Slice(0, wroteSize).ToArray().ShouldBe(bytes);
-        //    }
-        //}
+            var actual = new string[length];
+            for (var i = 0; i < length; i++)
+            {
+                actual[i] = MsgPackSpec.ReadString(bytes.Slice(readSize), out var temp);
+                readSize += temp;
+            }
+
+            actual.ShouldBe(tests);
+        }
 
         [Fact]
         public void TestNonFixedArray()
@@ -52,7 +52,7 @@ namespace ProGaudi.MsgPack.Tests.Reader
                 1, 2, 3, 4, 5,
             };
 
-            var bytes = new byte[]
+            Span<byte> bytes = new byte[]
             {
                 0xdc,
                 0x00,
@@ -64,17 +64,17 @@ namespace ProGaudi.MsgPack.Tests.Reader
                 0x01, 0x02, 0x03, 0x04, 0x05,
             };
 
-            using (var buffer = MemoryPool<byte>.Shared.Rent(bytes.Length))
-            {
-                var wroteSize = MsgPackSpec.WriteArrayHeader(buffer.Memory.Span, tests.Length);
-                foreach (var test in tests)
-                {
-                    wroteSize += MsgPackSpec.WriteInt32(buffer.Memory.Span.Slice(wroteSize), test);
-                }
+            var length = MsgPackSpec.ReadArrayHeader(bytes, out var readSize);
+            length.ShouldBe(tests.Length);
 
-                wroteSize.ShouldBe(bytes.Length);
-                buffer.Memory.Span.Slice(0, wroteSize).ToArray().ShouldBe(bytes);
+            var actual = new int[length];
+            for (var i = 0; i < length; i++)
+            {
+                actual[i] = MsgPackSpec.ReadInt32(bytes.Slice(readSize), out var temp);
+                readSize += temp;
             }
+
+            actual.ShouldBe(tests);
         }
     }
 }

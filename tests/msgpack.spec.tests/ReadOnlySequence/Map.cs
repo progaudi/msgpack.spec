@@ -2,9 +2,8 @@ using System;
 using System.Collections.Generic;
 using Shouldly;
 using Xunit;
-using static ProGaudi.MsgPack.MsgPackSpec;
 
-namespace ProGaudi.MsgPack.Tests.Reader
+namespace ProGaudi.MsgPack.Tests.ReadOnlySequence
 {
     public sealed class Map
     {
@@ -151,15 +150,15 @@ namespace ProGaudi.MsgPack.Tests.Reader
         private static void TestReadDictionary(byte[] bytes, Dictionary<int, string> test)
         {
             var span = new ReadOnlySpan<byte>(bytes);
-            var length = (int) ReadMapHeader(span, out var readSize);
+            var length = (int) MsgPackSpec.ReadMapHeader(span, out var readSize);
             length.ShouldBe(test.Count);
             var dictionary = new Dictionary<int, string>(length);
             for (var i = 0; i < length; i++)
             {
                 span = span.Slice(readSize);
-                var key = ReadInt32(span, out readSize);
+                var key = MsgPackSpec.ReadInt32(span, out readSize);
                 span = span.Slice(readSize);
-                dictionary[key] = ReadString(span, out readSize);
+                dictionary[key] = MsgPackSpec.ReadString(span, out readSize);
             }
 
             dictionary.ShouldBe(test, true);

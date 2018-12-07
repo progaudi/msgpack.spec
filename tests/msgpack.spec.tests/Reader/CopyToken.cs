@@ -5,7 +5,7 @@ using Xunit;
 
 namespace ProGaudi.MsgPack.Tests.Reader
 {
-    public class CopyToken
+    public sealed class CopyToken
     {
         [Theory]
         [InlineData(new byte[0],

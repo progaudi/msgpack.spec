@@ -3,7 +3,7 @@ using Xunit;
 
 namespace ProGaudi.MsgPack.Tests.Reader
 {
-    public class Integers
+    public sealed class Integers
     {
         [Theory]
         [InlineData(0, new byte[] { 0x00 })]

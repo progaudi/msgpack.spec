@@ -1,7 +1,7 @@
 using Shouldly;
 using Xunit;
 
-namespace ProGaudi.MsgPack.Tests.Reader
+namespace ProGaudi.MsgPack.Tests.ReadOnlySequence
 {
     public sealed class Binary
     {

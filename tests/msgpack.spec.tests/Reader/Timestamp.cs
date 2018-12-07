@@ -3,7 +3,7 @@ using Xunit;
 
 namespace ProGaudi.MsgPack.Tests.Reader
 {
-    public class Timestamp
+    public sealed class Timestamp
     {
         [Theory]
         [InlineData(1514862245, 0, new byte[] { 0xd6, 0xff, 0x5a, 0x4a, 0xf6, 0xa5 })]

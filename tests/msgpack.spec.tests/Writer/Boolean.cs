@@ -5,7 +5,7 @@ using Xunit;
 
 namespace ProGaudi.MsgPack.Tests.Writer
 {
-    public class Boolean
+    public sealed class Boolean
     {
         [Theory]
         [InlineData(true, new[] { DataCodes.True })]

@@ -5,7 +5,7 @@ using Xunit;
 
 namespace ProGaudi.MsgPack.Tests.Writer
 {
-    public class FloatingPoint
+    public sealed class FloatingPoint
     {
         [Theory]
         [InlineData(0, new byte[] {203, 0, 0, 0, 0, 0, 0, 0, 0})]

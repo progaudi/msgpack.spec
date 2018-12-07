@@ -5,7 +5,7 @@ using Xunit;
 
 namespace ProGaudi.MsgPack.Tests.Writer
 {
-    public class String
+    public sealed class String
     {
         [Theory]
         [InlineData("asdf", new byte[] { 164, 97, 115, 100, 102 })]

@@ -1,8 +1,7 @@
-using System.Buffers;
 using Shouldly;
 using Xunit;
 
-namespace ProGaudi.MsgPack.Tests.Writer
+namespace ProGaudi.MsgPack.Tests.ReadOnlySequence
 {
     public sealed class Timestamp
     {
@@ -28,12 +27,10 @@ namespace ProGaudi.MsgPack.Tests.Writer
         [InlineData(253402300799, 999999999, new byte[] { 0xc7, 0x0c, 0xff, 0x3b, 0x9a, 0xc9, 0xff, 0x00, 0x00, 0x00, 0x3a, 0xff, 0xf4, 0x41, 0x7f })]
         public void Test(long seconds, uint nanoSeconds, byte[] data)
         {
-            using (var buffer = MemoryPool<byte>.Shared.Rent(data.Length))
-            {
-                var x = MsgPackSpec.WriteTimestamp(buffer.Memory.Span, new MsgPack.Timestamp(seconds, nanoSeconds));
-                x.ShouldBe(data.Length);
-                buffer.Memory.Slice(0, x).ToArray().ShouldBe(data);
-            }
+            var x = MsgPackSpec.ReadTimestamp(data, out var readSize);
+            readSize.ShouldBe(data.Length);
+            x.Seconds.ShouldBe(seconds);
+            x.NanoSeconds.ShouldBe(nanoSeconds);
         }
     }
 }
