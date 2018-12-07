@@ -119,8 +119,6 @@ namespace ProGaudi.MsgPack
             return false;
         }
 
-        private static Exception GetInvalidStateReadOnlySequenceException() => new InvalidOperationException("Reading of ReadOnlySequence is in invalid state");
-
         private static Exception GetReadOnlySequenceIsTooShortException(int expected, long sequenceLength) => new ArgumentOutOfRangeException(
             nameof(sequenceLength),
             sequenceLength,
@@ -162,7 +160,7 @@ namespace ProGaudi.MsgPack
         );
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static byte ThrowDataIsTooLarge(uint length) => throw new InvalidOperationException(
+        private static byte ThrowDataIsTooLarge(long length) => throw new InvalidOperationException(
             $@"You can't create arrays or string longer than int.MaxValue in .net. Packet length was: {length}.
 See https://blogs.msdn.microsoft.com/joshwil/2005/08/10/bigarrayt-getting-around-the-2gb-array-size-limit/"
         );

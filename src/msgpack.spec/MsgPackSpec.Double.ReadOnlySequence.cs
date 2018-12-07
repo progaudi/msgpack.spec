@@ -1,6 +1,5 @@
 using System;
 using System.Buffers;
-using System.Runtime.CompilerServices;
 
 namespace ProGaudi.MsgPack
 {
@@ -22,14 +21,10 @@ namespace ProGaudi.MsgPack
             if (sequence.First.Length >= length)
                 return ReadFixFloat64(sequence.First.Span, out readSize);
 
-            var sequenceLength = sequence.Length;
-            if (sequenceLength < length)
-                throw GetReadOnlySequenceIsTooShortException(length, sequenceLength);
-
             Span<byte> buffer = stackalloc byte[length];
             return sequence.TryRead(buffer)
                 ? ReadFixFloat64(buffer, out readSize)
-                : throw GetInvalidStateReadOnlySequenceException();
+                : throw GetReadOnlySequenceIsTooShortException(length, sequence.Length);
         }
 
         /// <summary>
@@ -46,18 +41,12 @@ namespace ProGaudi.MsgPack
             if (sequence.First.Length >= length)
                 return TryReadFixFloat64(sequence.First.Span, out value, out readSize);
 
-            var sequenceLength = sequence.Length;
-            if (sequenceLength < length)
-            {
-                value = default;
-                readSize = default;
-                return false;
-            }
+            value = default;
+            readSize = default;
 
             Span<byte> buffer = stackalloc byte[length];
             return sequence.TryRead(buffer)
-                ? TryReadFixFloat64(buffer, out value, out readSize)
-                : throw GetInvalidStateReadOnlySequenceException();
+                   && TryReadFixFloat64(buffer, out value, out readSize);
         }
 
         /// <summary>
@@ -66,7 +55,6 @@ namespace ProGaudi.MsgPack
         /// <param name="sequence">Sequence to read from.</param>
         /// <param name="readSize">Count of bytes, read from <paramref name="sequence"/>.</param>
         /// <returns>Double value.</returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static double ReadDouble(ReadOnlySequence<byte> sequence, out int readSize)
         {
             var code = sequence.GetFirst();
@@ -89,7 +77,6 @@ namespace ProGaudi.MsgPack
         /// <param name="value">Value read from <paramref name="sequence"/>. If return value is false, value is unspecified.</param>
         /// <param name="readSize">Count of bytes, read from <paramref name="sequence"/>. If return value is false, value is unspecified.</param>
         /// <returns><c>true</c>, if everything is ok. <c>false</c> if sequence is too small, or <paramref name="sequence[0]"/> is not <see cref="DataCodes.Float32"/> or <see cref="DataCodes.Float64"/></returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool TryReadDouble(ReadOnlySequence<byte> sequence, out double value, out int readSize)
         {
             if (sequence.Length < 1)

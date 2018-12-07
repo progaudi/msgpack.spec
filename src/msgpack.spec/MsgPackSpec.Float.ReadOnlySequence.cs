@@ -1,7 +1,5 @@
 using System;
 using System.Buffers;
-using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
 
 namespace ProGaudi.MsgPack
 {
@@ -23,14 +21,10 @@ namespace ProGaudi.MsgPack
             if (sequence.First.Length >= length)
                 return ReadFixFloat32(sequence.First.Span, out readSize);
 
-            var sequenceLength = sequence.Length;
-            if (sequenceLength < length)
-                throw GetReadOnlySequenceIsTooShortException(length, sequenceLength);
-
             Span<byte> buffer = stackalloc byte[length];
             return sequence.TryRead(buffer)
                 ? ReadFixFloat32(buffer, out readSize)
-                : throw GetInvalidStateReadOnlySequenceException();
+                : throw GetReadOnlySequenceIsTooShortException(length, sequence.Length);
         }
 
         /// <summary>
@@ -47,18 +41,11 @@ namespace ProGaudi.MsgPack
             if (sequence.First.Length >= length)
                 return TryReadFixFloat32(sequence.First.Span, out value, out readSize);
 
-            var sequenceLength = sequence.Length;
-            if (sequenceLength < length)
-            {
-                value = default;
-                readSize = default;
-                return false;
-            }
+            value = default;
+            readSize = default;
 
             Span<byte> buffer = stackalloc byte[length];
-            return sequence.TryRead(buffer)
-                ? TryReadFixFloat32(buffer, out value, out readSize)
-                : throw GetInvalidStateReadOnlySequenceException();
+            return sequence.TryRead(buffer) && TryReadFixFloat32(buffer, out value, out readSize);
         }
 
         /// <summary>

@@ -23,12 +23,8 @@ namespace ProGaudi.MsgPack
                 return;
             }
 
-            var sequenceLength = sequence.Length;
-            if (sequenceLength < length)
-                throw GetReadOnlySequenceIsTooShortException(length, sequenceLength);
-
             Span<byte> buffer = stackalloc byte[length];
-            if (!sequence.TryRead(buffer)) throw GetInvalidStateReadOnlySequenceException();
+            if (!sequence.TryRead(buffer)) throw GetReadOnlySequenceIsTooShortException(length, sequence.Length);
             ReadNil(buffer, out readSize);
         }
 
@@ -45,17 +41,10 @@ namespace ProGaudi.MsgPack
             if (sequence.First.Length >= length)
                 return TryReadNil(sequence.First.Span, out readSize);
 
-            var sequenceLength = sequence.Length;
-            if (sequenceLength < length)
-            {
-                readSize = default;
-                return false;
-            }
+            readSize = default;
 
             Span<byte> buffer = stackalloc byte[length];
-            return sequence.TryRead(buffer)
-                ? TryReadNil(buffer, out readSize)
-                : throw GetInvalidStateReadOnlySequenceException();
+            return sequence.TryRead(buffer) && TryReadNil(buffer, out readSize);
         }
     }
 }

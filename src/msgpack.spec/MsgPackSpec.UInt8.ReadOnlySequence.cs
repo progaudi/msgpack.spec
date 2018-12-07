@@ -15,7 +15,6 @@ namespace ProGaudi.MsgPack
         /// <param name="sequence">sequence to read from</param>
         /// <param name="readSize">Count of bytes, read from <paramref name="sequence"/></param>
         /// <returns>Read value</returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static byte ReadFixUInt8(ReadOnlySequence<byte> sequence, out int readSize)
         {
             const int length = DataLengths.UInt8;
@@ -23,14 +22,10 @@ namespace ProGaudi.MsgPack
             if (sequence.First.Length >= length)
                 return ReadFixUInt8(sequence.First.Span, out readSize);
 
-            var sequenceLength = sequence.Length;
-            if (sequenceLength < length)
-                throw GetReadOnlySequenceIsTooShortException(length, sequenceLength);
-
             Span<byte> buffer = stackalloc byte[length];
             return sequence.TryRead(buffer)
                 ? ReadFixUInt8(buffer, out readSize)
-                : throw GetInvalidStateReadOnlySequenceException();
+                : throw GetReadOnlySequenceIsTooShortException(length, sequence.Length);
         }
 
         /// <summary>
@@ -40,7 +35,6 @@ namespace ProGaudi.MsgPack
         /// <param name="value">Value, read from <paramref name="sequence"/>. If return value is false, value is unspecified.</param>
         /// <param name="readSize">Count of bytes, read from <paramref name="sequence"/>. If return value is false, value is unspecified.</param>
         /// <returns><c>true</c>, if everything is ok, <c>false</c> if <paramref name="sequence"/> is too small or <paramref name="sequence"/>[0] is not <see cref="DataCodes.UInt8"/>.</returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool TryReadFixUInt8(ReadOnlySequence<byte> sequence, out byte value, out int readSize)
         {
             const int length = DataLengths.UInt8;
@@ -48,18 +42,11 @@ namespace ProGaudi.MsgPack
             if (sequence.First.Length >= length)
                 return TryReadFixUInt8(sequence.First.Span, out value, out readSize);
 
-            var sequenceLength = sequence.Length;
-            if (sequenceLength < length)
-            {
-                value = default;
-                readSize = default;
-                return false;
-            }
+            value = default;
+            readSize = default;
 
             Span<byte> buffer = stackalloc byte[length];
-            return sequence.TryRead(buffer)
-                ? TryReadFixUInt8(buffer, out value, out readSize)
-                : throw GetInvalidStateReadOnlySequenceException();
+            return sequence.TryRead(buffer) && TryReadFixUInt8(buffer, out value, out readSize);
         }
 
         /// <summary>

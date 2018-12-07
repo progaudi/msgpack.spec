@@ -21,14 +21,10 @@ namespace ProGaudi.MsgPack
             if (sequence.First.Length >= length)
                 return ReadNegativeFixInt(sequence.First.Span, out readSize);
 
-            var sequenceLength = sequence.Length;
-            if (sequenceLength < length)
-                throw GetReadOnlySequenceIsTooShortException(length, sequenceLength);
-
             Span<byte> buffer = stackalloc byte[length];
             return sequence.TryRead(buffer)
                 ? ReadNegativeFixInt(buffer, out readSize)
-                : throw GetInvalidStateReadOnlySequenceException();
+                : throw GetReadOnlySequenceIsTooShortException(length, sequence.Length);
         }
 
         /// <summary>
@@ -46,18 +42,11 @@ namespace ProGaudi.MsgPack
             if (sequence.First.Length >= length)
                 return TryReadNegativeFixInt(sequence.First.Span, out value, out readSize);
 
-            var sequenceLength = sequence.Length;
-            if (sequenceLength < length)
-            {
-                value = default;
-                readSize = default;
-                return false;
-            }
+            value = default;
+            readSize = default;
 
             Span<byte> buffer = stackalloc byte[length];
-            return sequence.TryRead(buffer)
-                ? TryReadNegativeFixInt(buffer, out value, out readSize)
-                : throw GetInvalidStateReadOnlySequenceException();
+            return sequence.TryRead(buffer) && TryReadNegativeFixInt(buffer, out value, out readSize);
         }
     }
 }

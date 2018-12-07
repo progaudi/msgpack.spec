@@ -1,7 +1,5 @@
 using System;
 using System.Buffers;
-using System.Buffers.Binary;
-using System.Runtime.CompilerServices;
 
 namespace ProGaudi.MsgPack
 {
@@ -16,7 +14,6 @@ namespace ProGaudi.MsgPack
         /// <param name="sequence">sequence to read from</param>
         /// <param name="readSize">Count of bytes, read from <paramref name="sequence"/></param>
         /// <returns>Read value</returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ulong ReadFixUInt64(ReadOnlySequence<byte> sequence, out int readSize)
         {
             const int length = DataLengths.UInt64;
@@ -24,14 +21,10 @@ namespace ProGaudi.MsgPack
             if (sequence.First.Length >= length)
                 return ReadFixUInt64(sequence.First.Span, out readSize);
 
-            var sequenceLength = sequence.Length;
-            if (sequenceLength < length)
-                throw GetReadOnlySequenceIsTooShortException(length, sequenceLength);
-
             Span<byte> buffer = stackalloc byte[length];
             return sequence.TryRead(buffer)
                 ? ReadFixUInt64(buffer, out readSize)
-                : throw GetInvalidStateReadOnlySequenceException();
+                : throw GetReadOnlySequenceIsTooShortException(length, sequence.Length);
         }
 
         /// <summary>
@@ -41,7 +34,6 @@ namespace ProGaudi.MsgPack
         /// <param name="value">Value, read from <paramref name="sequence"/>. If return value is false, value is unspecified.</param>
         /// <param name="readSize">Count of bytes, read from <paramref name="sequence"/>. If return value is false, value is unspecified.</param>
         /// <returns><c>true</c>, if everything is ok, <c>false</c> if <paramref name="sequence"/> is too small or <paramref name="sequence"/>[0] is not <see cref="DataCodes.UInt64"/>.</returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool TryReadFixUInt64(ReadOnlySequence<byte> sequence, out ulong value, out int readSize)
         {
             const int length = DataLengths.UInt64;
@@ -49,24 +41,16 @@ namespace ProGaudi.MsgPack
             if (sequence.First.Length >= length)
                 return TryReadFixUInt64(sequence.First.Span, out value, out readSize);
 
-            var sequenceLength = sequence.Length;
-            if (sequenceLength < length)
-            {
-                value = default;
-                readSize = default;
-                return false;
-            }
+            value = default;
+            readSize = default;
 
             Span<byte> buffer = stackalloc byte[length];
-            return sequence.TryRead(buffer)
-                ? TryReadFixUInt64(buffer, out value, out readSize)
-                : throw GetInvalidStateReadOnlySequenceException();
+            return sequence.TryRead(buffer) && TryReadFixUInt64(buffer, out value, out readSize);
         }
 
         /// <summary>
         /// Read <see cref="ulong"/> values from <paramref name="sequence"/>
         /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ulong ReadUInt64(ReadOnlySequence<byte> sequence, out int readSize)
         {
             if (sequence.IsEmpty)
@@ -127,7 +111,6 @@ namespace ProGaudi.MsgPack
         /// <param name="value">Value, read from <paramref name="sequence"/>. If return value is false, value is unspecified.</param>
         /// <param name="readSize">Count of bytes, read from <paramref name="sequence"/>. If return value is false, value is unspecified.</param>
         /// <returns><c>true</c>, if everything is ok, <c>false</c> if <paramref name="sequence"/> is too small or <paramref name="sequence"/>[0] is not ok.</returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool TryReadUInt64(ReadOnlySequence<byte> sequence, out ulong value, out int readSize)
         {
             if (sequence.IsEmpty)
