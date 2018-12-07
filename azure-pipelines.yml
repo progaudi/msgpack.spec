@@ -3,14 +3,24 @@ jobs:
   pool:
     name: Hosted macOS
   steps:
+    - task: DotNetCoreInstaller@0
+      displayName: Installing .net core 2.2
+      inputs:
+        version: '2.2'
     - template: .azure/tests.yml
 
 - job: linux
   pool:
     name: Hosted Ubuntu 1604
   steps:
-    - script: curl -sSL https://dot.net/v1/dotnet-install.sh | bash /dev/stdin -channel 1.1
-      displayName: Installing .netcore 1.1
+    - task: DotNetCoreInstaller@0
+      displayName: Installing .net core 2.2
+      inputs:
+        version: '2.2'
+    - task: DotNetCoreInstaller@0
+      displayName: Installing .net core 1.1
+      inputs:
+        version: '1.1'
     - template: .azure/tests.yml
       parameters:
         netcore1Global: false
@@ -22,6 +32,11 @@ jobs:
   pool:
     name: Hosted VS2017
   steps:
+    - task: DotNetCoreInstaller@0
+      displayName: Installing .net core 2.2
+      inputs:
+        version: '2.2'
+
     - template: .azure/tests.yml
     - template: .azure/test.yml
       parameters:
