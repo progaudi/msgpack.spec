@@ -38,7 +38,7 @@ namespace ProGaudi.MsgPack
         }
 
         /// <summary>
-        /// Reads uint32 from <paramref name="buffer"/>.
+        /// Reads int32 from <paramref name="buffer"/>.
         /// </summary>
         /// <param name="buffer">Buffer to read from</param>
         /// <param name="readSize">Count of bytes, read from <paramref name="buffer"/></param>

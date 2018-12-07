@@ -13,12 +13,12 @@ namespace ProGaudi.MsgPack.Tests.ReadOnlySequence
             if (length == 1) return OneByteSequence();
 
             var memory = buffer.AsMemory();
-            var last = new Segment(memory.Slice(1), null, length - 1);
+            var last = new Segment(memory.Slice(buffer.Length - 1), null, length - 1);
             var lastEmpty = new Segment(ReadOnlyMemory<byte>.Empty, last, length - 1);
             var medium = new Segment(memory.Slice(1, length - 2), lastEmpty, 1);
             var firstEmpty = new Segment(ReadOnlyMemory<byte>.Empty, medium, 1);
-            var first = new Segment(memory.Slice(1), firstEmpty, 0);
-            return new ReadOnlySequence<byte>(first, 0, last, length);
+            var first = new Segment(memory.Slice(0, 1), firstEmpty, 0);
+            return new ReadOnlySequence<byte>(first, 0, last, last.Memory.Length);
 
             ReadOnlySequence<byte> OneByteSequence()
             {

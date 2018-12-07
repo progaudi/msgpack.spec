@@ -39,7 +39,7 @@ namespace ProGaudi.MsgPack
         }
 
         /// <summary>
-        /// Reads uint32 from <paramref name="buffer"/>.
+        /// Reads negative fix int from <paramref name="buffer"/>.
         /// </summary>
         /// <param name="buffer">Buffer to read from</param>
         /// <param name="readSize">Count of bytes, read from <paramref name="buffer"/></param>

@@ -1,7 +1,5 @@
 using System;
 using System.Buffers;
-using System.Runtime.CompilerServices;
-
 using static ProGaudi.MsgPack.DataCodes;
 
 namespace ProGaudi.MsgPack
@@ -15,7 +13,6 @@ namespace ProGaudi.MsgPack
         /// Reads <see cref="Nil"/> from <paramref name="sequence"/>.
         /// </summary>
         /// <returns>Count of bytes, read from <paramref name="sequence"/>.</returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void ReadNil(ReadOnlySequence<byte> sequence, out int readSize)
         {
             const int length = DataLengths.Nil;
@@ -49,7 +46,6 @@ namespace ProGaudi.MsgPack
         /// <param name="sequence">Sequence to read from.</param>
         /// <param name="readSize">Count of bytes, read from <paramref name="sequence"/>.</param>
         /// <returns><c>true</c>, if everything is ok, <c>false</c> if <paramref name="sequence"/> is too small.</returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool TryReadNil(ReadOnlySequence<byte> sequence, out int readSize)
         {
             const int length = DataLengths.Nil;
