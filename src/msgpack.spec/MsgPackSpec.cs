@@ -104,7 +104,7 @@ namespace ProGaudi.MsgPack
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static bool TryRead<T>(this ReadOnlySequence<T> ros, Span<T> destination)
         {
-            if (destination.IsEmpty) return true;
+            if (destination.Length == 0) return true;
             var index = 0;
             foreach (var memory in ros)
             {

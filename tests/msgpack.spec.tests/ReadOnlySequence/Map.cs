@@ -58,33 +58,35 @@ namespace ProGaudi.MsgPack.Tests.ReadOnlySequence
         //    Helpers.CheckTokenDeserialization(data);
         //}
 
+
         [Fact]
-        public void SimpleDictionary()
+        public void SingleSegmentSimpleInt()
         {
-            var test = new Dictionary<int, string>
+            var test = new Dictionary<int, int>
             {
-                {1, "a"},
-                {2, "b"},
-                {3, "c"},
-                {4, "d"},
-                {5, "e"}
+                {1, 1},
+                {2, 2},
+                {3, 3},
+                {4, 4},
+                {5, 5}
             };
 
             var bytes = new byte[]
             {
                 133,
-                1, 161, 97,
-                2, 161, 98,
-                3, 161, 99,
-                4, 161, 100,
-                5, 161, 101
+                1, 1,
+                2, 2,
+                3, 3,
+                4, 4,
+                5, 5,
             };
 
-            TestReadDictionary(bytes, test);
+            TestReadDictionary(bytes.ToSingleSegment(), test, MsgPackSpec.ReadInt32);
         }
 
+
         [Fact]
-        public void NonFixedDictionary()
+        public void SingleSegmentNonFixedDictionaryInt()
         {
             var bytes = new byte[]
             {
@@ -92,73 +94,161 @@ namespace ProGaudi.MsgPack.Tests.ReadOnlySequence
                 0x00,
                 0x14,
 
-                0x01, 0xa1, 0x61,
-                0x02, 0xa1, 0x62,
-                0x03, 0xa1, 0x63,
-                0x04, 0xa1, 0x64,
-                0x05, 0xa1, 0x65,
+                0x01, 0x01,
+                0x02, 0x02,
+                0x03, 0x03,
+                0x04, 0x04,
+                0x05, 0x05,
 
-                0x0b, 0xa1, 0x61,
-                0x0c, 0xa1, 0x62,
-                0x0d, 0xa1, 0x63,
-                0x0e, 0xa1, 0x64,
-                0x0f, 0xa1, 0x65,
+                0x0b, 0x0b,
+                0x0c, 0x0c,
+                0x0d, 0x0d,
+                0x0e, 0x0e,
+                0x0f, 0x0f,
 
-                0x15, 0xa1, 0x61,
-                0x16, 0xa1, 0x62,
-                0x17, 0xa1, 0x63,
-                0x18, 0xa1, 0x64,
-                0x19, 0xa1, 0x65,
+                0x15, 0x15,
+                0x16, 0x16,
+                0x17, 0x17,
+                0x18, 0x18,
+                0x19, 0x19,
 
-                0x1f, 0xa1, 0x61,
-                0x20, 0xa1, 0x62,
-                0x21, 0xa1, 0x63,
-                0x22, 0xa1, 0x64,
-                0x23, 0xa1, 0x65,
+                0x1f, 0x1f,
+                0x20, 0x20,
+                0x21, 0x21,
+                0x22, 0x22,
+                0x23, 0x23,
             };
 
-            var test = new Dictionary<int, string>
+            var test = new Dictionary<int, int>
             {
-                {1, "a"},
-                {2, "b"},
-                {3, "c"},
-                {4, "d"},
-                {5, "e"},
+                {1, 1},
+                {2, 2},
+                {3, 3},
+                {4, 4},
+                {5, 5},
 
-                {11, "a"},
-                {12, "b"},
-                {13, "c"},
-                {14, "d"},
-                {15, "e"},
+                {11, 11},
+                {12, 12},
+                {13, 13},
+                {14, 14},
+                {15, 15},
 
-                {21, "a"},
-                {22, "b"},
-                {23, "c"},
-                {24, "d"},
-                {25, "e"},
+                {21, 21},
+                {22, 22},
+                {23, 23},
+                {24, 24},
+                {25, 25},
 
-                {31, "a"},
-                {32, "b"},
-                {33, "c"},
-                {34, "d"},
-                {35, "e"},
+                {31, 31},
+                {32, 32},
+                {33, 33},
+                {34, 34},
+                {35, 35},
             };
 
-            TestReadDictionary(bytes, test);
+            TestReadDictionary(bytes.ToSingleSegment(), test, MsgPackSpec.ReadInt32);
+        }
+        [Fact]
+        public void MultipleSegmentsSimpleInt()
+        {
+            var test = new Dictionary<int, int>
+            {
+                {1, 1},
+                {2, 2},
+                {3, 3},
+                {4, 4},
+                {5, 5}
+            };
+
+            var bytes = new byte[]
+            {
+                133,
+                1, 1,
+                2, 2,
+                3, 3,
+                4, 4,
+                5, 5,
+            };
+
+            TestReadDictionary(bytes.ToMultipleSegments(), test, MsgPackSpec.ReadInt32);
         }
 
-        private static void TestReadDictionary(byte[] bytes, Dictionary<int, string> test)
+        [Fact]
+        public void MultipleSegmentsNonFixedDictionaryInt()
         {
-            var span = new ReadOnlySpan<byte>(bytes);
-            var length = (int) MsgPackSpec.ReadMapHeader(span, out var readSize);
+            var bytes = new byte[]
+            {
+                0xde,
+                0x00,
+                0x14,
+
+                0x01, 0x01,
+                0x02, 0x02,
+                0x03, 0x03,
+                0x04, 0x04,
+                0x05, 0x05,
+
+                0x0b, 0x0b,
+                0x0c, 0x0c,
+                0x0d, 0x0d,
+                0x0e, 0x0e,
+                0x0f, 0x0f,
+
+                0x15, 0x15,
+                0x16, 0x16,
+                0x17, 0x17,
+                0x18, 0x18,
+                0x19, 0x19,
+
+                0x1f, 0x1f,
+                0x20, 0x20,
+                0x21, 0x21,
+                0x22, 0x22,
+                0x23, 0x23,
+            };
+
+            var test = new Dictionary<int, int>
+            {
+                {1, 1},
+                {2, 2},
+                {3, 3},
+                {4, 4},
+                {5, 5},
+
+                {11, 11},
+                {12, 12},
+                {13, 13},
+                {14, 14},
+                {15, 15},
+
+                {21, 21},
+                {22, 22},
+                {23, 23},
+                {24, 24},
+                {25, 25},
+
+                {31, 31},
+                {32, 32},
+                {33, 33},
+                {34, 34},
+                {35, 35},
+            };
+
+            TestReadDictionary(bytes.ToMultipleSegments(), test, MsgPackSpec.ReadInt32);
+        }
+
+        private delegate T ValueExtractor<T>(ReadOnlySequence<byte> bytes, out int readSize);
+        private static void TestReadDictionary<T>(ReadOnlySequence<byte> bytes, Dictionary<int, T> test, ValueExtractor<T> extractor)
+        {
+            var length = (int) MsgPackSpec.ReadMapHeader(bytes, out var readSize);
             length.ShouldBe(test.Count);
-            var dictionary = new Dictionary<int, string>(length);
+            var dictionary = new Dictionary<int, T>(length);
             for (var i = 0; i < length; i++)
             {
-                span = span.Slice(readSize);
-                var key = MsgPackSpec.ReadInt32(span, out readSize);
-                span = span.Slice(readSize);
-                dictionary[key] = MsgPackSpec.ReadString(span, out readSize);
+                bytes = bytes.Slice(readSize);
+                var key = MsgPackSpec.ReadInt32(bytes, out readSize);
+                bytes = bytes.Slice(readSize);
+                dictionary[key] = extractor(bytes, out readSize);
             }
 
             dictionary.ShouldBe(test, true);
