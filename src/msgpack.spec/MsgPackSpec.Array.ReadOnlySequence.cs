@@ -20,7 +20,11 @@ namespace ProGaudi.MsgPack
         /// <returns>Length of array</returns>
         public static byte ReadFixArrayHeader(ReadOnlySequence<byte> sequence, out int readSize)
         {
-            readSize = DataLengths.FixArrayHeader;
+            const int length = DataLengths.FixArrayHeader;
+            if (sequence.First.Length >= length)
+                return ReadFixArrayHeader(sequence.First.Span, out readSize);
+
+            readSize = length;
             var code = sequence.GetFirst();
             if (FixArrayMin <= code && code <= FixArrayMax)
                 return (byte) (code - FixArrayMin);
@@ -43,7 +47,11 @@ namespace ProGaudi.MsgPack
         /// </returns>
         public static bool TryReadFixArrayHeader(ReadOnlySequence<byte> sequence, out byte length, out int readSize)
         {
-            readSize = DataLengths.FixArrayHeader;
+            const int size = DataLengths.FixArrayHeader;
+            if (sequence.First.Length >= size)
+                return TryReadFixArrayHeader(sequence.First.Span, out length, out readSize);
+
+            readSize = size;
             length = 0;
             if (sequence.Length < readSize) return false;
             var code = sequence.GetFirst();
@@ -61,6 +69,9 @@ namespace ProGaudi.MsgPack
         public static ushort ReadArray16Header(ReadOnlySequence<byte> sequence, out int readSize)
         {
             const int length = DataLengths.Array16Header;
+            if (sequence.First.Length >= length)
+                return ReadArray16Header(sequence.First.Span, out readSize);
+
             readSize = length;
             Span<byte> buffer = stackalloc byte[length];
             if (!sequence.TryRead(buffer))
@@ -87,9 +98,13 @@ namespace ProGaudi.MsgPack
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool TryReadArray16Header(ReadOnlySequence<byte> sequence, out ushort length, out int readSize)
         {
-            readSize = DataLengths.Array16Header;
+            const int size = DataLengths.Array16Header;
+            if (sequence.First.Length >= size)
+                return TryReadArray16Header(sequence.First.Span, out length, out readSize);
+
+            readSize = size;
             length = 0;
-            Span<byte> buffer = stackalloc byte[DataLengths.Array16Header];
+            Span<byte> buffer = stackalloc byte[size];
             return sequence.TryRead(buffer) && buffer[0] == Array16 && BinaryPrimitives.TryReadUInt16BigEndian(buffer.Slice(1), out length);
         }
 
@@ -102,6 +117,9 @@ namespace ProGaudi.MsgPack
         public static uint ReadArray32Header(ReadOnlySequence<byte> sequence, out int readSize)
         {
             const int length = DataLengths.Array32Header;
+            if (sequence.First.Length >= length)
+                return ReadArray32Header(sequence.First.Span, out readSize);
+
             readSize = length;
             Span<byte> buffer = stackalloc byte[length];
             if (!sequence.TryRead(buffer))
@@ -128,9 +146,13 @@ namespace ProGaudi.MsgPack
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool TryReadArray32Header(ReadOnlySequence<byte> sequence, out uint length, out int readSize)
         {
-            readSize = DataLengths.Array32Header;
+            const int size = DataLengths.Array32Header;
+            if (sequence.First.Length >= size)
+                return TryReadArray32Header(sequence.First.Span, out length, out readSize);
+
+            readSize = size;
             length = 0;
-            Span<byte> buffer = stackalloc byte[DataLengths.Array32Header];
+            Span<byte> buffer = stackalloc byte[size];
             return sequence.TryRead(buffer) && buffer[0] == Array32 && BinaryPrimitives.TryReadUInt32BigEndian(buffer.Slice(1), out length);
         }
 

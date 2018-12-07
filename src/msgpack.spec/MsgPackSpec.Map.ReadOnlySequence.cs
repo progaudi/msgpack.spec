@@ -22,7 +22,11 @@ namespace ProGaudi.MsgPack
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static byte ReadFixMapHeader(ReadOnlySequence<byte> sequence, out int readSize)
         {
-            readSize = DataLengths.FixMapHeader;
+            const int length = DataLengths.FixMapHeader;
+            if (sequence.First.Length >= length)
+                return ReadFixMapHeader(sequence.First.Span, out readSize);
+
+            readSize = length;
             var code = sequence.GetFirst();
             if (FixMapMin <= code && code <= FixMapMax)
                 return (byte) (code - FixMapMin);
@@ -46,7 +50,11 @@ namespace ProGaudi.MsgPack
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool TryReadFixMapHeader(ReadOnlySequence<byte> sequence, out byte length, out int readSize)
         {
-            readSize = DataLengths.FixMapHeader;
+            const int size = DataLengths.FixMapHeader;
+            if (sequence.First.Length >= size)
+                return TryReadFixMapHeader(sequence.First.Span, out length, out readSize);
+
+            readSize = size;
             length = default;
             if (sequence.Length < readSize) return false;
             var code = sequence.GetFirst();
@@ -65,6 +73,9 @@ namespace ProGaudi.MsgPack
         public static ushort ReadMap16Header(ReadOnlySequence<byte> sequence, out int readSize)
         {
             const int length = DataLengths.Map16Header;
+            if (sequence.First.Length >= length)
+                return ReadMap16Header(sequence.First.Span, out readSize);
+
             readSize = length;
             Span<byte> buffer = stackalloc byte[length];
             if (!sequence.TryRead(buffer))
@@ -91,9 +102,13 @@ namespace ProGaudi.MsgPack
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool TryReadMap16Header(ReadOnlySequence<byte> sequence, out ushort length, out int readSize)
         {
-            readSize = DataLengths.Map16Header;
+            const int size = DataLengths.Map16Header;
+            if (sequence.First.Length >= size)
+                return TryReadMap16Header(sequence.First.Span, out length, out readSize);
+
+            readSize = size;
             length = 0;
-            Span<byte> buffer = stackalloc byte[DataLengths.Map16Header];
+            Span<byte> buffer = stackalloc byte[size];
             return sequence.TryRead(buffer) && buffer[0] == Map16 && TryReadUInt16BigEndian(buffer.Slice(1), out length);
         }
 
@@ -107,6 +122,9 @@ namespace ProGaudi.MsgPack
         public static uint ReadMap32Header(ReadOnlySequence<byte> sequence, out int readSize)
         {
             const int length = DataLengths.Map32Header;
+            if (sequence.First.Length >= length)
+                return ReadMap32Header(sequence.First.Span, out readSize);
+
             readSize = length;
             Span<byte> buffer = stackalloc byte[length];
             if (!sequence.TryRead(buffer))
@@ -133,9 +151,13 @@ namespace ProGaudi.MsgPack
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool TryReadMap32Header(ReadOnlySequence<byte> sequence, out uint length, out int readSize)
         {
-            readSize = DataLengths.Map32Header;
+            const int size = DataLengths.Map32Header;
+            if (sequence.First.Length >= size)
+                return TryReadMap32Header(sequence.First.Span, out length, out readSize);
+
+            readSize = size;
             length = 0;
-            Span<byte> buffer = stackalloc byte[DataLengths.Map32Header];
+            Span<byte> buffer = stackalloc byte[size];
             return sequence.TryRead(buffer) && buffer[0] == Map32 && TryReadUInt32BigEndian(buffer.Slice(1), out length);
         }
 
