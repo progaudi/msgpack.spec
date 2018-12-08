@@ -4,6 +4,11 @@ jobs:
     name: Hosted macOS
   steps:
     - task: DotNetCoreInstaller@0
+      displayName: Installing .net core runtime 1.0.13
+      inputs:
+        version: '1.0.13'
+        packageType: runtime
+    - task: DotNetCoreInstaller@0
       displayName: Installing .net core runtime 1.1.10
       inputs:
         version: '1.1.10'
@@ -20,15 +25,15 @@ jobs:
     name: Hosted Ubuntu 1604
   steps:
     - task: DotNetCoreInstaller@0
+      displayName: Installing .net core runtime 1.0.13
+      inputs:
+        version: '1.0.13'
+        packageType: runtime
+    - task: DotNetCoreInstaller@0
       displayName: Installing .net core sdk 2.2.100
       inputs:
         version: '2.2.100'
         packageType: sdk
-    - task: DotNetCoreInstaller@0
-      displayName: Installing .net core runtime 1.1.10
-      inputs:
-        version: '1.1.10'
-        packageType: runtime
     - template: .azure/tests.yml
       parameters:
         netcore1Global: false
