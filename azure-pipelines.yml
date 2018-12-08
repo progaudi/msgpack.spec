@@ -21,16 +21,7 @@ jobs:
     name: Hosted VS2017
   steps:
     - template: .azure/install.yml
-      parameters:
-        installScript: >
-          @powershell -NoProfile -ExecutionPolicy unrestricted -Command
-          "[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12;
-          &([scriptblock]::Create((Invoke-WebRequest -useb 'https://dot.net/v1/dotnet-install.ps1'))) {0}"
-        dotnetCommand: "@powershell ~/.dotnet/dotnet"
-
     - template: .azure/tests.yml
-      parameters:
-        dotnetCommand: "@powershell ~/.dotnet/dotnet"
     - template: .azure/test.yml
       parameters:
         path: tests/msgpack.spec.tests/msgpack.spec.tests.csproj
@@ -44,7 +35,7 @@ jobs:
             $version = $(git describe --tags | %{$_ -replace '-([^g])', '.$1'})
             dotnet pack --no-build -v minimal -c Release /property:Version=$version /property:PackageOutputPath=$(Build.ArtifactStagingDirectory)
 
-    - ${{ if ne(variables['Build.Reason'], 'PullRequest') }}:
+    - ${{ if ne(variables.Build.Reason, 'PullRequest') }}:
       - task: NuGetCommand@2
         displayName: push nuget packages
         inputs:
