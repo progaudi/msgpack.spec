@@ -20,6 +20,13 @@ jobs:
   pool:
     name: Hosted VS2017
   steps:
+    - task: PowerShell@2
+      displayName: pack nuget package
+      inputs:
+        targetType: inline
+        script: |
+          Write-Host $env:AGENT_OS
+          Write-Host $env
     - template: .azure/install.yml
     - template: .azure/tests.yml
     - template: .azure/test.yml
