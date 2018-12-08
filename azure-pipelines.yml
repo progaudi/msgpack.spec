@@ -20,13 +20,6 @@ jobs:
   pool:
     name: Hosted VS2017
   steps:
-    - task: PowerShell@2
-      displayName: pack nuget package
-      inputs:
-        targetType: inline
-        script: |
-          Write-Host $env:AGENT_OS
-          Write-Host $env
     - template: .azure/install.yml
     - template: .azure/tests.yml
     - template: .azure/test.yml
@@ -42,7 +35,7 @@ jobs:
             $version = $(git describe --tags | %{$_ -replace '-([^g])', '.$1'})
             dotnet pack --no-build -v minimal -c Release /property:Version=$version /property:PackageOutputPath=$(Build.ArtifactStagingDirectory)
 
-    - ${{ if ne(variables.Build.Reason, 'PullRequest') }}:
+    - ${{ if ne(variables['Build.Reason'], 'PullRequest') }}:
       - task: NuGetCommand@2
         displayName: push nuget packages
         inputs:
