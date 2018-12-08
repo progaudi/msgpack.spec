@@ -12,8 +12,6 @@ jobs:
   steps:
     - template: .azure/install.yml
     - template: .azure/tests.yml
-      parameters:
-        netcore1Global: false
 
 - job: win
   dependsOn:
