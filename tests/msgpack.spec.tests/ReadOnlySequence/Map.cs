@@ -1,4 +1,4 @@
-using System;
+using System.Buffers;
 using System.Collections.Generic;
 using Shouldly;
 using Xunit;
@@ -148,6 +148,7 @@ namespace ProGaudi.MsgPack.Tests.ReadOnlySequence
 
             TestReadDictionary(bytes.ToSingleSegment(), test, MsgPackSpec.ReadInt32);
         }
+
         [Fact]
         public void MultipleSegmentsSimpleInt()
         {

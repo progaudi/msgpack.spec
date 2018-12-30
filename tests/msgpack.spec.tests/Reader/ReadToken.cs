@@ -300,11 +300,11 @@ namespace ProGaudi.MsgPack.Tests.Reader
         [InlineData(100)]
         [InlineData(1_000)]
         [InlineData(10_000)]
-        [InlineData(100_000)]
-        [InlineData(1_000_000)]
-        [InlineData(10_000_000)]
-        [InlineData(100_000_000)]
-        [InlineData(1_000_000_000)]
+//        [InlineData(100_000)]
+//        [InlineData(1_000_000)]
+//        [InlineData(10_000_000)]
+//        [InlineData(100_000_000)]
+//        [InlineData(1_000_000_000)]
         public void DeepStack(int depth)
         {
             var buffer = new byte[depth];

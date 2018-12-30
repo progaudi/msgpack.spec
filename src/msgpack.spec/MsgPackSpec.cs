@@ -2,7 +2,7 @@ using System;
 using System.Buffers;
 using System.Linq;
 using System.Runtime.CompilerServices;
-
+using JetBrains.Annotations;
 using static ProGaudi.MsgPack.DataCodes;
 
 namespace ProGaudi.MsgPack
@@ -11,6 +11,7 @@ namespace ProGaudi.MsgPack
     /// Encode/Decode Utility of MessagePack Spec.
     /// https://github.com/msgpack/msgpack/blob/master/spec.md
     /// </summary>
+    [PublicAPI]
     public static partial class MsgPackSpec
     {
         /// <summary>
