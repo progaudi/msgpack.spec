@@ -132,7 +132,7 @@ namespace ProGaudi.MsgPack
 
             var code = buffer[0];
             if (code == DataCodes.Binary32)
-                return BinaryPrimitives.ReadUInt16BigEndian(buffer.Slice(1));
+                return BinaryPrimitives.ReadUInt32BigEndian(buffer.Slice(1));
             return ThrowWrongCodeException(code, DataCodes.Binary32);
         }
 
