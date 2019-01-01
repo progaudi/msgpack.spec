@@ -833,9 +833,9 @@ namespace ProGaudi.MsgPack
         /// <returns>Returns string.</returns>
         public static string ReadString(ReadOnlySpan<byte> buffer, out int readSize, Decoder decoder = null)
         {
-            var length = ReadStringHeader(buffer, out readSize);
-            readSize += length;
-            return ReadString(buffer.Slice(readSize, length), decoder);
+            var length = ReadStringHeader(buffer, out var offset);
+            readSize = offset + length;
+            return ReadString(buffer.Slice(offset, length), decoder);
         }
 
         /// <summary>

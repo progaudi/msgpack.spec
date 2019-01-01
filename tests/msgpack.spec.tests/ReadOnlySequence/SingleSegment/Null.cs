@@ -27,7 +27,7 @@ namespace ProGaudi.MsgPack.Tests.ReadOnlySequence.SingleSegment
         {
             var buffer = new [] { DataCodes.True };
             var e = Should.Throw<InvalidOperationException>(() => MsgPackSpec.ReadNil(buffer.ToSingleSegment(), out _));
-            e.Message.ShouldBe("adf");
+            e.Message.ShouldBe("Wrong data code: 0xc3. Expected: 0xc0.");
         }
 
         [Fact]
