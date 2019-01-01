@@ -856,6 +856,11 @@ namespace ProGaudi.MsgPack
 
         private static (bool success, int bytesUsed) WriteString(ReadOnlySpan<char> str, Span<byte> buffer, Encoder encoder)
         {
+            if (str.Length == 0)
+            {
+                return (true, 0);
+            }
+            
             encoder = GetPerThreadEncoder(encoder);
             encoder.Convert(str, buffer, true, out var charsUsed, out var bytesUsed, out var completed);
             return (completed && charsUsed == str.Length, bytesUsed);
