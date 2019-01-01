@@ -233,7 +233,7 @@ namespace ProGaudi.MsgPack
             if (buffer.Length < readSize) return false;
             if (!TryReadFixExtension4Header(buffer, out var extension, out var headerSize)) return false;
             if (extension != ExtensionTypes.Timestamp) return false;
-            if (TryReadUInt32BigEndian(buffer.Slice(headerSize), out var seconds)) return false;
+            if (!TryReadUInt32BigEndian(buffer.Slice(headerSize), out var seconds)) return false;
             timestamp = new Timestamp(seconds);
             return true;
         }
@@ -258,7 +258,7 @@ namespace ProGaudi.MsgPack
             if (buffer.Length < readSize) return false;
             if (!TryReadFixExtension8Header(buffer, out var extension, out var headerSize)) return false;
             if (extension != ExtensionTypes.Timestamp) return false;
-            if (TryReadUInt64BigEndian(buffer.Slice(headerSize), out var seconds)) return false;
+            if (!TryReadUInt64BigEndian(buffer.Slice(headerSize), out var seconds)) return false;
             timestamp = new Timestamp(seconds);
             return true;
         }
@@ -284,8 +284,8 @@ namespace ProGaudi.MsgPack
             if (!TryReadExtension8Header(buffer, out var extension, out var length, out var headerSize)) return false;
             if (extension != ExtensionTypes.Timestamp) return false;
             if (length != 12) return false;
-            if (TryReadUInt32BigEndian(buffer.Slice(headerSize), out var nanoseconds)) return false;
-            if (TryReadInt64BigEndian(buffer.Slice(headerSize + 4), out var seconds)) return false;
+            if (!TryReadUInt32BigEndian(buffer.Slice(headerSize), out var nanoseconds)) return false;
+            if (!TryReadInt64BigEndian(buffer.Slice(headerSize + 4), out var seconds)) return false;
             timestamp = new Timestamp(seconds, nanoseconds);
             return true;
         }

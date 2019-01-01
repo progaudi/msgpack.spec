@@ -711,7 +711,7 @@ namespace ProGaudi.MsgPack
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static (sbyte type, byte length) ReadExtension8Header(ReadOnlySpan<byte> buffer, out int readSize)
         {
-            readSize = 3;
+            readSize = DataLengths.Extension8Header;
             var type = unchecked((sbyte)buffer[2]);
             var length = buffer[1];
             if (buffer[0] != DataCodes.Extension8) ThrowWrongCodeException(buffer[0], DataCodes.Extension8);
@@ -740,7 +740,7 @@ namespace ProGaudi.MsgPack
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static (sbyte type, ushort length) ReadExtension16Header(ReadOnlySpan<byte> buffer, out int readSize)
         {
-            readSize = 4;
+            readSize = DataLengths.Extension16Header;
             var type = unchecked((sbyte)buffer[3]);
             var length = BinaryPrimitives.ReadUInt16BigEndian(buffer.Slice(1));
             if (buffer[0] != DataCodes.Extension16) ThrowWrongCodeException(buffer[0], DataCodes.Extension16);
@@ -768,7 +768,7 @@ namespace ProGaudi.MsgPack
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static (sbyte type, uint length) ReadExtension32Header(ReadOnlySpan<byte> buffer, out int readSize)
         {
-            readSize = 6;
+            readSize = DataLengths.Extension32Header;
             var type = unchecked((sbyte)buffer[5]);
             var length = BinaryPrimitives.ReadUInt32BigEndian(buffer.Slice(1));
             if (buffer[0] != DataCodes.Extension32) ThrowWrongCodeException(buffer[0], DataCodes.Extension32);
@@ -860,7 +860,7 @@ namespace ProGaudi.MsgPack
         /// <param name="readSize">Count of bytes read from <paramref name="buffer"/>.</param>
         /// <returns><c>true</c> if everything is ok or <c>false</c> if <paramref name="buffer"/> is too short or first byte isn't <see cref="DataCodes.FixExtension1"/></returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool TryReadFixExtension1Header(ReadOnlySpan<byte> buffer, out sbyte type, out int readSize) => TryReadExtensionHeader(buffer, DataCodes.FixExtension1, out type, out readSize);
+        public static bool TryReadFixExtension1Header(ReadOnlySpan<byte> buffer, out sbyte type, out int readSize) => TryReadFixExtensionHeader(buffer, DataCodes.FixExtension1, out type, out readSize);
 
         /// <summary>
         /// Tries to read 1-byte extension.
@@ -890,7 +890,7 @@ namespace ProGaudi.MsgPack
         /// <param name="readSize">Count of bytes read from <paramref name="buffer"/>.</param>
         /// <returns><c>true</c> if everything is ok or <c>false</c> if <paramref name="buffer"/> is too short or first byte isn't <see cref="DataCodes.FixExtension2"/></returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool TryReadFixExtension2Header(ReadOnlySpan<byte> buffer, out sbyte type, out int readSize) => TryReadExtensionHeader(buffer, DataCodes.FixExtension2, out type, out readSize);
+        public static bool TryReadFixExtension2Header(ReadOnlySpan<byte> buffer, out sbyte type, out int readSize) => TryReadFixExtensionHeader(buffer, DataCodes.FixExtension2, out type, out readSize);
 
         /// <summary>
         /// Tries to read 2-bytes extension.
@@ -914,7 +914,7 @@ namespace ProGaudi.MsgPack
         /// <param name="readSize">Count of bytes read from <paramref name="buffer"/>.</param>
         /// <returns><c>true</c> if everything is ok or <c>false</c> if <paramref name="buffer"/> is too short or first byte isn't <see cref="DataCodes.FixExtension4"/></returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool TryReadFixExtension4Header(ReadOnlySpan<byte> buffer, out sbyte type, out int readSize) => TryReadExtensionHeader(buffer, DataCodes.FixExtension4, out type, out readSize);
+        public static bool TryReadFixExtension4Header(ReadOnlySpan<byte> buffer, out sbyte type, out int readSize) => TryReadFixExtensionHeader(buffer, DataCodes.FixExtension4, out type, out readSize);
 
         /// <summary>
         /// Tries to read 4-bytes extension.
@@ -938,7 +938,7 @@ namespace ProGaudi.MsgPack
         /// <param name="readSize">Count of bytes read from <paramref name="buffer"/>.</param>
         /// <returns><c>true</c> if everything is ok or <c>false</c> if <paramref name="buffer"/> is too short or first byte isn't <see cref="DataCodes.FixExtension8"/></returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool TryReadFixExtension8Header(ReadOnlySpan<byte> buffer, out sbyte type, out int readSize) => TryReadExtensionHeader(buffer, DataCodes.FixExtension8, out type, out readSize);
+        public static bool TryReadFixExtension8Header(ReadOnlySpan<byte> buffer, out sbyte type, out int readSize) => TryReadFixExtensionHeader(buffer, DataCodes.FixExtension8, out type, out readSize);
 
         /// <summary>
         /// Tries to read 8-bytes extension.
@@ -962,7 +962,7 @@ namespace ProGaudi.MsgPack
         /// <param name="readSize">Count of bytes read from <paramref name="buffer"/>.</param>
         /// <returns><c>true</c> if everything is ok or <c>false</c> if <paramref name="buffer"/> is too short or first byte isn't <see cref="DataCodes.FixExtension16"/></returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool TryReadFixExtension16Header(ReadOnlySpan<byte> buffer, out sbyte type, out int readSize) => TryReadExtensionHeader(buffer, DataCodes.FixExtension16, out type, out readSize);
+        public static bool TryReadFixExtension16Header(ReadOnlySpan<byte> buffer, out sbyte type, out int readSize) => TryReadFixExtensionHeader(buffer, DataCodes.FixExtension16, out type, out readSize);
 
         /// <summary>
         /// Tries to read 16-bytes extension.
@@ -989,11 +989,12 @@ namespace ProGaudi.MsgPack
         public static bool TryReadExtension8Header(ReadOnlySpan<byte> buffer, out sbyte type, out byte length, out int readSize)
         {
             length = 0;
-            if (!TryReadExtensionHeader(buffer, DataCodes.Extension8, out type, out readSize)) return false;
-            if (buffer.Length < 3) return false;
-            readSize = 3;
-            length = buffer[2];
-            return true;
+            type = 0;
+            readSize = DataLengths.Extension8Header;
+            if (buffer.Length < DataLengths.Extension8Header) return false;
+            type = unchecked((sbyte)buffer[2]);
+            length = buffer[1];
+            return buffer[0] == DataCodes.Extension8;
         }
 
         /// <summary>
@@ -1022,11 +1023,12 @@ namespace ProGaudi.MsgPack
         public static bool TryReadExtension16Header(ReadOnlySpan<byte> buffer, out sbyte type, out ushort length, out int readSize)
         {
             length = 0;
-            if (!TryReadExtensionHeader(buffer, DataCodes.Extension16, out type, out readSize)) return false;
-            if (buffer.Length < 4) return false;
-            length = BinaryPrimitives.ReadUInt16BigEndian(buffer.Slice(readSize));
-            readSize = 4;
-            return true;
+            type = 0;
+            readSize = DataLengths.Extension16Header;
+            if (buffer.Length < DataLengths.Extension16Header) return false;
+            type = unchecked((sbyte)buffer[3]);
+            if (!BinaryPrimitives.TryReadUInt16BigEndian(buffer.Slice(1, 2), out length)) return false;
+            return buffer[0] == DataCodes.Extension16;
         }
 
         /// <summary>
@@ -1055,11 +1057,12 @@ namespace ProGaudi.MsgPack
         public static bool TryReadExtension32Header(ReadOnlySpan<byte> buffer, out sbyte type, out uint length, out int readSize)
         {
             length = 0;
-            if (!TryReadExtensionHeader(buffer, DataCodes.Extension32, out type, out readSize)) return false;
-            if (buffer.Length < 6) return false;
-            length = BinaryPrimitives.ReadUInt32BigEndian(buffer.Slice(readSize));
-            readSize = 6;
-            return true;
+            type = 0;
+            readSize = DataLengths.Extension32Header;
+            if (buffer.Length < DataLengths.Extension32Header) return false;
+            type = unchecked((sbyte)buffer[5]);
+            if (!BinaryPrimitives.TryReadUInt32BigEndian(buffer.Slice(1, 4), out length)) return false;
+            return buffer[0] == DataCodes.Extension32;
         }
 
         /// <summary>
@@ -1192,7 +1195,7 @@ namespace ProGaudi.MsgPack
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static bool TryReadExtensionHeader(ReadOnlySpan<byte> buffer, byte code, out sbyte type, out int readSize)
+        private static bool TryReadFixExtensionHeader(ReadOnlySpan<byte> buffer, byte code, out sbyte type, out int readSize)
         {
             type = 0;
             readSize = DataLengths.FixExtensionHeader;

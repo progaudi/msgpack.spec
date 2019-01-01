@@ -310,7 +310,7 @@ namespace ProGaudi.MsgPack
         /// <param name="readSize">Count of bytes read from <paramref name="sequence"/>.</param>
         /// <returns><c>true</c> if everything is ok or <c>false</c> if <paramref name="sequence"/> is too short or first byte isn't <see cref="DataCodes.FixExtension1"/></returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool TryReadFixExtension1Header(ReadOnlySequence<byte> sequence, out sbyte type, out int readSize) => TryReadExtensionHeader(sequence, DataCodes.FixExtension1, out type, out readSize);
+        public static bool TryReadFixExtension1Header(ReadOnlySequence<byte> sequence, out sbyte type, out int readSize) => TryReadFixExtensionHeader(sequence, DataCodes.FixExtension1, out type, out readSize);
 
         /// <summary>
         /// Tries to read 1-byte extension.
@@ -348,7 +348,7 @@ namespace ProGaudi.MsgPack
         /// <param name="readSize">Count of bytes read from <paramref name="sequence"/>.</param>
         /// <returns><c>true</c> if everything is ok or <c>false</c> if <paramref name="sequence"/> is too short or first byte isn't <see cref="DataCodes.FixExtension2"/></returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool TryReadFixExtension2Header(ReadOnlySequence<byte> sequence, out sbyte type, out int readSize) => TryReadExtensionHeader(sequence, DataCodes.FixExtension2, out type, out readSize);
+        public static bool TryReadFixExtension2Header(ReadOnlySequence<byte> sequence, out sbyte type, out int readSize) => TryReadFixExtensionHeader(sequence, DataCodes.FixExtension2, out type, out readSize);
 
         /// <summary>
         /// Tries to read 2-bytes extension.
@@ -372,7 +372,7 @@ namespace ProGaudi.MsgPack
         /// <param name="readSize">Count of bytes read from <paramref name="sequence"/>.</param>
         /// <returns><c>true</c> if everything is ok or <c>false</c> if <paramref name="sequence"/> is too short or first byte isn't <see cref="DataCodes.FixExtension4"/></returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool TryReadFixExtension4Header(ReadOnlySequence<byte> sequence, out sbyte type, out int readSize) => TryReadExtensionHeader(sequence, DataCodes.FixExtension4, out type, out readSize);
+        public static bool TryReadFixExtension4Header(ReadOnlySequence<byte> sequence, out sbyte type, out int readSize) => TryReadFixExtensionHeader(sequence, DataCodes.FixExtension4, out type, out readSize);
 
         /// <summary>
         /// Tries to read 4-bytes extension.
@@ -396,7 +396,7 @@ namespace ProGaudi.MsgPack
         /// <param name="readSize">Count of bytes read from <paramref name="sequence"/>.</param>
         /// <returns><c>true</c> if everything is ok or <c>false</c> if <paramref name="sequence"/> is too short or first byte isn't <see cref="DataCodes.FixExtension8"/></returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool TryReadFixExtension8Header(ReadOnlySequence<byte> sequence, out sbyte type, out int readSize) => TryReadExtensionHeader(sequence, DataCodes.FixExtension8, out type, out readSize);
+        public static bool TryReadFixExtension8Header(ReadOnlySequence<byte> sequence, out sbyte type, out int readSize) => TryReadFixExtensionHeader(sequence, DataCodes.FixExtension8, out type, out readSize);
 
         /// <summary>
         /// Tries to read 8-bytes extension.
@@ -420,7 +420,7 @@ namespace ProGaudi.MsgPack
         /// <param name="readSize">Count of bytes read from <paramref name="sequence"/>.</param>
         /// <returns><c>true</c> if everything is ok or <c>false</c> if <paramref name="sequence"/> is too short or first byte isn't <see cref="DataCodes.FixExtension16"/></returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool TryReadFixExtension16Header(ReadOnlySequence<byte> sequence, out sbyte type, out int readSize) => TryReadExtensionHeader(sequence, DataCodes.FixExtension16, out type, out readSize);
+        public static bool TryReadFixExtension16Header(ReadOnlySequence<byte> sequence, out sbyte type, out int readSize) => TryReadFixExtensionHeader(sequence, DataCodes.FixExtension16, out type, out readSize);
 
         /// <summary>
         /// Tries to read 16-bytes extension.
@@ -636,7 +636,7 @@ namespace ProGaudi.MsgPack
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static bool TryReadExtensionHeader(ReadOnlySequence<byte> sequence, byte code, out sbyte type, out int readSize)
+        private static bool TryReadFixExtensionHeader(ReadOnlySequence<byte> sequence, byte code, out sbyte type, out int readSize)
         {
             type = 0;
             const int length = DataLengths.FixExtensionHeader;
