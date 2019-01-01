@@ -656,7 +656,7 @@ namespace ProGaudi.MsgPack
                 if (chars.Length > length + DataLengths.FixStringHeader) return false;
                 if (TryWriteFixStringHeader(buffer, (byte) length, out wroteSize))
                 {
-                    var (success, actualLength) = WriteString(chars, buffer, encoder);
+                    var (success, actualLength) = WriteString(chars, buffer.Slice(wroteSize), encoder);
                     wroteSize += actualLength;
                     return success;
                 }
@@ -669,7 +669,7 @@ namespace ProGaudi.MsgPack
                 if (chars.Length > length + DataLengths.String8Header) return false;
                 if (TryWriteString8Header(buffer, (byte) length, out wroteSize))
                 {
-                    var (success, actualLength) = WriteString(chars, buffer, encoder);
+                    var (success, actualLength) = WriteString(chars, buffer.Slice(wroteSize), encoder);
                     wroteSize += actualLength;
                     return success;
                 }
@@ -682,7 +682,7 @@ namespace ProGaudi.MsgPack
                 if (chars.Length > length + DataLengths.String16Header) return false;
                 if (TryWriteString16Header(buffer, (ushort) length, out wroteSize))
                 {
-                    var (success, actualLength) = WriteString(chars, buffer, encoder);
+                    var (success, actualLength) = WriteString(chars, buffer.Slice(wroteSize), encoder);
                     wroteSize += actualLength;
                     return success;
                 }
@@ -693,7 +693,7 @@ namespace ProGaudi.MsgPack
             if (chars.Length > length + DataLengths.String32Header) return false;
             if (TryWriteString32Header(buffer, (uint) length, out wroteSize))
             {
-                var (success, actualLength) = WriteString(chars, buffer, encoder);
+                var (success, actualLength) = WriteString(chars, buffer.Slice(wroteSize), encoder);
                 wroteSize += actualLength;
                 return success;
             }
