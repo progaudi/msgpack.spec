@@ -1,14 +1,14 @@
 using Shouldly;
 using Xunit;
 
-namespace ProGaudi.MsgPack.Tests.ReadOnlySequence
+namespace ProGaudi.MsgPack.Tests.ReadOnlySequence.SingleSegment
 {
     public sealed class Boolean
     {
         [Theory]
         [InlineData(true, new[] { DataCodes.True })]
         [InlineData(false, new[] { DataCodes.False })]
-        public void SingleSegment(bool value, byte[] data)
+        public void Read(bool value, byte[] data)
         {
             MsgPackSpec.ReadBoolean(data.ToSingleSegment(), out var readSize).ShouldBe(value);
             readSize.ShouldBe(data.Length);
@@ -17,9 +17,10 @@ namespace ProGaudi.MsgPack.Tests.ReadOnlySequence
         [Theory]
         [InlineData(true, new[] { DataCodes.True })]
         [InlineData(false, new[] { DataCodes.False })]
-        public void MultipleSegments(bool value, byte[] data)
+        public void TryRead(bool value, byte[] data)
         {
-            MsgPackSpec.ReadBoolean(data.ToMultipleSegments(), out var readSize).ShouldBe(value);
+            MsgPackSpec.TryReadBoolean(data.ToSingleSegment(), out var result, out var readSize).ShouldBeTrue();
+            result.ShouldBe(value);
             readSize.ShouldBe(data.Length);
         }
     }

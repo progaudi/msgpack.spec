@@ -1,7 +1,7 @@
 using Shouldly;
 using Xunit;
 
-namespace ProGaudi.MsgPack.Tests.Reader
+namespace ProGaudi.MsgPack.Tests.ReadOnlySequence.MultipleSegments
 {
     public sealed class Binary
     {
@@ -90,7 +90,7 @@ namespace ProGaudi.MsgPack.Tests.Reader
         [InlineData(new byte[] { 0x00, 0xff }, new byte[] { 0xc6, 0x00, 0x00, 0x00, 0x02, 0x00, 0xff })]
         public void TryRead(byte[] value, byte[] data)
         {
-            MsgPackSpec.TryReadBinary(data, out var owner, out var readSize).ShouldBeTrue();
+            MsgPackSpec.TryReadBinary(data.ToMultipleSegments(), out var owner, out var readSize).ShouldBeTrue();
 
             using (owner)
             {
@@ -184,7 +184,7 @@ namespace ProGaudi.MsgPack.Tests.Reader
         [InlineData(new byte[] { 0x00, 0xff }, new byte[] { 0xc6, 0x00, 0x00, 0x00, 0x02, 0x00, 0xff })]
         public void Read(byte[] value, byte[] data)
         {
-            using (var owner = MsgPackSpec.ReadBinary(data, out var readSize))
+            using (var owner = MsgPackSpec.ReadBinary(data.ToMultipleSegments(), out var readSize))
             {
                 readSize.ShouldBe(data.Length);
                 owner.Memory.ToArray().ShouldBe(value);

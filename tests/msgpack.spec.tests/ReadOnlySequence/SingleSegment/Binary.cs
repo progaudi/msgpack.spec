@@ -1,7 +1,7 @@
 using Shouldly;
 using Xunit;
 
-namespace ProGaudi.MsgPack.Tests.ReadOnlySequence
+namespace ProGaudi.MsgPack.Tests.ReadOnlySequence.SingleSegment
 {
     public sealed class Binary
     {
@@ -88,7 +88,7 @@ namespace ProGaudi.MsgPack.Tests.ReadOnlySequence
         [InlineData(new byte[] { 0x00, 0xff }, new byte[] { 0xc4, 0x02, 0x00, 0xff })]
         [InlineData(new byte[] { 0x00, 0xff }, new byte[] { 0xc5, 0x00, 0x02, 0x00, 0xff })]
         [InlineData(new byte[] { 0x00, 0xff }, new byte[] { 0xc6, 0x00, 0x00, 0x00, 0x02, 0x00, 0xff })]
-        public void SingleSegmentTest(byte[] value, byte[] data)
+        public void TryRead(byte[] value, byte[] data)
         {
             MsgPackSpec.TryReadBinary(data.ToSingleSegment(), out var owner, out var readSize).ShouldBeTrue();
 
@@ -182,11 +182,9 @@ namespace ProGaudi.MsgPack.Tests.ReadOnlySequence
         [InlineData(new byte[] { 0x00, 0xff }, new byte[] { 0xc4, 0x02, 0x00, 0xff })]
         [InlineData(new byte[] { 0x00, 0xff }, new byte[] { 0xc5, 0x00, 0x02, 0x00, 0xff })]
         [InlineData(new byte[] { 0x00, 0xff }, new byte[] { 0xc6, 0x00, 0x00, 0x00, 0x02, 0x00, 0xff })]
-        public void MultipleSegmentsTest(byte[] value, byte[] data)
+        public void Read(byte[] value, byte[] data)
         {
-            MsgPackSpec.TryReadBinary(data.ToMultipleSegments(), out var owner, out var readSize).ShouldBeTrue();
-
-            using (owner)
+            using (var owner = MsgPackSpec.ReadBinary(data.ToSingleSegment(), out var readSize))
             {
                 readSize.ShouldBe(data.Length);
                 owner.Memory.ToArray().ShouldBe(value);

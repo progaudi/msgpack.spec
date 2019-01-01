@@ -2,7 +2,7 @@ using System;
 using Shouldly;
 using Xunit;
 
-namespace ProGaudi.MsgPack.Tests.Reader
+namespace ProGaudi.MsgPack.Tests.ReadOnlySequence.SingleSegment
 {
     public sealed class FloatingPoint
     {
@@ -23,7 +23,7 @@ namespace ProGaudi.MsgPack.Tests.Reader
         [InlineData(double.NegativeInfinity, new byte[] {203, 255, 240, 0, 0, 0, 0, 0, 0})]
         public void ReadDouble(double number, byte[] data)
         {
-            MsgPackSpec.ReadDouble(data, out var readSize).ShouldBe(number);
+            MsgPackSpec.ReadDouble(data.ToSingleSegment(), out var readSize).ShouldBe(number);
             readSize.ShouldBe(data.Length);
         }
 
@@ -44,7 +44,7 @@ namespace ProGaudi.MsgPack.Tests.Reader
         [InlineData(float.NegativeInfinity, new byte[] {202, 255, 128, 0, 0})]
         public void ReadFloat(float number, byte[] data)
         {
-            MsgPackSpec.ReadFloat(data, out var readSize).ShouldBe(number);
+            MsgPackSpec.ReadFloat(data.ToSingleSegment(), out var readSize).ShouldBe(number);
             readSize.ShouldBe(data.Length);
         }
         [Theory]
@@ -64,7 +64,7 @@ namespace ProGaudi.MsgPack.Tests.Reader
         [InlineData(double.NegativeInfinity, new byte[] {203, 255, 240, 0, 0, 0, 0, 0, 0})]
         public void TryReadDouble(double number, byte[] data)
         {
-            MsgPackSpec.TryReadDouble(data, out var value, out var readSize).ShouldBeTrue();
+            MsgPackSpec.TryReadDouble(data.ToSingleSegment(), out var value, out var readSize).ShouldBeTrue();
             value.ShouldBe(number);
             readSize.ShouldBe(data.Length);
         }
@@ -86,7 +86,7 @@ namespace ProGaudi.MsgPack.Tests.Reader
         [InlineData(float.NegativeInfinity, new byte[] {202, 255, 128, 0, 0})]
         public void TryReadFloat(float number, byte[] data)
         {
-            MsgPackSpec.TryReadFloat(data, out var value, out var readSize).ShouldBeTrue();
+            MsgPackSpec.TryReadFloat(data.ToSingleSegment(), out var value, out var readSize).ShouldBeTrue();
             value.ShouldBe(number);
             readSize.ShouldBe(data.Length);
         }

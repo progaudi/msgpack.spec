@@ -1,7 +1,7 @@
 using Shouldly;
 using Xunit;
 
-namespace ProGaudi.MsgPack.Tests.Reader
+namespace ProGaudi.MsgPack.Tests.ReadOnlySequence.SingleSegment
 {
     public sealed class Timestamp
     {
@@ -27,7 +27,7 @@ namespace ProGaudi.MsgPack.Tests.Reader
         [InlineData(253402300799, 999999999, new byte[] { 0xc7, 0x0c, 0xff, 0x3b, 0x9a, 0xc9, 0xff, 0x00, 0x00, 0x00, 0x3a, 0xff, 0xf4, 0x41, 0x7f })]
         public void Read(long seconds, uint nanoSeconds, byte[] data)
         {
-            var x = MsgPackSpec.ReadTimestamp(data, out var readSize);
+            var x = MsgPackSpec.ReadTimestamp(data.ToSingleSegment(), out var readSize);
             readSize.ShouldBe(data.Length);
             x.Seconds.ShouldBe(seconds);
             x.NanoSeconds.ShouldBe(nanoSeconds);
@@ -55,7 +55,7 @@ namespace ProGaudi.MsgPack.Tests.Reader
         [InlineData(253402300799, 999999999, new byte[] { 0xc7, 0x0c, 0xff, 0x3b, 0x9a, 0xc9, 0xff, 0x00, 0x00, 0x00, 0x3a, 0xff, 0xf4, 0x41, 0x7f })]
         public void TryRead(long seconds, uint nanoSeconds, byte[] data)
         {
-            MsgPackSpec.TryReadTimestamp(data, out var x, out var readSize).ShouldBeTrue();
+            MsgPackSpec.TryReadTimestamp(data.ToSingleSegment(), out var x, out var readSize).ShouldBeTrue();
             readSize.ShouldBe(data.Length);
             x.Seconds.ShouldBe(seconds);
             x.NanoSeconds.ShouldBe(nanoSeconds);

@@ -1,7 +1,7 @@
 using Shouldly;
 using Xunit;
 
-namespace ProGaudi.MsgPack.Tests.ReadOnlySequence
+namespace ProGaudi.MsgPack.Tests.ReadOnlySequence.MultipleSegments
 {
     public sealed class Timestamp
     {
@@ -25,9 +25,9 @@ namespace ProGaudi.MsgPack.Tests.ReadOnlySequence
         [InlineData(-2208988800, 0, new byte[] { 0xc7, 0x0c, 0xff, 0x00, 0x00, 0x00, 0x00, 0xff, 0xff, 0xff, 0xff, 0x7c, 0x55, 0x81, 0x80 })]
         [InlineData(-62167219200, 0, new byte[] { 0xc7, 0x0c, 0xff, 0x00, 0x00, 0x00, 0x00, 0xff, 0xff, 0xff, 0xf1, 0x86, 0x8b, 0x84, 0x00 })]
         [InlineData(253402300799, 999999999, new byte[] { 0xc7, 0x0c, 0xff, 0x3b, 0x9a, 0xc9, 0xff, 0x00, 0x00, 0x00, 0x3a, 0xff, 0xf4, 0x41, 0x7f })]
-        public void SingleSegmentTest(long seconds, uint nanoSeconds, byte[] data)
+        public void Read(long seconds, uint nanoSeconds, byte[] data)
         {
-            var x = MsgPackSpec.ReadTimestamp(data.ToSingleSegment(), out var readSize);
+            var x = MsgPackSpec.ReadTimestamp(data.ToMultipleSegments(), out var readSize);
             readSize.ShouldBe(data.Length);
             x.Seconds.ShouldBe(seconds);
             x.NanoSeconds.ShouldBe(nanoSeconds);
@@ -53,9 +53,9 @@ namespace ProGaudi.MsgPack.Tests.ReadOnlySequence
         [InlineData(-2208988800, 0, new byte[] { 0xc7, 0x0c, 0xff, 0x00, 0x00, 0x00, 0x00, 0xff, 0xff, 0xff, 0xff, 0x7c, 0x55, 0x81, 0x80 })]
         [InlineData(-62167219200, 0, new byte[] { 0xc7, 0x0c, 0xff, 0x00, 0x00, 0x00, 0x00, 0xff, 0xff, 0xff, 0xf1, 0x86, 0x8b, 0x84, 0x00 })]
         [InlineData(253402300799, 999999999, new byte[] { 0xc7, 0x0c, 0xff, 0x3b, 0x9a, 0xc9, 0xff, 0x00, 0x00, 0x00, 0x3a, 0xff, 0xf4, 0x41, 0x7f })]
-        public void MultipleSegmentsTest(long seconds, uint nanoSeconds, byte[] data)
+        public void TryRead(long seconds, uint nanoSeconds, byte[] data)
         {
-            var x = MsgPackSpec.ReadTimestamp(data.ToMultipleSegments(), out var readSize);
+            MsgPackSpec.TryReadTimestamp(data.ToMultipleSegments(), out var x, out var readSize).ShouldBeTrue();
             readSize.ShouldBe(data.Length);
             x.Seconds.ShouldBe(seconds);
             x.NanoSeconds.ShouldBe(nanoSeconds);
