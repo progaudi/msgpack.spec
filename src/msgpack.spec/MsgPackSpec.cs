@@ -120,10 +120,26 @@ namespace ProGaudi.MsgPack
             return false;
         }
 
+
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static int GetIntLength<T>(this ReadOnlySequence<T> ros)
+        {
+            var length = ros.Length;
+            if (length > int.MaxValue)
+                return ThrowDataIsTooLarge(length);
+
+            return (int)length;
+        }
+
         private static Exception GetReadOnlySequenceIsTooShortException(int expected, long sequenceLength) => new ArgumentOutOfRangeException(
             nameof(sequenceLength),
             sequenceLength,
             $"ReadOnlySequence is too short. Expected: {expected}"
+        );
+
+        private static Exception GetInvalidStringException() => new InvalidOperationException(
+            "String conversion didn't use all bytes, buffer is corrupted"
         );
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

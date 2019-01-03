@@ -712,7 +712,7 @@ namespace ProGaudi.MsgPack
         {
             var length = ReadFixStringHeader(buffer, out readSize);
             readSize += length;
-            return ReadString(buffer.Slice(readSize, length), decoder);
+            return ReadStringImpl(buffer.Slice(readSize, length), decoder);
         }
 
         /// <summary>
@@ -742,7 +742,7 @@ namespace ProGaudi.MsgPack
         {
             var length = ReadString8Header(buffer, out readSize);
             readSize += length;
-            return ReadString(buffer.Slice(readSize, length), decoder);
+            return ReadStringImpl(buffer.Slice(readSize, length), decoder);
         }
 
         /// <summary>
@@ -772,7 +772,7 @@ namespace ProGaudi.MsgPack
         {
             var length = ReadString16Header(buffer, out readSize);
             readSize += length;
-            return ReadString(buffer.Slice(readSize, length), decoder);
+            return ReadStringImpl(buffer.Slice(readSize, length), decoder);
         }
 
         /// <summary>
@@ -804,7 +804,7 @@ namespace ProGaudi.MsgPack
             if (length > int.MaxValue) ThrowDataIsTooLarge(length);
             var intLength = (int)length;
             readSize += intLength;
-            return ReadString(buffer.Slice(readSize, intLength), decoder);
+            return ReadStringImpl(buffer.Slice(readSize, intLength), decoder);
         }
 
         /// <summary>
@@ -835,7 +835,7 @@ namespace ProGaudi.MsgPack
         {
             var length = ReadStringHeader(buffer, out var offset);
             readSize = offset + length;
-            return ReadString(buffer.Slice(offset, length), decoder);
+            return ReadStringImpl(buffer.Slice(offset, length), decoder);
         }
 
         /// <summary>
@@ -860,13 +860,13 @@ namespace ProGaudi.MsgPack
             {
                 return (true, 0);
             }
-            
+
             encoder = GetPerThreadEncoder(encoder);
             encoder.Convert(str, buffer, true, out var charsUsed, out var bytesUsed, out var completed);
             return (completed && charsUsed == str.Length, bytesUsed);
         }
 
-        private static string ReadString(ReadOnlySpan<byte> buffer, Decoder decoder)
+        private static string ReadStringImpl(ReadOnlySpan<byte> buffer, Decoder decoder)
         {
             var safeDecoder = GetPerThreadDecoder(decoder);
             using (var chars = MemoryPool<char>.Shared.Rent(buffer.Length))
@@ -879,7 +879,7 @@ namespace ProGaudi.MsgPack
 
         private static bool TryReadStringImpl(ReadOnlySpan<byte> buffer, out string value, ref int readSize, Decoder decoder)
         {
-            value = ReadString(buffer, decoder);
+            value = ReadStringImpl(buffer, decoder);
             readSize += buffer.Length;
             return true;
         }
@@ -952,6 +952,20 @@ namespace ProGaudi.MsgPack
                 return encoder.GetByteCount(charsPtr, chars.Length, flush);
             }
         }
+        
+        private static unsafe void Convert(
+            this Decoder decoder,
+            ReadOnlySpan<byte> bytes,
+            Span<char> chars,
+            bool flush,
+            out int charsUsed,
+            out int bytesUsed,
+            out bool completed)
+        {
+            fixed (char* charsPtr = chars)
+            fixed (byte* bytesPtr = bytes)
+                decoder.Convert(bytesPtr, bytes.Length, charsPtr, chars.Length, flush, out charsUsed, out bytesUsed, out completed);
+        }
 
         private static unsafe int GetChars(this Decoder decoder, ReadOnlySpan<byte> bytes, Span<char> chars, bool flush)
         {
@@ -1019,6 +1033,31 @@ namespace ProGaudi.MsgPack
                 var span = new Span<char>(charArray, 0, length);
                 span.CopyTo(chars);
                 return length;
+            }
+            finally
+            {
+                ArrayPool<byte>.Shared.Return(byteArray);
+                ArrayPool<char>.Shared.Return(charArray);
+            }
+        }
+        
+        private static void Convert(
+            this Decoder decoder,
+            ReadOnlySpan<byte> bytes,
+            Span<char> chars,
+            bool flush,
+            out int charsUsed,
+            out int bytesUsed,
+            out bool completed)
+        {
+            var (byteArray, charArray) = Allocate(bytes.Length, chars.Length);
+
+            try
+            {
+                bytes.CopyTo(byteArray);
+                decoder.Convert(byteArray, 0, bytes.Length, charArray, 0, chars.Length, flush, out charsUsed, out bytesUsed, out completed);
+                var span = new Span<char>(charArray, 0, charsUsed);
+                span.CopyTo(chars);
             }
             finally
             {

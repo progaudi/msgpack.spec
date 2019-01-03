@@ -1,7 +1,7 @@
 using Shouldly;
 using Xunit;
 
-namespace ProGaudi.MsgPack.Tests.Reader
+namespace ProGaudi.MsgPack.Tests.ReadOnlySequence.SingleSegment
 {
     public sealed class String
     {
@@ -47,7 +47,7 @@ namespace ProGaudi.MsgPack.Tests.Reader
         [InlineData("漢字", new byte[] { 0xd9, 0x06, 0xe6, 0xbc, 0xa2, 0xe5, 0xad, 0x97 })]
         public void TryRead(string s, byte[] data)
         {
-            MsgPackSpec.TryReadString(data, out var actual, out var readSize).ShouldBeTrue();
+            MsgPackSpec.TryReadString(data.ToSingleSegment(), out var actual, out var readSize).ShouldBeTrue();
             actual.ShouldBe(s);
             readSize.ShouldBe(data.Length);
         }
@@ -94,7 +94,7 @@ namespace ProGaudi.MsgPack.Tests.Reader
         [InlineData("漢字", new byte[] { 0xd9, 0x06, 0xe6, 0xbc, 0xa2, 0xe5, 0xad, 0x97 })]
         public void Read(string s, byte[] data)
         {
-            MsgPackSpec.ReadString(data, out var readSize).ShouldBe(s);
+            MsgPackSpec.ReadString(data.ToSingleSegment(), out var readSize).ShouldBe(s);
             readSize.ShouldBe(data.Length);
         }
     }

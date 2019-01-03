@@ -1,8 +1,10 @@
 using System;
 using System.Buffers;
+using System.Diagnostics;
 
 namespace ProGaudi.MsgPack.Tests.ReadOnlySequence
 {
+    [DebuggerStepThrough]
     public static class Extensions
     {
         public static ReadOnlySequence<byte> ToSingleSegment(this byte[] buffer) => new ReadOnlySequence<byte>(buffer);

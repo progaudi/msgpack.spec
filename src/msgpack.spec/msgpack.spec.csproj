@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk" ToolsVersion="15.0">
+﻿<Project Sdk="Microsoft.NET.Sdk" ToolsVersion="15.0">
   <PropertyGroup>
     <AssemblyName>progaudi.msgpack.spec</AssemblyName>
     <Description>MsgPack reference serialization library. It provides fast and efficient way to work with msgpack data.</Description>
