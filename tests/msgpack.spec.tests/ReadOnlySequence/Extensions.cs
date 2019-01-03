@@ -12,7 +12,7 @@ namespace ProGaudi.MsgPack.Tests.ReadOnlySequence
         public static ReadOnlySequence<byte> ToMultipleSegments(this byte[] buffer)
         {
             var length = buffer.Length;
-            if (length == 1) return OneByteSequence();
+            if (length <= 1) return ZeroOrOneByteSequence();
 
             var memory = buffer.AsMemory();
             var last = new Segment(memory.Slice(buffer.Length - 1), null, length - 1);
@@ -22,9 +22,9 @@ namespace ProGaudi.MsgPack.Tests.ReadOnlySequence
             var first = new Segment(memory.Slice(0, 1), firstEmpty, 0);
             return new ReadOnlySequence<byte>(first, 0, last, last.Memory.Length);
 
-            ReadOnlySequence<byte> OneByteSequence()
+            ReadOnlySequence<byte> ZeroOrOneByteSequence()
             {
-                var afterByte = new Segment(ReadOnlyMemory<byte>.Empty, null, 1);
+                var afterByte = new Segment(ReadOnlyMemory<byte>.Empty, null, length);
                 var @byte = new Segment(buffer, afterByte, 0);
                 var beforeByte = new Segment(ReadOnlyMemory<byte>.Empty, @byte, 0);
 
