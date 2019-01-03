@@ -402,7 +402,9 @@ namespace ProGaudi.MsgPack
 
         private static string ReadStringImpl(ReadOnlySequence<byte> sequence, Decoder decoder)
         {
-            var safeDecoder = GetPerThreadDecoder(decoder);
+            if (sequence.IsSingleSegment) return ReadStringImpl(sequence.First.Span, decoder);
+
+            var safeDecoder = decoder.GetThreadStatic();
             using (var rentedBuffer = MemoryPool<char>.Shared.Rent(sequence.GetIntLength()))
             {
                 var chars = rentedBuffer.Memory.Span;

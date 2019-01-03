@@ -428,7 +428,7 @@ namespace ProGaudi.MsgPack
             if (chars.Length > DataLengths.FixStringMaxLength)
                 return ThrowDataIsTooLarge(chars.Length, DataLengths.FixStringMaxLength, "string", FixStringMin, FixStringMax);
 
-            var (success, length) = WriteString(chars, buffer.Slice(DataLengths.FixStringHeader), encoder);
+            var (success, length) = WriteStringImpl(chars, buffer.Slice(DataLengths.FixStringHeader), encoder);
             if (!success || length > DataLengths.FixStringMaxLength)
                 return ThrowDataIsTooLarge(length, DataLengths.FixStringMaxLength, "string", FixStringMin, FixStringMax);
 
@@ -456,7 +456,7 @@ namespace ProGaudi.MsgPack
             if (chars.Length > DataLengths.FixStringMaxLength) return false;
             if (chars.Length > buffer.Length + DataLengths.FixStringHeader) return false;
 
-            var (success, length) = WriteString(chars, buffer.Slice(DataLengths.FixStringHeader), encoder);
+            var (success, length) = WriteStringImpl(chars, buffer.Slice(DataLengths.FixStringHeader), encoder);
             if (!success || length > DataLengths.FixStringMaxLength)
                 return false;
 
@@ -477,7 +477,7 @@ namespace ProGaudi.MsgPack
             if (chars.Length > byte.MaxValue)
                 return ThrowDataIsTooLarge(chars.Length, byte.MaxValue, "string", String8);
 
-            var (success, length) = WriteString(chars, buffer.Slice(DataLengths.String8Header), encoder);
+            var (success, length) = WriteStringImpl(chars, buffer.Slice(DataLengths.String8Header), encoder);
             if (!success || length > byte.MaxValue)
                 return ThrowDataIsTooLarge(length, byte.MaxValue, "string", String8);
 
@@ -505,7 +505,7 @@ namespace ProGaudi.MsgPack
             if (chars.Length > byte.MaxValue) return false;
             if (chars.Length > buffer.Length + DataLengths.String8Header) return false;
 
-            var (success, length) = WriteString(chars, buffer.Slice(DataLengths.String8Header), encoder);
+            var (success, length) = WriteStringImpl(chars, buffer.Slice(DataLengths.String8Header), encoder);
             if (!success || length > byte.MaxValue)
                 return false;
 
@@ -526,7 +526,7 @@ namespace ProGaudi.MsgPack
             if (chars.Length > ushort.MaxValue)
                 return ThrowDataIsTooLarge(chars.Length, ushort.MaxValue, "string", String16);
 
-            var (success, length) = WriteString(chars, buffer.Slice(DataLengths.String16Header), encoder);
+            var (success, length) = WriteStringImpl(chars, buffer.Slice(DataLengths.String16Header), encoder);
             if (!success || length > ushort.MaxValue)
                 return ThrowDataIsTooLarge(length, ushort.MaxValue, "string", String16);
 
@@ -554,7 +554,7 @@ namespace ProGaudi.MsgPack
             if (chars.Length > ushort.MaxValue) return false;
             if (chars.Length > buffer.Length + DataLengths.String16Header) return false;
 
-            var (success, length) = WriteString(chars, buffer.Slice(DataLengths.String16Header), encoder);
+            var (success, length) = WriteStringImpl(chars, buffer.Slice(DataLengths.String16Header), encoder);
             if (!success || length > ushort.MaxValue)
                 return false;
 
@@ -572,7 +572,7 @@ namespace ProGaudi.MsgPack
         /// <returns>Count of bytes, written to <paramref name="buffer"/>.</returns>
         public static int WriteString32(Span<byte> buffer, ReadOnlySpan<char> chars, Encoder encoder = null)
         {
-            var (success, length) = WriteString(chars, buffer.Slice(DataLengths.String32Header), encoder);
+            var (success, length) = WriteStringImpl(chars, buffer.Slice(DataLengths.String32Header), encoder);
             if (!success)
                 return ThrowDataIsTooLarge(length, int.MaxValue, "string", String32);
 
@@ -595,7 +595,7 @@ namespace ProGaudi.MsgPack
             wroteSize = 0;
             if (chars.Length > buffer.Length + DataLengths.String32Header) return false;
 
-            var (success, length) = WriteString(chars, buffer.Slice(DataLengths.String16Header), encoder);
+            var (success, length) = WriteStringImpl(chars, buffer.Slice(DataLengths.String16Header), encoder);
             wroteSize = length;
             if (!success)
                 return false;
@@ -614,7 +614,7 @@ namespace ProGaudi.MsgPack
         /// <returns>Count of bytes, written to <paramref name="buffer"/>.</returns>
         public static int WriteString(Span<byte> buffer, ReadOnlySpan<char> chars, Encoder encoder = null)
         {
-            var length = GetPerThreadEncoder(encoder).GetByteCount(chars, true);
+            var length = encoder.GetThreadStatic().GetByteCount(chars, true);
             if (length <= DataLengths.FixStringMaxLength)
             {
                 return WriteFixString(buffer, chars, encoder);
@@ -650,13 +650,13 @@ namespace ProGaudi.MsgPack
             wroteSize = 0;
             if (chars.Length > buffer.Length) return false;
 
-            var length = GetPerThreadEncoder(encoder).GetByteCount(chars, true);
+            var length = encoder.GetThreadStatic().GetByteCount(chars, true);
             if (length <= DataLengths.FixStringMaxLength)
             {
                 if (chars.Length > length + DataLengths.FixStringHeader) return false;
                 if (TryWriteFixStringHeader(buffer, (byte) length, out wroteSize))
                 {
-                    var (success, actualLength) = WriteString(chars, buffer.Slice(wroteSize), encoder);
+                    var (success, actualLength) = WriteStringImpl(chars, buffer.Slice(wroteSize), encoder);
                     wroteSize += actualLength;
                     return success;
                 }
@@ -669,7 +669,7 @@ namespace ProGaudi.MsgPack
                 if (chars.Length > length + DataLengths.String8Header) return false;
                 if (TryWriteString8Header(buffer, (byte) length, out wroteSize))
                 {
-                    var (success, actualLength) = WriteString(chars, buffer.Slice(wroteSize), encoder);
+                    var (success, actualLength) = WriteStringImpl(chars, buffer.Slice(wroteSize), encoder);
                     wroteSize += actualLength;
                     return success;
                 }
@@ -682,7 +682,7 @@ namespace ProGaudi.MsgPack
                 if (chars.Length > length + DataLengths.String16Header) return false;
                 if (TryWriteString16Header(buffer, (ushort) length, out wroteSize))
                 {
-                    var (success, actualLength) = WriteString(chars, buffer.Slice(wroteSize), encoder);
+                    var (success, actualLength) = WriteStringImpl(chars, buffer.Slice(wroteSize), encoder);
                     wroteSize += actualLength;
                     return success;
                 }
@@ -693,7 +693,7 @@ namespace ProGaudi.MsgPack
             if (chars.Length > length + DataLengths.String32Header) return false;
             if (TryWriteString32Header(buffer, (uint) length, out wroteSize))
             {
-                var (success, actualLength) = WriteString(chars, buffer.Slice(wroteSize), encoder);
+                var (success, actualLength) = WriteStringImpl(chars, buffer.Slice(wroteSize), encoder);
                 wroteSize += actualLength;
                 return success;
             }
@@ -854,21 +854,20 @@ namespace ProGaudi.MsgPack
                 || TryReadString32(buffer, out value, out readSize, decoder);
         }
 
-        private static (bool success, int bytesUsed) WriteString(ReadOnlySpan<char> str, Span<byte> buffer, Encoder encoder)
+        private static (bool success, int bytesUsed) WriteStringImpl(ReadOnlySpan<char> str, Span<byte> buffer, Encoder encoder)
         {
             if (str.Length == 0)
             {
                 return (true, 0);
             }
 
-            encoder = GetPerThreadEncoder(encoder);
-            encoder.Convert(str, buffer, true, out var charsUsed, out var bytesUsed, out var completed);
+            encoder.GetThreadStatic().Convert(str, buffer, true, out var charsUsed, out var bytesUsed, out var completed);
             return (completed && charsUsed == str.Length, bytesUsed);
         }
 
         private static string ReadStringImpl(ReadOnlySpan<byte> buffer, Decoder decoder)
         {
-            var safeDecoder = GetPerThreadDecoder(decoder);
+            var safeDecoder = decoder.GetThreadStatic();
             using (var chars = MemoryPool<char>.Shared.Rent(buffer.Length))
             {
                 var span = chars.Memory.Span;
@@ -883,205 +882,5 @@ namespace ProGaudi.MsgPack
             readSize += buffer.Length;
             return true;
         }
-
-        [ThreadStatic]
-        private static Encoder _perThreadEncoder;
-        internal static Encoder GetPerThreadEncoder(Encoder nonDefault)
-        {
-            if (nonDefault != null)
-            {
-                nonDefault.Reset();
-                return nonDefault;
-            }
-
-            var encoder = _perThreadEncoder;
-            if (encoder == null)
-            {
-                _perThreadEncoder = encoder = DefaultEncoding.GetEncoder();
-            }
-            else
-            {
-                encoder.Reset();
-            }
-            return encoder;
-        }
-
-        [ThreadStatic]
-        private static Decoder _perThreadDecoder;
-        internal static Decoder GetPerThreadDecoder(Decoder nonDefault)
-        {
-            if (nonDefault != null)
-            {
-                nonDefault.Reset();
-                return nonDefault;
-            }
-
-            var decoder = _perThreadDecoder;
-            if (decoder == null)
-            {
-                _perThreadDecoder = decoder = DefaultEncoding.GetDecoder();
-            }
-            else
-            {
-                decoder.Reset();
-            }
-            return decoder;
-        }
-
-#if NETSTANDARD2_0 || NET45 || NET46
-        private static unsafe void Convert(
-            this Encoder encoder,
-            ReadOnlySpan<char> chars,
-            Span<byte> bytes,
-            bool flush,
-            out int charsUsed,
-            out int bytesUsed,
-            out bool completed)
-        {
-            fixed (char* charsPtr = chars)
-            fixed (byte* bytesPtr = bytes)
-                encoder.Convert(charsPtr, chars.Length, bytesPtr, bytes.Length, flush, out charsUsed, out bytesUsed, out completed);
-        }
-
-        private static unsafe int GetByteCount(this Encoder encoder, ReadOnlySpan<char> chars, bool flush)
-        {
-            if (chars.IsEmpty) return 0;
-
-            fixed (char* charsPtr = chars)
-            {
-                return encoder.GetByteCount(charsPtr, chars.Length, flush);
-            }
-        }
-        
-        private static unsafe void Convert(
-            this Decoder decoder,
-            ReadOnlySpan<byte> bytes,
-            Span<char> chars,
-            bool flush,
-            out int charsUsed,
-            out int bytesUsed,
-            out bool completed)
-        {
-            fixed (char* charsPtr = chars)
-            fixed (byte* bytesPtr = bytes)
-                decoder.Convert(bytesPtr, bytes.Length, charsPtr, chars.Length, flush, out charsUsed, out bytesUsed, out completed);
-        }
-
-        private static unsafe int GetChars(this Decoder decoder, ReadOnlySpan<byte> bytes, Span<char> chars, bool flush)
-        {
-            if (bytes.IsEmpty) return 0;
-
-            fixed (byte* bytesPtr = bytes)
-            fixed (char* charsPtr = chars)
-            {
-                return decoder.GetChars(bytesPtr, bytes.Length, charsPtr, chars.Length, flush);
-            }
-        }
-#endif
-
-#if NETSTANDARD1_4
-        private static void Convert(
-            this Encoder encoder,
-            ReadOnlySpan<char> chars,
-            Span<byte> bytes,
-            bool flush,
-            out int charsUsed,
-            out int bytesUsed,
-            out bool completed)
-        {
-            var (byteArray, charArray) = Allocate(bytes.Length, chars.Length);
-
-            try
-            {
-                chars.CopyTo(charArray);
-                encoder.Convert(charArray, 0, chars.Length, byteArray, 0, bytes.Length, flush, out charsUsed, out bytesUsed, out completed);
-                var span = new Span<byte>(byteArray, 0, bytesUsed);
-                span.CopyTo(bytes);
-            }
-            finally
-            {
-                ArrayPool<byte>.Shared.Return(byteArray);
-                ArrayPool<char>.Shared.Return(charArray);
-            }
-        }
-
-        private static int GetByteCount(this Encoder encoder, ReadOnlySpan<char> chars, bool flush)
-        {
-            if (chars.IsEmpty) return 0;
-
-            var charArray = ArrayPool<char>.Shared.Rent(chars.Length);
-            try
-            {
-                chars.CopyTo(charArray);
-                return encoder.GetByteCount(charArray, 0, chars.Length, flush);
-            }
-            finally
-            {
-                ArrayPool<char>.Shared.Return(charArray);
-            }
-        }
-
-        private static int GetChars(this Decoder decoder, ReadOnlySpan<byte> bytes, Span<char> chars, bool flush)
-        {
-            if (bytes.IsEmpty) return 0;
-
-            var (byteArray, charArray) = Allocate(bytes.Length, chars.Length);
-            try
-            {
-                bytes.CopyTo(byteArray);
-                var length = decoder.GetChars(byteArray, 0, bytes.Length, charArray, 0, flush);
-                var span = new Span<char>(charArray, 0, length);
-                span.CopyTo(chars);
-                return length;
-            }
-            finally
-            {
-                ArrayPool<byte>.Shared.Return(byteArray);
-                ArrayPool<char>.Shared.Return(charArray);
-            }
-        }
-        
-        private static void Convert(
-            this Decoder decoder,
-            ReadOnlySpan<byte> bytes,
-            Span<char> chars,
-            bool flush,
-            out int charsUsed,
-            out int bytesUsed,
-            out bool completed)
-        {
-            var (byteArray, charArray) = Allocate(bytes.Length, chars.Length);
-
-            try
-            {
-                bytes.CopyTo(byteArray);
-                decoder.Convert(byteArray, 0, bytes.Length, charArray, 0, chars.Length, flush, out charsUsed, out bytesUsed, out completed);
-                var span = new Span<char>(charArray, 0, charsUsed);
-                span.CopyTo(chars);
-            }
-            finally
-            {
-                ArrayPool<byte>.Shared.Return(byteArray);
-                ArrayPool<char>.Shared.Return(charArray);
-            }
-        }
-
-        private static (byte[], char[]) Allocate(int bytesLength, int charsLength)
-        {
-            var bytes = ArrayPool<byte>.Shared.Rent(bytesLength);
-            char[] chars;
-            try
-            {
-                chars = ArrayPool<char>.Shared.Rent(charsLength);
-            }
-            catch
-            {
-                ArrayPool<byte>.Shared.Return(bytes);
-                throw;
-            }
-
-            return (bytes, chars);
-        }
-#endif
     }
 }
