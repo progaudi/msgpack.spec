@@ -22,10 +22,6 @@ jobs:
   steps:
     - template: .azure/install.yml
     - template: .azure/tests.yml
-    - template: .azure/test.yml
-      parameters:
-        path: tests/msgpack.spec.tests/msgpack.spec.tests.csproj
-        framework: net46
 
     - task: PowerShell@2
       displayName: pack nuget package

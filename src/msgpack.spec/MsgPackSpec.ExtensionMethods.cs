@@ -41,8 +41,6 @@ namespace ProGaudi.MsgPack
             return false;
         }
 
-
-
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static int GetIntLength<T>(this ReadOnlySequence<T> ros)
         {
@@ -97,7 +95,7 @@ namespace ProGaudi.MsgPack
             return decoder;
         }
 
-#if NETSTANDARD2_0 || NET45 || NET46
+#if NETSTANDARD2_0 || NETFRAMEWORK
         private static unsafe void Convert(
             this Encoder encoder,
             ReadOnlySpan<char> chars,
