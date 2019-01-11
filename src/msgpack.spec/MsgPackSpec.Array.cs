@@ -1,6 +1,7 @@
 using System;
 using System.Buffers.Binary;
 using System.Runtime.CompilerServices;
+
 using static ProGaudi.MsgPack.DataCodes;
 
 namespace ProGaudi.MsgPack

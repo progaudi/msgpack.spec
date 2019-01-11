@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk" ToolsVersion="15.0">
+﻿<Project Sdk="Microsoft.NET.Sdk" ToolsVersion="15.0">
   <PropertyGroup>
     <AssemblyName>progaudi.msgpack.spec</AssemblyName>
     <Description>MsgPack reference serialization library. It provides fast and efficient way to work with msgpack data.</Description>
@@ -15,10 +15,10 @@
   </PropertyGroup>
 
   <PropertyGroup Condition=" '$(OS)' == 'Windows_NT' ">
-    <TargetFrameworks>net45;net46;netstandard1.4;netstandard2.0;netcoreapp2.1</TargetFrameworks>
+    <TargetFrameworks>net45;net46;net461;net462;net47;net471;netstandard1.4;netstandard2.0;netcoreapp2.1;netcoreapp2.2</TargetFrameworks>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(OS)' != 'Windows_NT' ">
-    <TargetFrameworks>netstandard1.4;netstandard2.0;netcoreapp2.1</TargetFrameworks>
+    <TargetFrameworks>netstandard1.4;netstandard2.0;netcoreapp2.1;netcoreapp2.2</TargetFrameworks>
   </PropertyGroup>
   <PropertyGroup>
     <Version>1.0.0</Version>
@@ -45,10 +45,10 @@
     <PackageReference Include="JetBrains.Annotations" Version="2018.2.1">
         <PrivateAssets>all</PrivateAssets>
     </PackageReference>
-    <PackageReference Include="System.ValueTuple" Version="4.5.0" />
-    <PackageReference Include="progaudi.buffers" Version="1.0.1" />
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0-beta-63127-02" Condition=" '$(IsDocker)' != 'defined' ">
-        <PrivateAssets>all</PrivateAssets>
+      <PrivateAssets>all</PrivateAssets>
     </PackageReference>
+    <PackageReference Include="System.ValueTuple" Version="4.5.0" />
+    <PackageReference Include="progaudi.buffers" Version="2.0.1" />
   </ItemGroup>
 </Project>

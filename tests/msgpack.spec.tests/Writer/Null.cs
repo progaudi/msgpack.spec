@@ -3,7 +3,7 @@ using Xunit;
 
 namespace ProGaudi.MsgPack.Tests.Writer
 {
-    public class Null
+    public sealed class Null
     {
         [Fact]
         public void ReadNull()

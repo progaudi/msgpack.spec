@@ -80,6 +80,8 @@ namespace ProGaudi.MsgPack
         public static bool TryReadFixFloat32(ReadOnlySpan<byte> buffer, out float value, out int readSize)
         {
             readSize = DataLengths.Float32;
+            value = default;
+            if (buffer.Length < readSize) return false;
             var result = buffer[0] == DataCodes.Float32;
             var binary = new FloatBinary(buffer.Slice(1));
             value = binary.Value;

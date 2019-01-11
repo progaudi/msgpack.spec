@@ -1,6 +1,7 @@
 using System;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using JetBrains.Annotations;
 using static ProGaudi.MsgPack.DataCodes;
 
 namespace ProGaudi.MsgPack
@@ -9,79 +10,18 @@ namespace ProGaudi.MsgPack
     /// Encode/Decode Utility of MessagePack Spec.
     /// https://github.com/msgpack/msgpack/blob/master/spec.md
     /// </summary>
+    [PublicAPI]
     public static partial class MsgPackSpec
     {
-        /// <summary>
-        /// Provides mapping of first byte of <paramref name="buffer"/> high level <see cref="DataFamily"/>. Will be useful for writing converters for complex types.
-        /// </summary>
-        public static DataFamily GetDataFamily(ReadOnlySpan<byte> buffer) => GetDataFamily(buffer[0]);
+        private static Exception GetReadOnlySequenceIsTooShortException(int expected, long sequenceLength) => new ArgumentOutOfRangeException(
+            nameof(sequenceLength),
+            sequenceLength,
+            $"ReadOnlySequence is too short. Expected: {expected}"
+        );
 
-        /// <summary>
-        /// Provides mapping to high level <see cref="DataFamily"/>. Will be useful for writing converters for complex types.
-        /// </summary>
-        public static DataFamily GetDataFamily(byte code)
-        {
-            if (code <= FixPositiveMax) return DataFamily.Integer;
-            if (FixMapMin <= code && code <= FixMapMax) return DataFamily.Map;
-            if (FixArrayMin <= code && code <= FixArrayMax) return DataFamily.Array;
-            if (FixStringMin <= code && code <= FixStringMax) return DataFamily.String;
-            if (FixNegativeMin <= code) return DataFamily.Integer;
-            switch (code)
-            {
-                case Nil: return DataFamily.Nil;
-                case True:
-                case False:
-                    return DataFamily.Boolean;
-
-                case Binary8:
-                case Binary16:
-                case Binary32:
-                    return DataFamily.Binary;
-
-                case Extension8:
-                case Extension16:
-                case Extension32:
-                    return DataFamily.Extension;
-
-                case Float32:
-                case Float64:
-                    return DataFamily.Float;
-
-                case UInt8:
-                case DataCodes.UInt16:
-                case DataCodes.UInt32:
-                case DataCodes.UInt64:
-                case Int8:
-                case DataCodes.Int16:
-                case DataCodes.Int32:
-                case DataCodes.Int64:
-                    return DataFamily.Integer;
-
-                case FixExtension1:
-                case FixExtension2:
-                case FixExtension4:
-                case FixExtension8:
-                case FixExtension16:
-                    return DataFamily.Extension;
-
-                case String8:
-                case String16:
-                case String32:
-                    return DataFamily.String;
-
-                case Array16:
-                case Array32:
-                    return DataFamily.Array;
-
-                case Map16:
-                case Map32:
-                    return DataFamily.Map;
-
-                // case "NeverUsed" be here to have happy compiler
-                default:
-                    return DataFamily.NeverUsed;
-            }
-        }
+        private static Exception GetInvalidStringException() => new InvalidOperationException(
+            "String conversion didn't use all bytes, buffer is corrupted"
+        );
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static byte ThrowWrongRangeCodeException(byte code, byte min, byte max) => throw new InvalidOperationException(
@@ -118,7 +58,7 @@ namespace ProGaudi.MsgPack
         );
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static byte ThrowDataIsTooLarge(uint length) => throw new InvalidOperationException(
+        private static byte ThrowDataIsTooLarge(long length) => throw new InvalidOperationException(
             $@"You can't create arrays or string longer than int.MaxValue in .net. Packet length was: {length}.
 See https://blogs.msdn.microsoft.com/joshwil/2005/08/10/bigarrayt-getting-around-the-2gb-array-size-limit/"
         );

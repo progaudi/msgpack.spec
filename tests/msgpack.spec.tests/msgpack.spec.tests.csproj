@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk" ToolsVersion="15.0">
+﻿<Project Sdk="Microsoft.NET.Sdk" ToolsVersion="15.0">
   <PropertyGroup>
     <Description>Tests for msgpack reference serialization library</Description>
     <AssemblyName>progaudi.msgpack.spec.tests</AssemblyName>
@@ -16,10 +16,10 @@
   </PropertyGroup>
 
   <PropertyGroup Condition=" '$(OS)' == 'Windows_NT' ">
-    <TargetFrameworks>net46;netcoreapp1.0;netcoreapp1.1;netcoreapp2.0;netcoreapp2.1</TargetFrameworks>
+    <TargetFrameworks>net46;net461;net462;net47;net471;netcoreapp1.0;netcoreapp1.1;netcoreapp2.0;netcoreapp2.1;netcoreapp2.2</TargetFrameworks>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(OS)' != 'Windows_NT' ">
-    <TargetFrameworks>netcoreapp1.0;netcoreapp1.1;netcoreapp2.0;netcoreapp2.1</TargetFrameworks>
+    <TargetFrameworks>netcoreapp1.0;netcoreapp1.1;netcoreapp2.0;netcoreapp2.1;netcoreapp2.2</TargetFrameworks>
   </PropertyGroup>
   <PropertyGroup>
     <GenerateAssemblyTitleAttribute>true</GenerateAssemblyTitleAttribute>
@@ -33,14 +33,14 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.8.0" />
-    <PackageReference Include="xunit" Version="2.4.0" />
-    <PackageReference Include="Shouldly" Version="3.0.1" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.9.0" />
+    <PackageReference Include="xunit" Version="2.4.1" />
+    <PackageReference Include="Shouldly" Version="3.0.2" />
     <PackageReference Include="System.Buffers" Version="4.5.0" />
     <PackageReference Include="xunit.analyzers" Version="0.10.0" />
-    <PackageReference Include="xunit.runner.reporters" Version="2.4.0" />
-    <PackageReference Include="xunit.runner.visualstudio" Version="2.4.0" />
-    <PackageReference Include="xunit.runner.console" Version="2.4.0" />
+    <PackageReference Include="xunit.runner.reporters" Version="2.4.1" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.4.1" />
+    <PackageReference Include="xunit.runner.console" Version="2.4.1" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\src\msgpack.spec\msgpack.spec.csproj" />

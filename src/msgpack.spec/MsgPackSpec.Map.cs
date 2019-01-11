@@ -1,5 +1,6 @@
 using System;
 using System.Runtime.CompilerServices;
+
 using static System.Buffers.Binary.BinaryPrimitives;
 using static ProGaudi.MsgPack.DataCodes;
 

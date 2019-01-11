@@ -1,12 +1,10 @@
 using System;
+using System.Buffers;
 using System.Runtime.CompilerServices;
 using System.Text;
+
 using static System.Buffers.Binary.BinaryPrimitives;
 using static ProGaudi.MsgPack.DataCodes;
-
-#if NET45 || NET46
-using System.Buffers;
-#endif
 
 namespace ProGaudi.MsgPack
 {
@@ -15,7 +13,7 @@ namespace ProGaudi.MsgPack
     /// </summary>
     public static partial class MsgPackSpec
     {
-        private static readonly Encoding _defaultEncoding = new UTF8Encoding(false, true);
+        public static readonly Encoding DefaultEncoding = new UTF8Encoding(false, true);
 
         /// <summary>
         /// Writes FixString header into <paramref name="buffer"/>.
@@ -423,14 +421,16 @@ namespace ProGaudi.MsgPack
         /// </summary>
         /// <param name="buffer">Buffer to write.</param>
         /// <param name="chars">String</param>
-        /// <param name="encoding">Encoding. If not passed, utf8 without bom will be used.</param>
+        /// <param name="encoder">Encoder. If not passed, utf8 without bom will be used.</param>
         /// <returns>Count of bytes, written to <paramref name="buffer"/>.</returns>
-        public static int WriteFixString(Span<byte> buffer, ReadOnlySpan<char> chars, Encoding encoding = null)
+        public static int WriteFixString(Span<byte> buffer, ReadOnlySpan<char> chars, Encoder encoder = null)
         {
             if (chars.Length > DataLengths.FixStringMaxLength)
                 return ThrowDataIsTooLarge(chars.Length, DataLengths.FixStringMaxLength, "string", FixStringMin, FixStringMax);
 
-            var length = (encoding ?? _defaultEncoding).GetBytes(chars, buffer.Slice(1));
+            var (success, length) = WriteStringImpl(chars, buffer.Slice(DataLengths.FixStringHeader), encoder);
+            if (!success || length > DataLengths.FixStringMaxLength)
+                return ThrowDataIsTooLarge(length, DataLengths.FixStringMaxLength, "string", FixStringMin, FixStringMax);
 
             var result = WriteFixStringHeader(buffer, (byte) length);
 
@@ -443,29 +443,24 @@ namespace ProGaudi.MsgPack
         /// <param name="buffer">Buffer to write.</param>
         /// <param name="chars">String</param>
         /// <param name="wroteSize">Count of bytes, written to <paramref name="buffer"/>.</param>
-        /// <param name="encoding">Encoding. If not passed, utf8 without bom will be used.</param>
+        /// <param name="encoder">Encoder. If not passed, utf8 without bom will be used.</param>
         /// <returns><c>true</c>, if everything is ok, <c>false</c> if:
         /// <list type="bullet">
         ///     <item><description><paramref name="buffer"/> is too small or</description></item>
         ///     <item><description><paramref name="chars"/> is greater <see cref="DataLengths.FixArrayMaxLength"/>.</description></item>
         /// </list>
         /// </returns>
-        public static bool TryWriteFixString(Span<byte> buffer, ReadOnlySpan<char> chars, out int wroteSize, Encoding encoding = null)
+        public static bool TryWriteFixString(Span<byte> buffer, ReadOnlySpan<char> chars, out int wroteSize, Encoder encoder = null)
         {
             wroteSize = 0;
             if (chars.Length > DataLengths.FixStringMaxLength) return false;
-            if (chars.Length > buffer.Length + 1) return false;
+            if (chars.Length > buffer.Length + DataLengths.FixStringHeader) return false;
 
-            var length = (encoding ?? _defaultEncoding).GetByteCount(chars);
-            if (length > DataLengths.FixStringMaxLength)
+            var (success, length) = WriteStringImpl(chars, buffer.Slice(DataLengths.FixStringHeader), encoder);
+            if (!success || length > DataLengths.FixStringMaxLength)
                 return false;
 
-            if (!TryWriteFixStringHeader(buffer, (byte) length, out wroteSize)) return false;
-
-            var stringBuffer = buffer.Slice(wroteSize);
-            if (length > stringBuffer.Length) return false;
-
-            wroteSize += (encoding ?? _defaultEncoding).GetBytes(chars, stringBuffer);
+            wroteSize = length + WriteFixStringHeader(buffer, (byte) length);
 
             return true;
         }
@@ -475,16 +470,16 @@ namespace ProGaudi.MsgPack
         /// </summary>
         /// <param name="buffer">Buffer to write.</param>
         /// <param name="chars">String</param>
-        /// <param name="encoding">Encoding. If not passed, utf8 without bom will be used.</param>
+        /// <param name="encoder">Encoder. If not passed, utf8 without bom will be used.</param>
         /// <returns>Count of bytes, written to <paramref name="buffer"/>.</returns>
-        public static int WriteString8(Span<byte> buffer, ReadOnlySpan<char> chars, Encoding encoding = null)
+        public static int WriteString8(Span<byte> buffer, ReadOnlySpan<char> chars, Encoder encoder = null)
         {
             if (chars.Length > byte.MaxValue)
                 return ThrowDataIsTooLarge(chars.Length, byte.MaxValue, "string", String8);
 
-            var length = (encoding ?? _defaultEncoding).GetBytes(chars, buffer.Slice(2));
-            if (length > byte.MaxValue)
-                return ThrowDataIsTooLarge(chars.Length, byte.MaxValue, "string", String8);
+            var (success, length) = WriteStringImpl(chars, buffer.Slice(DataLengths.String8Header), encoder);
+            if (!success || length > byte.MaxValue)
+                return ThrowDataIsTooLarge(length, byte.MaxValue, "string", String8);
 
             var result = WriteString8Header(buffer, (byte) length);
 
@@ -497,26 +492,24 @@ namespace ProGaudi.MsgPack
         /// <param name="buffer">Buffer to write.</param>
         /// <param name="chars">String</param>
         /// <param name="wroteSize">Count of bytes, written to <paramref name="buffer"/>.</param>
-        /// <param name="encoding">Encoding. If not passed, utf8 without bom will be used.</param>
+        /// <param name="encoder">Encoder. If not passed, utf8 without bom will be used.</param>
         /// <returns><c>true</c>, if everything is ok, <c>false</c> if:
         /// <list type="bullet">
         ///     <item><description><paramref name="buffer"/> is too small or</description></item>
         ///     <item><description><paramref name="chars"/> is greater <see cref="byte.MaxValue"/>.</description></item>
         /// </list>
         /// </returns>
-        public static bool TryWriteString8(Span<byte> buffer, ReadOnlySpan<char> chars, out int wroteSize, Encoding encoding = null)
+        public static bool TryWriteString8(Span<byte> buffer, ReadOnlySpan<char> chars, out int wroteSize, Encoder encoder = null)
         {
             wroteSize = 0;
             if (chars.Length > byte.MaxValue) return false;
             if (chars.Length > buffer.Length + DataLengths.String8Header) return false;
 
-            var length = (encoding ?? _defaultEncoding).GetByteCount(chars);
-            if (!TryWriteString8Header(buffer, (byte) length, out wroteSize)) return false;
+            var (success, length) = WriteStringImpl(chars, buffer.Slice(DataLengths.String8Header), encoder);
+            if (!success || length > byte.MaxValue)
+                return false;
 
-            var stringBuffer = buffer.Slice(wroteSize);
-            if (length > stringBuffer.Length) return false;
-
-            wroteSize += (encoding ?? _defaultEncoding).GetBytes(chars, stringBuffer);
+            wroteSize = length + WriteString8Header(buffer, (byte) length);
 
             return true;
         }
@@ -526,16 +519,16 @@ namespace ProGaudi.MsgPack
         /// </summary>
         /// <param name="buffer">Buffer to write.</param>
         /// <param name="chars">String</param>
-        /// <param name="encoding">Encoding. If not passed, utf8 without bom will be used.</param>
+        /// <param name="encoder">Encoding. If not passed, utf8 without bom will be used.</param>
         /// <returns>Count of bytes, written to <paramref name="buffer"/>.</returns>
-        public static int WriteString16(Span<byte> buffer, ReadOnlySpan<char> chars, Encoding encoding = null)
+        public static int WriteString16(Span<byte> buffer, ReadOnlySpan<char> chars, Encoder encoder = null)
         {
             if (chars.Length > ushort.MaxValue)
                 return ThrowDataIsTooLarge(chars.Length, ushort.MaxValue, "string", String16);
 
-            var length = (encoding ?? _defaultEncoding).GetBytes(chars, buffer.Slice(2));
-            if (length > ushort.MaxValue)
-                return ThrowDataIsTooLarge(chars.Length, ushort.MaxValue, "string", String16);
+            var (success, length) = WriteStringImpl(chars, buffer.Slice(DataLengths.String16Header), encoder);
+            if (!success || length > ushort.MaxValue)
+                return ThrowDataIsTooLarge(length, ushort.MaxValue, "string", String16);
 
             var result = WriteString16Header(buffer, (ushort) length);
 
@@ -548,27 +541,24 @@ namespace ProGaudi.MsgPack
         /// <param name="buffer">Buffer to write.</param>
         /// <param name="chars">String</param>
         /// <param name="wroteSize">Count of bytes, written to <paramref name="buffer"/>.</param>
-        /// <param name="encoding">Encoding. If not passed, utf8 without bom will be used.</param>
+        /// <param name="encoder">Encoder. If not passed, utf8 without bom will be used.</param>
         /// <returns><c>true</c>, if everything is ok, <c>false</c> if:
         /// <list type="bullet">
         ///     <item><description><paramref name="buffer"/> is too small or</description></item>
         ///     <item><description><paramref name="chars"/> is greater <see cref="ushort.MaxValue"/>.</description></item>
         /// </list>
         /// </returns>
-        public static bool TryWriteString16(Span<byte> buffer, ReadOnlySpan<char> chars, out int wroteSize, Encoding encoding = null)
+        public static bool TryWriteString16(Span<byte> buffer, ReadOnlySpan<char> chars, out int wroteSize, Encoder encoder = null)
         {
             wroteSize = 0;
             if (chars.Length > ushort.MaxValue) return false;
             if (chars.Length > buffer.Length + DataLengths.String16Header) return false;
 
-            var length = (encoding ?? _defaultEncoding).GetByteCount(chars);
-            if (length > ushort.MaxValue) return false;
-            if (!TryWriteString16Header(buffer, (ushort) length, out wroteSize)) return false;
+            var (success, length) = WriteStringImpl(chars, buffer.Slice(DataLengths.String16Header), encoder);
+            if (!success || length > ushort.MaxValue)
+                return false;
 
-            var stringBuffer = buffer.Slice(wroteSize);
-            if (length > stringBuffer.Length) return false;
-
-            wroteSize += (encoding ?? _defaultEncoding).GetBytes(chars, stringBuffer);
+            wroteSize = length + WriteString16Header(buffer, (ushort) length);
 
             return true;
         }
@@ -578,11 +568,13 @@ namespace ProGaudi.MsgPack
         /// </summary>
         /// <param name="buffer">Buffer to write.</param>
         /// <param name="chars">String</param>
-        /// <param name="encoding">Encoding. If not passed, utf8 without bom will be used.</param>
+        /// <param name="encoder">Encoder. If not passed, utf8 without bom will be used.</param>
         /// <returns>Count of bytes, written to <paramref name="buffer"/>.</returns>
-        public static int WriteString32(Span<byte> buffer, ReadOnlySpan<char> chars, Encoding encoding = null)
+        public static int WriteString32(Span<byte> buffer, ReadOnlySpan<char> chars, Encoder encoder = null)
         {
-            var length = (encoding ?? _defaultEncoding).GetBytes(chars, buffer.Slice(2));
+            var (success, length) = WriteStringImpl(chars, buffer.Slice(DataLengths.String32Header), encoder);
+            if (!success)
+                return ThrowDataIsTooLarge(length, int.MaxValue, "string", String32);
 
             var result = WriteString32Header(buffer, (uint) length);
 
@@ -595,21 +587,20 @@ namespace ProGaudi.MsgPack
         /// <param name="buffer">Buffer to write.</param>
         /// <param name="chars">String</param>
         /// <param name="wroteSize">Count of bytes, written to <paramref name="buffer"/>.</param>
-        /// <param name="encoding">Encoding. If not passed, utf8 without bom will be used.</param>
+        /// <param name="encoder">Encoder. If not passed, utf8 without bom will be used.</param>
         /// <returns><c>true</c>, if everything is ok, <c>false</c> if <paramref name="buffer"/> is too small.
         /// </returns>
-        public static bool TryWriteString32(Span<byte> buffer, ReadOnlySpan<char> chars, out int wroteSize, Encoding encoding = null)
+        public static bool TryWriteString32(Span<byte> buffer, ReadOnlySpan<char> chars, out int wroteSize, Encoder encoder = null)
         {
             wroteSize = 0;
             if (chars.Length > buffer.Length + DataLengths.String32Header) return false;
 
-            var length = (encoding ?? _defaultEncoding).GetByteCount(chars);
-            if (!TryWriteString32Header(buffer, (uint) length, out wroteSize)) return false;
+            var (success, length) = WriteStringImpl(chars, buffer.Slice(DataLengths.String16Header), encoder);
+            wroteSize = length;
+            if (!success)
+                return false;
 
-            var stringBuffer = buffer.Slice(wroteSize);
-            if (length > stringBuffer.Length) return false;
-
-            wroteSize += (encoding ?? _defaultEncoding).GetBytes(chars, stringBuffer);
+            wroteSize += WriteString32Header(buffer, (ushort) length);
 
             return true;
         }
@@ -619,27 +610,27 @@ namespace ProGaudi.MsgPack
         /// </summary>
         /// <param name="buffer">Buffer to write.</param>
         /// <param name="chars">String</param>
-        /// <param name="encoding">Encoding. If not passed, utf8 without bom will be used.</param>
+        /// <param name="encoder">Encoder. If not passed, utf8 without bom will be used.</param>
         /// <returns>Count of bytes, written to <paramref name="buffer"/>.</returns>
-        public static int WriteString(Span<byte> buffer, ReadOnlySpan<char> chars, Encoding encoding = null)
+        public static int WriteString(Span<byte> buffer, ReadOnlySpan<char> chars, Encoder encoder = null)
         {
-            var length = (encoding ?? _defaultEncoding).GetByteCount(chars);
+            var length = encoder.GetThreadStatic().GetByteCount(chars, true);
             if (length <= DataLengths.FixStringMaxLength)
             {
-                return WriteFixString(buffer, chars, encoding);
+                return WriteFixString(buffer, chars, encoder);
             }
 
             if (length <= byte.MaxValue)
             {
-                return WriteString8(buffer, chars, encoding);
+                return WriteString8(buffer, chars, encoder);
             }
 
             if (length <= ushort.MaxValue)
             {
-                return WriteString16(buffer, chars, encoding);
+                return WriteString16(buffer, chars, encoder);
             }
 
-            return WriteString32(buffer, chars, encoding);
+            return WriteString32(buffer, chars, encoder);
         }
 
         /// <summary>
@@ -651,22 +642,23 @@ namespace ProGaudi.MsgPack
         /// <param name="buffer">Buffer to write.</param>
         /// <param name="chars">String</param>
         /// <param name="wroteSize">Count of bytes, written to <paramref name="buffer"/>.</param>
-        /// <param name="encoding">Encoding. If not passed, utf8 without bom will be used.</param>
+        /// <param name="encoder">Encoder. If not passed, utf8 without bom will be used.</param>
         /// <returns><c>true</c>, if everything is ok, <c>false</c> if <paramref name="buffer"/> is too small.
         /// </returns>
-        public static bool TryWriteString(Span<byte> buffer, ReadOnlySpan<char> chars, out int wroteSize, Encoding encoding = null)
+        public static bool TryWriteString(Span<byte> buffer, ReadOnlySpan<char> chars, out int wroteSize, Encoder encoder = null)
         {
             wroteSize = 0;
             if (chars.Length > buffer.Length) return false;
 
-            var length = (encoding ?? _defaultEncoding).GetByteCount(chars);
+            var length = encoder.GetThreadStatic().GetByteCount(chars, true);
             if (length <= DataLengths.FixStringMaxLength)
             {
                 if (chars.Length > length + DataLengths.FixStringHeader) return false;
                 if (TryWriteFixStringHeader(buffer, (byte) length, out wroteSize))
                 {
-                    wroteSize += (encoding ?? _defaultEncoding).GetBytes(chars, buffer.Slice(wroteSize));
-                    return true;
+                    var (success, actualLength) = WriteStringImpl(chars, buffer.Slice(wroteSize), encoder);
+                    wroteSize += actualLength;
+                    return success;
                 }
 
                 return false;
@@ -677,8 +669,9 @@ namespace ProGaudi.MsgPack
                 if (chars.Length > length + DataLengths.String8Header) return false;
                 if (TryWriteString8Header(buffer, (byte) length, out wroteSize))
                 {
-                    wroteSize += (encoding ?? _defaultEncoding).GetBytes(chars, buffer.Slice(wroteSize));
-                    return true;
+                    var (success, actualLength) = WriteStringImpl(chars, buffer.Slice(wroteSize), encoder);
+                    wroteSize += actualLength;
+                    return success;
                 }
 
                 return false;
@@ -689,8 +682,9 @@ namespace ProGaudi.MsgPack
                 if (chars.Length > length + DataLengths.String16Header) return false;
                 if (TryWriteString16Header(buffer, (ushort) length, out wroteSize))
                 {
-                    wroteSize += (encoding ?? _defaultEncoding).GetBytes(chars, buffer.Slice(wroteSize));
-                    return true;
+                    var (success, actualLength) = WriteStringImpl(chars, buffer.Slice(wroteSize), encoder);
+                    wroteSize += actualLength;
+                    return success;
                 }
 
                 return false;
@@ -699,8 +693,9 @@ namespace ProGaudi.MsgPack
             if (chars.Length > length + DataLengths.String32Header) return false;
             if (TryWriteString32Header(buffer, (uint) length, out wroteSize))
             {
-                wroteSize += (encoding ?? _defaultEncoding).GetBytes(chars, buffer.Slice(wroteSize));
-                return true;
+                var (success, actualLength) = WriteStringImpl(chars, buffer.Slice(wroteSize), encoder);
+                wroteSize += actualLength;
+                return success;
             }
 
             return false;
@@ -711,12 +706,13 @@ namespace ProGaudi.MsgPack
         /// </summary>
         /// <param name="buffer">Buffer to read from.</param>
         /// <param name="readSize">Count of bytes, read from <paramref name="buffer"/>. If return value is <c>false</c>, value is unspecified.</param>
-        /// <param name="encoding">Encoding. If not passed, utf8 without bom will be used.</param>
+        /// <param name="decoder">Decoder. If not passed, utf8 without bom will be used.</param>
         /// <returns>Returns string.</returns>
-        public static string ReadFixString(ReadOnlySpan<byte> buffer, out int readSize, Encoding encoding = null)
+        public static string ReadFixString(ReadOnlySpan<byte> buffer, out int readSize, Decoder decoder = null)
         {
             var length = ReadFixStringHeader(buffer, out readSize);
-            return ReadString(buffer, length, ref readSize, encoding);
+            readSize += length;
+            return ReadStringImpl(buffer.Slice(readSize, length), decoder);
         }
 
         /// <summary>
@@ -725,14 +721,14 @@ namespace ProGaudi.MsgPack
         /// <param name="buffer">Buffer to read from.</param>
         /// <param name="value">Length of string.</param>
         /// <param name="readSize">Count of bytes, read from <paramref name="buffer"/>. If return value is <c>false</c>, value is unspecified.</param>
-        /// <param name="encoding">Encoding. If not passed, utf8 without bom will be used.</param>
+        /// <param name="decoder">Decoder. If not passed, utf8 without bom will be used.</param>
         /// <returns><c>true</c>, if everything is ok, <c>false</c> if <paramref name="buffer"/> is too small.</returns>
-        public static bool TryReadFixString(ReadOnlySpan<byte> buffer, out string value, out int readSize, Encoding encoding = null)
+        public static bool TryReadFixString(ReadOnlySpan<byte> buffer, out string value, out int readSize, Decoder decoder = null)
         {
             value = null;
 
             return TryReadFixStringHeader(buffer, out var length, out readSize)
-                && TryReadStringImpl(buffer.Slice(readSize, length), out value, ref readSize, encoding);
+                && TryReadStringImpl(buffer.Slice(readSize, length), out value, ref readSize, decoder);
         }
 
         /// <summary>
@@ -740,12 +736,13 @@ namespace ProGaudi.MsgPack
         /// </summary>
         /// <param name="buffer">Buffer to read from.</param>
         /// <param name="readSize">Count of bytes, read from <paramref name="buffer"/>. If return value is <c>false</c>, value is unspecified.</param>
-        /// <param name="encoding">Encoding. If not passed, utf8 without bom will be used.</param>
+        /// <param name="decoder">Decoder. If not passed, utf8 without bom will be used.</param>
         /// <returns>Returns string.</returns>
-        public static string ReadString8(ReadOnlySpan<byte> buffer, out int readSize, Encoding encoding = null)
+        public static string ReadString8(ReadOnlySpan<byte> buffer, out int readSize, Decoder decoder = null)
         {
             var length = ReadString8Header(buffer, out readSize);
-            return ReadString(buffer, length, ref readSize, encoding);
+            readSize += length;
+            return ReadStringImpl(buffer.Slice(readSize, length), decoder);
         }
 
         /// <summary>
@@ -754,14 +751,14 @@ namespace ProGaudi.MsgPack
         /// <param name="buffer">Buffer to read from.</param>
         /// <param name="value">Length of string.</param>
         /// <param name="readSize">Count of bytes, read from <paramref name="buffer"/>. If return value is <c>false</c>, value is unspecified.</param>
-        /// <param name="encoding">Encoding. If not passed, utf8 without bom will be used.</param>
+        /// <param name="decoder">Decoder. If not passed, utf8 without bom will be used.</param>
         /// <returns><c>true</c>, if everything is ok, <c>false</c> if <paramref name="buffer"/> is too small.</returns>
-        public static bool TryReadString8(ReadOnlySpan<byte> buffer, out string value, out int readSize, Encoding encoding = null)
+        public static bool TryReadString8(ReadOnlySpan<byte> buffer, out string value, out int readSize, Decoder decoder = null)
         {
             value = null;
 
             return TryReadString8Header(buffer, out var length, out readSize)
-                && TryReadStringImpl(buffer.Slice(readSize, length), out value, ref readSize, encoding);
+                && TryReadStringImpl(buffer.Slice(readSize, length), out value, ref readSize, decoder);
         }
 
         /// <summary>
@@ -769,12 +766,13 @@ namespace ProGaudi.MsgPack
         /// </summary>
         /// <param name="buffer">Buffer to read from.</param>
         /// <param name="readSize">Count of bytes, read from <paramref name="buffer"/>. If return value is <c>false</c>, value is unspecified.</param>
-        /// <param name="encoding">Encoding. If not passed, utf8 without bom will be used.</param>
+        /// <param name="decoder">Decoder. If not passed, utf8 without bom will be used.</param>
         /// <returns>Returns string.</returns>
-        public static string ReadString16(ReadOnlySpan<byte> buffer, out int readSize, Encoding encoding = null)
+        public static string ReadString16(ReadOnlySpan<byte> buffer, out int readSize, Decoder decoder = null)
         {
             var length = ReadString16Header(buffer, out readSize);
-            return ReadString(buffer, length, ref readSize, encoding);
+            readSize += length;
+            return ReadStringImpl(buffer.Slice(readSize, length), decoder);
         }
 
         /// <summary>
@@ -783,14 +781,14 @@ namespace ProGaudi.MsgPack
         /// <param name="buffer">Buffer to read from.</param>
         /// <param name="value">Length of string.</param>
         /// <param name="readSize">Count of bytes, read from <paramref name="buffer"/>. If return value is <c>false</c>, value is unspecified.</param>
-        /// <param name="encoding">Encoding. If not passed, utf8 without bom will be used.</param>
+        /// <param name="decoder">Decoder. If not passed, utf8 without bom will be used.</param>
         /// <returns><c>true</c>, if everything is ok, <c>false</c> if <paramref name="buffer"/> is too small.</returns>
-        public static bool TryReadString16(ReadOnlySpan<byte> buffer, out string value, out int readSize, Encoding encoding = null)
+        public static bool TryReadString16(ReadOnlySpan<byte> buffer, out string value, out int readSize, Decoder decoder = null)
         {
             value = null;
 
             return TryReadString16Header(buffer, out var length, out readSize)
-                   && TryReadStringImpl(buffer.Slice(readSize, length), out value, ref readSize, encoding);
+                   && TryReadStringImpl(buffer.Slice(readSize, length), out value, ref readSize, decoder);
         }
 
         /// <summary>
@@ -798,13 +796,15 @@ namespace ProGaudi.MsgPack
         /// </summary>
         /// <param name="buffer">Buffer to read from.</param>
         /// <param name="readSize">Count of bytes, read from <paramref name="buffer"/>. If return value is <c>false</c>, value is unspecified.</param>
-        /// <param name="encoding">Encoding. If not passed, utf8 without bom will be used.</param>
+        /// <param name="decoder">Decoder. If not passed, utf8 without bom will be used.</param>
         /// <returns>Returns string.</returns>
-        public static string ReadString32(ReadOnlySpan<byte> buffer, out int readSize, Encoding encoding = null)
+        public static string ReadString32(ReadOnlySpan<byte> buffer, out int readSize, Decoder decoder = null)
         {
             var length = ReadString32Header(buffer, out readSize);
             if (length > int.MaxValue) ThrowDataIsTooLarge(length);
-            return ReadString(buffer, (int) length, ref readSize, encoding);
+            var intLength = (int)length;
+            readSize += intLength;
+            return ReadStringImpl(buffer.Slice(readSize, intLength), decoder);
         }
 
         /// <summary>
@@ -813,15 +813,15 @@ namespace ProGaudi.MsgPack
         /// <param name="buffer">Buffer to read from.</param>
         /// <param name="value">Length of string.</param>
         /// <param name="readSize">Count of bytes, read from <paramref name="buffer"/>. If return value is <c>false</c>, value is unspecified.</param>
-        /// <param name="encoding">Encoding. If not passed, utf8 without bom will be used.</param>
+        /// <param name="decoder">Decoder. If not passed, utf8 without bom will be used.</param>
         /// <returns><c>true</c>, if everything is ok, <c>false</c> if <paramref name="buffer"/> is too small.</returns>
-        public static bool TryReadString32(ReadOnlySpan<byte> buffer, out string value, out int readSize, Encoding encoding = null)
+        public static bool TryReadString32(ReadOnlySpan<byte> buffer, out string value, out int readSize, Decoder decoder = null)
         {
             value = null;
 
             return TryReadString32Header(buffer, out var length, out readSize)
                    && length <= int.MaxValue
-                   && TryReadStringImpl(buffer.Slice(readSize, (int) length), out value, ref readSize, encoding);
+                   && TryReadStringImpl(buffer.Slice(readSize, (int) length), out value, ref readSize, decoder);
         }
 
         /// <summary>
@@ -829,12 +829,13 @@ namespace ProGaudi.MsgPack
         /// </summary>
         /// <param name="buffer">Buffer to read from.</param>
         /// <param name="readSize">Count of bytes, read from <paramref name="buffer"/>. If return value is <c>false</c>, value is unspecified.</param>
-        /// <param name="encoding">Encoding. If not passed, utf8 without bom will be used.</param>
+        /// <param name="decoder">Decoder. If not passed, utf8 without bom will be used.</param>
         /// <returns>Returns string.</returns>
-        public static string ReadString(ReadOnlySpan<byte> buffer, out int readSize, Encoding encoding = null)
+        public static string ReadString(ReadOnlySpan<byte> buffer, out int readSize, Decoder decoder = null)
         {
-            var length = ReadStringHeader(buffer, out readSize);
-            return ReadString(buffer, length, ref readSize, encoding);
+            var length = ReadStringHeader(buffer, out var offset);
+            readSize = offset + length;
+            return ReadStringImpl(buffer.Slice(offset, length), decoder);
         }
 
         /// <summary>
@@ -843,107 +844,43 @@ namespace ProGaudi.MsgPack
         /// <param name="buffer">Buffer to read from.</param>
         /// <param name="value">Length of string.</param>
         /// <param name="readSize">Count of bytes, read from <paramref name="buffer"/>. If return value is <c>false</c>, value is unspecified.</param>
-        /// <param name="encoding">Encoding. If not passed, utf8 without bom will be used.</param>
+        /// <param name="decoder">Decoder. If not passed, utf8 without bom will be used.</param>
         /// <returns><c>true</c>, if everything is ok, <c>false</c> if <paramref name="buffer"/> is too small.</returns>
-        public static bool TryReadString(ReadOnlySpan<byte> buffer, out string value, out int readSize, Encoding encoding = null)
+        public static bool TryReadString(ReadOnlySpan<byte> buffer, out string value, out int readSize, Decoder decoder = null)
         {
-            return TryReadString8(buffer, out value, out readSize, encoding)
-                || TryReadFixString(buffer, out value, out readSize, encoding)
-                || TryReadString16(buffer, out value, out readSize, encoding)
-                || TryReadString32(buffer, out value, out readSize, encoding);
+            return TryReadString8(buffer, out value, out readSize, decoder)
+                || TryReadFixString(buffer, out value, out readSize, decoder)
+                || TryReadString16(buffer, out value, out readSize, decoder)
+                || TryReadString32(buffer, out value, out readSize, decoder);
         }
 
-        private static string ReadString(ReadOnlySpan<byte> buffer, int length, ref int readSize, Encoding encoding)
+        private static (bool success, int bytesUsed) WriteStringImpl(ReadOnlySpan<char> str, Span<byte> buffer, Encoder encoder)
         {
-            var result = (encoding ?? _defaultEncoding).GetString(buffer.Slice(readSize, length));
-            readSize += length;
-            return result;
+            if (str.Length == 0)
+            {
+                return (true, 0);
+            }
+
+            encoder.GetThreadStatic().Convert(str, buffer, true, out var charsUsed, out var bytesUsed, out var completed);
+            return (completed && charsUsed == str.Length, bytesUsed);
         }
 
-        private static bool TryReadStringImpl(ReadOnlySpan<byte> buffer, out string value, ref int readSize, Encoding encoding)
+        private static string ReadStringImpl(ReadOnlySpan<byte> buffer, Decoder decoder)
         {
-            value = (encoding ?? _defaultEncoding).GetString(buffer);
+            var safeDecoder = decoder.GetThreadStatic();
+            using (var chars = MemoryPool<char>.Shared.Rent(buffer.Length))
+            {
+                var span = chars.Memory.Span;
+                var length = safeDecoder.GetChars(buffer, span, true);
+                return span.Slice(0, length).ToString();
+            }
+        }
+
+        private static bool TryReadStringImpl(ReadOnlySpan<byte> buffer, out string value, ref int readSize, Decoder decoder)
+        {
+            value = ReadStringImpl(buffer, decoder);
             readSize += buffer.Length;
             return true;
         }
-
-#if NETSTANDARD2_0 || NETSTANDARD1_4
-        private static unsafe int GetBytes(this Encoding encoding, ReadOnlySpan<char> chars, Span<byte> bytes)
-        {
-            if (chars.IsEmpty) return 0;
-
-            fixed (char* charsPtr = &chars.GetPinnableReference())
-            fixed (byte* bytesPtr = &bytes.GetPinnableReference())
-            {
-                return encoding.GetBytes(charsPtr, chars.Length, bytesPtr, bytes.Length);
-            }
-        }
-
-        private static unsafe int GetByteCount(this Encoding encoding, ReadOnlySpan<char> chars)
-        {
-            if (chars.IsEmpty) return 0;
-
-            fixed (char* charsPtr = &chars.GetPinnableReference())
-            {
-                return encoding.GetByteCount(charsPtr, chars.Length);
-            }
-        }
-
-        private static unsafe string GetString(this Encoding encoding, ReadOnlySpan<byte> bytes)
-        {
-            if (bytes.IsEmpty) return string.Empty;
-
-            fixed (byte* bytesPtr = &bytes.GetPinnableReference())
-            {
-                return encoding.GetString(bytesPtr, bytes.Length);
-            }
-        }
-#endif
-
-#if NET45 || NET46
-        private static int GetBytes(this Encoding encoding, ReadOnlySpan<char> chars, Span<byte> bytes)
-        {
-            if (chars.IsEmpty) return 0;
-
-            var array = ArrayPool<byte>.Shared.Rent(bytes.Length);
-            try
-            {
-                var result = encoding.GetBytes(chars.ToArray(), 0, chars.Length, array, 0);
-                new Span<byte>(array, 0, result).CopyTo(bytes);
-                return result;
-            }
-            finally
-            {
-                ArrayPool<byte>.Shared.Return(array);
-            }
-        }
-
-        private static unsafe int GetByteCount(this Encoding encoding, ReadOnlySpan<char> chars)
-        {
-            if (chars.IsEmpty) return 0;
-
-            fixed (char* charsPtr = &chars.GetPinnableReference())
-            {
-                return encoding.GetByteCount(charsPtr, chars.Length);
-            }
-        }
-
-        private static string GetString(this Encoding encoding, ReadOnlySpan<byte> bytes)
-        {
-            if (bytes.IsEmpty) return string.Empty;
-
-            var array = ArrayPool<byte>.Shared.Rent(bytes.Length);
-
-            try
-            {
-                bytes.CopyTo(array);
-                return encoding.GetString(array, 0, bytes.Length);
-            }
-            finally
-            {
-                ArrayPool<byte>.Shared.Return(array);
-            }
-        }
-#endif
     }
 }

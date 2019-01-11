@@ -7,7 +7,7 @@ using static ProGaudi.MsgPack.MsgPackSpec;
 
 namespace ProGaudi.MsgPack.Tests.Writer
 {
-    public class Map
+    public sealed class Map
     {
         //[Fact]
         //public void ComplexDictionary()

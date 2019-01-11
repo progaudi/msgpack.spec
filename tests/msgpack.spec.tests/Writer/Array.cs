@@ -4,7 +4,7 @@ using Xunit;
 
 namespace ProGaudi.MsgPack.Tests.Writer
 {
-    public class Array
+    public sealed class Array
     {
         //[Fact]
         //public void SimpleArray()

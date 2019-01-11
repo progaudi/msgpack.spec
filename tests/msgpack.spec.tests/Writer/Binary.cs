@@ -5,7 +5,7 @@ using Xunit;
 
 namespace ProGaudi.MsgPack.Tests.Writer
 {
-    public class Binary
+    public sealed class Binary
     {
         [Theory]
         [InlineData(new byte[]
