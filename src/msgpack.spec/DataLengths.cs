@@ -31,6 +31,16 @@ namespace ProGaudi.MsgPack
 
         public const int FixExtensionHeader = 2;
 
+        public const int FixExtension1 = 1;
+
+        public const int FixExtension2 = 2;
+
+        public const int FixExtension4 = 4;
+
+        public const int FixExtension8 = 8;
+
+        public const int FixExtension16 = 16;
+
         public const int TimeStamp32 = 6;
 
         public const int TimeStamp64 = 10;
@@ -154,17 +164,19 @@ namespace ProGaudi.MsgPack
 
         public static (int min, int max) GetMinAndMaxLength(byte code)
         {
-            if (code <= DataCodes.FixPositiveMax) return (1, 1);
+            if (code <= DataCodes.FixPositiveMax) return (PositiveFixInt, PositiveFixInt);
             if (DataCodes.FixMapMin <= code && code <= DataCodes.FixMapMax) return (code - DataCodes.FixMapMin, code - DataCodes.FixMapMin);
             if (DataCodes.FixArrayMin <= code && code <= DataCodes.FixArrayMax) return (code - DataCodes.FixArrayMin, code - DataCodes.FixArrayMin);
             if (DataCodes.FixStringMin <= code && code <= DataCodes.FixStringMax) return (code - DataCodes.FixStringMin, code - DataCodes.FixStringMin);
-            if (DataCodes.FixNegativeMin <= code) return (1, 1);
+            if (DataCodes.FixNegativeMin <= code) return (NegativeFixInt, NegativeFixInt);
             switch (code)
             {
                 case DataCodes.Nil:
+                    return (Nil, Nil);
+
                 case DataCodes.True:
                 case DataCodes.False:
-                    return (1, 1);
+                    return (Boolean, Boolean);
 
                 case DataCodes.Binary8:
                     return (0, byte.MaxValue);
@@ -181,33 +193,37 @@ namespace ProGaudi.MsgPack
                     return (0, int.MaxValue);
 
                 case DataCodes.Float32:
-                    return (4, 4);
+                    return (Float32, Float32);
                 case DataCodes.Float64:
-                    return (8, 8);
+                    return (Float64, Float64);
 
                 case DataCodes.Int8:
+                    return (Int8, Int8);
                 case DataCodes.UInt8:
-                    return (1, 1);
+                    return (UInt8, UInt8);
                 case DataCodes.Int16:
+                    return (Int16, Int16);
                 case DataCodes.UInt16:
-                    return (2, 2);
+                    return (UInt16, UInt16);
                 case DataCodes.Int32:
+                    return (Int32, Int32);
                 case DataCodes.UInt32:
-                    return (4, 4);
+                    return (UInt32, UInt32);
                 case DataCodes.Int64:
+                    return (Int64, Int64);
                 case DataCodes.UInt64:
-                    return (8, 8);
+                    return (UInt64, UInt64);
 
                 case DataCodes.FixExtension1:
-                    return (1, 1);
+                    return (FixExtension1, FixExtension1);
                 case DataCodes.FixExtension2:
-                    return (2, 2);
+                    return (FixExtension2, FixExtension2);
                 case DataCodes.FixExtension4:
-                    return (4, 4);
+                    return (FixExtension4, FixExtension4);
                 case DataCodes.FixExtension8:
-                    return (8, 8);
+                    return (FixExtension8, FixExtension8);
                 case DataCodes.FixExtension16:
-                    return (16, 16);
+                    return (FixExtension16, FixExtension16);
 
                 case DataCodes.String8:
                     return (0, byte.MaxValue);
