@@ -36,7 +36,7 @@ namespace ProGaudi.MsgPack
 
             readSize = length;
             Span<byte> buffer = stackalloc byte[length];
-            if (!sequence.TryRead(buffer))
+            if (!sequence.TryFillSpan(buffer))
                 throw GetReadOnlySequenceIsTooShortException(length, sequence.Length);
 
             return (ReadFixExtension1Header(buffer, out _), buffer[2]);
@@ -145,7 +145,7 @@ namespace ProGaudi.MsgPack
 
             readSize = length;
             Span<byte> buffer = stackalloc byte[length];
-            if (!sequence.TryRead(buffer))
+            if (!sequence.TryFillSpan(buffer))
                 throw GetReadOnlySequenceIsTooShortException(length, sequence.Length);
 
             var type = unchecked((sbyte)buffer[2]);
@@ -181,7 +181,7 @@ namespace ProGaudi.MsgPack
 
             readSize = length;
             Span<byte> buffer = stackalloc byte[length];
-            if (!sequence.TryRead(buffer))
+            if (!sequence.TryFillSpan(buffer))
                 throw GetReadOnlySequenceIsTooShortException(length, sequence.Length);
 
             var type = unchecked((sbyte)buffer[3]);
@@ -216,7 +216,7 @@ namespace ProGaudi.MsgPack
 
             readSize = length;
             Span<byte> buffer = stackalloc byte[length];
-            if (!sequence.TryRead(buffer))
+            if (!sequence.TryFillSpan(buffer))
                 throw GetReadOnlySequenceIsTooShortException(length, sequence.Length);
 
             var type = unchecked((sbyte)buffer[5]);
@@ -329,7 +329,7 @@ namespace ProGaudi.MsgPack
 
             readSize = length;
             Span<byte> buffer = stackalloc byte[length];
-            if (sequence.TryRead(buffer) && TryReadFixExtension1Header(sequence, out type, out readSize))
+            if (sequence.TryFillSpan(buffer) && TryReadFixExtension1Header(sequence, out type, out readSize))
             {
                 extension = buffer[2];
                 return true;
@@ -454,7 +454,7 @@ namespace ProGaudi.MsgPack
             type = default;
             readSize = size;
             Span<byte> buffer = stackalloc byte[size];
-            return sequence.TryRead(buffer) && TryReadExtension8Header(buffer, out type, out length, out readSize);
+            return sequence.TryFillSpan(buffer) && TryReadExtension8Header(buffer, out type, out length, out readSize);
         }
 
         /// <summary>
@@ -490,7 +490,7 @@ namespace ProGaudi.MsgPack
             type = default;
             readSize = size;
             Span<byte> buffer = stackalloc byte[size];
-            return sequence.TryRead(buffer) && TryReadExtension16Header(buffer, out type, out length, out readSize);
+            return sequence.TryFillSpan(buffer) && TryReadExtension16Header(buffer, out type, out length, out readSize);
         }
 
         /// <summary>
@@ -526,7 +526,7 @@ namespace ProGaudi.MsgPack
             type = default;
             readSize = size;
             Span<byte> buffer = stackalloc byte[size];
-            return sequence.TryRead(buffer) && TryReadExtension32Header(buffer, out type, out length, out readSize);
+            return sequence.TryFillSpan(buffer) && TryReadExtension32Header(buffer, out type, out length, out readSize);
         }
 
         /// <summary>
@@ -642,7 +642,7 @@ namespace ProGaudi.MsgPack
             const int length = DataLengths.FixExtensionHeader;
             readSize = length;
             Span<byte> buffer = stackalloc byte[length];
-            if (sequence.TryRead(buffer)) return false;
+            if (sequence.TryFillSpan(buffer)) return false;
             if (buffer[0] != code) return false;
             type = unchecked((sbyte)buffer[1]);
             return true;
@@ -670,7 +670,7 @@ namespace ProGaudi.MsgPack
 
             readSize = length;
             Span<byte> buffer = stackalloc byte[length];
-            if (!sequence.TryRead(buffer))
+            if (!sequence.TryFillSpan(buffer))
                 throw GetReadOnlySequenceIsTooShortException(length, sequence.Length);
 
             var type = unchecked((sbyte)buffer[1]);

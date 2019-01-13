@@ -27,7 +27,7 @@ namespace ProGaudi.MsgPack
                 return ReadFixStringHeader(sequence.First.Span, out readSize);
 
             Span<byte> buffer = stackalloc byte[length];
-            return sequence.TryRead(buffer)
+            return sequence.TryFillSpan(buffer)
                 ? ReadFixStringHeader(buffer, out readSize)
                 : throw GetReadOnlySequenceIsTooShortException(length, sequence.Length);
         }
@@ -51,7 +51,7 @@ namespace ProGaudi.MsgPack
             readSize = default;
 
             Span<byte> buffer = stackalloc byte[length];
-            return sequence.TryRead(buffer) && TryReadFixStringHeader(buffer, out value, out readSize);
+            return sequence.TryFillSpan(buffer) && TryReadFixStringHeader(buffer, out value, out readSize);
         }
 
         /// <summary>
@@ -69,7 +69,7 @@ namespace ProGaudi.MsgPack
                 return ReadString8Header(sequence.First.Span, out readSize);
 
             Span<byte> buffer = stackalloc byte[length];
-            return sequence.TryRead(buffer)
+            return sequence.TryFillSpan(buffer)
                 ? ReadString8Header(buffer, out readSize)
                 : throw GetReadOnlySequenceIsTooShortException(length, sequence.Length);
         }
@@ -93,7 +93,7 @@ namespace ProGaudi.MsgPack
             readSize = default;
 
             Span<byte> buffer = stackalloc byte[length];
-            return sequence.TryRead(buffer) && TryReadString8Header(buffer, out value, out readSize);
+            return sequence.TryFillSpan(buffer) && TryReadString8Header(buffer, out value, out readSize);
         }
 
         /// <summary>
@@ -111,7 +111,7 @@ namespace ProGaudi.MsgPack
                 return ReadString16Header(sequence.First.Span, out readSize);
 
             Span<byte> buffer = stackalloc byte[length];
-            return sequence.TryRead(buffer)
+            return sequence.TryFillSpan(buffer)
                 ? ReadString16Header(buffer, out readSize)
                 : throw GetReadOnlySequenceIsTooShortException(length, sequence.Length);
         }
@@ -135,7 +135,7 @@ namespace ProGaudi.MsgPack
             readSize = default;
 
             Span<byte> buffer = stackalloc byte[length];
-            return sequence.TryRead(buffer) && TryReadString16Header(buffer, out value, out readSize);
+            return sequence.TryFillSpan(buffer) && TryReadString16Header(buffer, out value, out readSize);
         }
 
         /// <summary>
@@ -153,7 +153,7 @@ namespace ProGaudi.MsgPack
                 return ReadString32Header(sequence.First.Span, out readSize);
 
             Span<byte> buffer = stackalloc byte[length];
-            return sequence.TryRead(buffer)
+            return sequence.TryFillSpan(buffer)
                 ? ReadString32Header(buffer, out readSize)
                 : throw GetReadOnlySequenceIsTooShortException(length, sequence.Length);
         }
@@ -177,7 +177,7 @@ namespace ProGaudi.MsgPack
             readSize = default;
 
             Span<byte> buffer = stackalloc byte[length];
-            return sequence.TryRead(buffer) && TryReadString32Header(buffer, out value, out readSize);
+            return sequence.TryFillSpan(buffer) && TryReadString32Header(buffer, out value, out readSize);
         }
 
         /// <summary>

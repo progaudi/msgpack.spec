@@ -24,7 +24,7 @@ namespace ProGaudi.MsgPack
             }
 
             Span<byte> buffer = stackalloc byte[length];
-            if (!sequence.TryRead(buffer)) throw GetReadOnlySequenceIsTooShortException(length, sequence.Length);
+            if (!sequence.TryFillSpan(buffer)) throw GetReadOnlySequenceIsTooShortException(length, sequence.Length);
             ReadNil(buffer, out readSize);
         }
 
@@ -44,7 +44,7 @@ namespace ProGaudi.MsgPack
             readSize = default;
 
             Span<byte> buffer = stackalloc byte[length];
-            return sequence.TryRead(buffer) && TryReadNil(buffer, out readSize);
+            return sequence.TryFillSpan(buffer) && TryReadNil(buffer, out readSize);
         }
     }
 }

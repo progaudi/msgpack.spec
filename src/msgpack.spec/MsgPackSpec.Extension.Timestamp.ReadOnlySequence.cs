@@ -23,7 +23,7 @@ namespace ProGaudi.MsgPack
 
             readSize = length;
             Span<byte> buffer = stackalloc byte[length];
-            if (!sequence.TryRead(buffer))
+            if (!sequence.TryFillSpan(buffer))
                 throw GetReadOnlySequenceIsTooShortException(length, sequence.Length);
 
             var extension = ReadFixExtension4Header(buffer, out var headerSize);
@@ -45,7 +45,7 @@ namespace ProGaudi.MsgPack
 
             readSize = length;
             Span<byte> buffer = stackalloc byte[length];
-            if (!sequence.TryRead(buffer))
+            if (!sequence.TryFillSpan(buffer))
                 throw GetReadOnlySequenceIsTooShortException(length, sequence.Length);
 
             var extension = ReadFixExtension8Header(buffer, out var headerSize);
@@ -67,7 +67,7 @@ namespace ProGaudi.MsgPack
 
             readSize = length;
             Span<byte> buffer = stackalloc byte[length];
-            if (!sequence.TryRead(buffer))
+            if (!sequence.TryFillSpan(buffer))
                 throw GetReadOnlySequenceIsTooShortException(length, sequence.Length);
 
             var (extension, exLength) = ReadExtension8Header(buffer, out var headerSize);
@@ -127,7 +127,7 @@ namespace ProGaudi.MsgPack
             readSize = length;
             timestamp = Timestamp.Zero;
             Span<byte> buffer = stackalloc byte[length];
-            if (!sequence.TryRead(buffer)) return false;
+            if (!sequence.TryFillSpan(buffer)) return false;
 
             if (!TryReadFixExtension4Header(buffer, out var extension, out var headerSize)) return false;
             if (extension != ExtensionTypes.Timestamp) return false;
@@ -158,7 +158,7 @@ namespace ProGaudi.MsgPack
             readSize = length;
             timestamp = Timestamp.Zero;
             Span<byte> buffer = stackalloc byte[length];
-            if (!sequence.TryRead(buffer)) return false;
+            if (!sequence.TryFillSpan(buffer)) return false;
 
             if (!TryReadFixExtension8Header(buffer, out var extension, out var headerSize)) return false;
             if (extension != ExtensionTypes.Timestamp) return false;
@@ -189,7 +189,7 @@ namespace ProGaudi.MsgPack
             readSize = length;
             timestamp = Timestamp.Zero;
             Span<byte> buffer = stackalloc byte[length];
-            if (!sequence.TryRead(buffer)) return false;
+            if (!sequence.TryFillSpan(buffer)) return false;
 
             if (!TryReadExtension8Header(sequence, out var extension, out var exLength, out var headerSize)) return false;
             if (extension != ExtensionTypes.Timestamp) return false;
