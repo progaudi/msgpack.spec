@@ -15,20 +15,20 @@ namespace ProGaudi.MsgPack
         /// <param name="ros">Sequence</param>
         /// <typeparam name="T">Type of elements</typeparam>
         /// <returns>First element of sequence.</returns>
-        /// <exception cref="ArgumentOutOfRangeException">Thrown when <paramref name="ros"/> is empty</exception>
+        /// <exception cref="IndexOutOfRangeException">Thrown when <paramref name="ros"/> is empty</exception>
+        /// <exception cref="InvalidOperationException">When <see cref="ReadOnlySequence{T}.IsEmpty"/> is <c>false</c>, but sequence is still empty.</exception>
         public static T GetFirst<T>(this ReadOnlySequence<T> ros)
         {
+            if (ros.IsEmpty) throw GetReadOnlySequenceIsTooShortException(1, 0);
             if (ros.IsSingleSegment) return ros.First.Span[0];
-            if (!ros.IsEmpty)
+
+            foreach (var memory in ros)
             {
-                foreach (var memory in ros)
-                {
-                    if (!memory.IsEmpty)
-                        return memory.Span[0];
-                }
+                if (!memory.IsEmpty)
+                    return memory.Span[0];
             }
 
-            throw GetReadOnlySequenceIsTooShortException(1, 0);
+            throw new InvalidOperationException("We should never get here, because it means that non-empty sequence is empty.")
         }
 
         /// <summary>
@@ -43,7 +43,7 @@ namespace ProGaudi.MsgPack
         {
             if (destination.IsEmpty) return true;
             if (ros.IsSingleSegment) return ros.First.Span.TryCopyTo(destination);
-            
+
             var span = destination;
             foreach (var memory in ros)
             {

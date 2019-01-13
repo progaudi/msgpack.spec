@@ -13,10 +13,8 @@ namespace ProGaudi.MsgPack
     [PublicAPI]
     public static partial class MsgPackSpec
     {
-        private static Exception GetReadOnlySequenceIsTooShortException(int expected, long sequenceLength) => new ArgumentOutOfRangeException(
-            nameof(sequenceLength),
-            sequenceLength,
-            $"ReadOnlySequence is too short. Expected: {expected}"
+        private static Exception GetReadOnlySequenceIsTooShortException(int expected, long sequenceLength) => new IndexOutOfRangeException(
+            $"ReadOnlySequence is too short. Expected: {expected}, actual length: {sequenceLength}"
         );
 
         private static Exception GetInvalidStringException() => new InvalidOperationException(
