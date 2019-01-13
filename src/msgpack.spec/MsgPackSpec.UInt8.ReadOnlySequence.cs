@@ -23,7 +23,7 @@ namespace ProGaudi.MsgPack
                 return ReadFixUInt8(sequence.First.Span, out readSize);
 
             Span<byte> buffer = stackalloc byte[length];
-            return sequence.TryRead(buffer)
+            return sequence.TryFillSpan(buffer)
                 ? ReadFixUInt8(buffer, out readSize)
                 : throw GetReadOnlySequenceIsTooShortException(length, sequence.Length);
         }
@@ -46,7 +46,7 @@ namespace ProGaudi.MsgPack
             readSize = default;
 
             Span<byte> buffer = stackalloc byte[length];
-            return sequence.TryRead(buffer) && TryReadFixUInt8(buffer, out value, out readSize);
+            return sequence.TryFillSpan(buffer) && TryReadFixUInt8(buffer, out value, out readSize);
         }
 
         /// <summary>

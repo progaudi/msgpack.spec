@@ -22,7 +22,7 @@ namespace ProGaudi.MsgPack
                 return ReadNegativeFixInt(sequence.First.Span, out readSize);
 
             Span<byte> buffer = stackalloc byte[length];
-            return sequence.TryRead(buffer)
+            return sequence.TryFillSpan(buffer)
                 ? ReadNegativeFixInt(buffer, out readSize)
                 : throw GetReadOnlySequenceIsTooShortException(length, sequence.Length);
         }
@@ -46,7 +46,7 @@ namespace ProGaudi.MsgPack
             readSize = default;
 
             Span<byte> buffer = stackalloc byte[length];
-            return sequence.TryRead(buffer) && TryReadNegativeFixInt(buffer, out value, out readSize);
+            return sequence.TryFillSpan(buffer) && TryReadNegativeFixInt(buffer, out value, out readSize);
         }
     }
 }

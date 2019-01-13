@@ -27,7 +27,7 @@ namespace ProGaudi.MsgPack
 
             readSize = length;
             Span<byte> buffer = stackalloc byte[length];
-            if (!sequence.TryRead(buffer))
+            if (!sequence.TryFillSpan(buffer))
                 throw GetReadOnlySequenceIsTooShortException(length, sequence.Length);
 
             var code = buffer[0];
@@ -58,7 +58,7 @@ namespace ProGaudi.MsgPack
             readSize = size;
             length = 0;
             Span<byte> buffer = stackalloc byte[size];
-            if (!sequence.TryRead(buffer) || buffer[0] != DataCodes.Binary8) return false;
+            if (!sequence.TryFillSpan(buffer) || buffer[0] != DataCodes.Binary8) return false;
             length = buffer[1];
             return true;
         }
@@ -78,7 +78,7 @@ namespace ProGaudi.MsgPack
 
             readSize = length;
             Span<byte> buffer = stackalloc byte[length];
-            if (!sequence.TryRead(buffer))
+            if (!sequence.TryFillSpan(buffer))
                 throw GetReadOnlySequenceIsTooShortException(length, sequence.Length);
 
             var code = buffer[0];
@@ -109,7 +109,7 @@ namespace ProGaudi.MsgPack
             readSize = size;
             length = 0;
             Span<byte> buffer = stackalloc byte[size];
-            return sequence.TryRead(buffer) && buffer[0] == DataCodes.Binary16 && BinaryPrimitives.TryReadUInt16BigEndian(buffer.Slice(1), out length);
+            return sequence.TryFillSpan(buffer) && buffer[0] == DataCodes.Binary16 && BinaryPrimitives.TryReadUInt16BigEndian(buffer.Slice(1), out length);
         }
 
         /// <summary>
@@ -127,7 +127,7 @@ namespace ProGaudi.MsgPack
 
             readSize = length;
             Span<byte> buffer = stackalloc byte[length];
-            if (!sequence.TryRead(buffer))
+            if (!sequence.TryFillSpan(buffer))
                 throw GetReadOnlySequenceIsTooShortException(length, sequence.Length);
 
             var code = buffer[0];
@@ -158,7 +158,7 @@ namespace ProGaudi.MsgPack
             readSize = size;
             length = 0;
             Span<byte> buffer = stackalloc byte[size];
-            return sequence.TryRead(buffer) && buffer[0] == DataCodes.Binary32 && BinaryPrimitives.TryReadUInt32BigEndian(buffer.Slice(1), out length);
+            return sequence.TryFillSpan(buffer) && buffer[0] == DataCodes.Binary32 && BinaryPrimitives.TryReadUInt32BigEndian(buffer.Slice(1), out length);
         }
 
         /// <summary>

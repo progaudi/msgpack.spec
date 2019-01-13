@@ -7,42 +7,66 @@ namespace ProGaudi.MsgPack
 {
     public static partial class MsgPackSpec
     {
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static T GetFirst<T>(this ReadOnlySequence<T> ros)
+        /// <summary>
+        /// Returns first element of <paramref name="ros"/> or throws.
+        /// Takes possible empty segments into account.
+        /// Has shortcut for sequences from single-element.
+        /// </summary>
+        /// <param name="ros">Sequence</param>
+        /// <typeparam name="T">Type of elements</typeparam>
+        /// <returns>First element of sequence.</returns>
+        /// <exception cref="IndexOutOfRangeException">Thrown when <paramref name="ros"/> is empty</exception>
+        /// <exception cref="InvalidOperationException">When <see cref="ReadOnlySequence{T}.IsEmpty"/> is <c>false</c>, but sequence is still empty.</exception>
+        public static T GetFirst<T>(this ReadOnlySequence<T> ros)
         {
+            if (ros.IsEmpty) throw GetReadOnlySequenceIsTooShortException(1, 0);
             if (ros.IsSingleSegment) return ros.First.Span[0];
-            if (!ros.IsEmpty)
-            {
-                foreach (var memory in ros)
-                {
-                    if (!memory.IsEmpty)
-                        return memory.Span[0];
-                }
-            }
 
-            throw GetReadOnlySequenceIsTooShortException(1, 0);
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static bool TryRead<T>(this ReadOnlySequence<T> ros, Span<T> destination)
-        {
-            if (destination.Length == 0) return true;
-            var index = 0;
             foreach (var memory in ros)
             {
-                for (var i = 0; i < memory.Length; i++)
+                if (!memory.IsEmpty)
+                    return memory.Span[0];
+            }
+
+            throw new InvalidOperationException("We should never get here, because it means that non-empty sequence is empty.");
+        }
+
+        /// <summary>
+        /// Tries to fill <paramref name="destination"/> by data from <paramref name="ros"/>. Takes nature of <see cref="ReadOnlySequence{T}"/>
+        /// into account. Does not check <see cref="ReadOnlySequence{T}.Length"/>, because it enumerates sequence.
+        /// </summary>
+        /// <param name="ros">Sequence of elements</param>
+        /// <param name="destination">Span to copy data to.</param>
+        /// <typeparam name="T">Type of element</typeparam>
+        /// <returns><c>true</c> if span is fully filled, <c>false</c> otherwise.</returns>
+        public static bool TryFillSpan<T>(this ReadOnlySequence<T> ros, Span<T> destination)
+        {
+            if (destination.IsEmpty) return true;
+
+            var span = destination;
+            foreach (var memory in ros)
+            {
+                var source = memory.Length > span.Length
+                    ? memory.Span.Slice(0, span.Length)
+                    : memory.Span;
+                source.CopyTo(span);
+                span = span.Slice(source.Length);
+                if (span.IsEmpty)
                 {
-                    destination[index++] = memory.Span[i];
-                    if (index == destination.Length)
-                        return true;
+                    return true;
                 }
             }
 
             return false;
         }
 
+        /// <summary>
+        /// Returns <see cref="int"/> length of <paramref name="ros"/>.
+        /// </summary>
+        /// <returns>Casted length</returns>
+        /// <exception cref="InvalidOperationException">Thrown if length of <paramref name="ros"/> is larger than <see cref="int.MaxValue"/></exception>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static int GetIntLength<T>(this ReadOnlySequence<T> ros)
+        public static int GetIntLength<T>(this ReadOnlySequence<T> ros)
         {
             var length = ros.Length;
             if (length > int.MaxValue)
