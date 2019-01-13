@@ -41,7 +41,9 @@ namespace ProGaudi.MsgPack
         /// <returns><c>true</c> if copy successful, <c>false</c> otherwise.</returns>
         public static bool TryFillSpan<T>(this ReadOnlySequence<T> ros, Span<T> destination)
         {
-            if (destination.Length == 0) return true;
+            if (destination.IsEmpty) return true;
+            if (ros.IsSingleSegment) return ros.First.Span.TryCopyTo(destination);
+            
             var span = destination;
             foreach (var memory in ros)
             {
