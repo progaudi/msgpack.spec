@@ -4,7 +4,7 @@ using Xunit;
 
 namespace ProGaudi.MsgPack.Tests.ReadOnlySequence.SingleSegment
 {
-    public class PublicExtensions
+    public class GetFirst
     {
         [Theory]
         [InlineData(new byte[] {1})]
@@ -32,7 +32,7 @@ namespace ProGaudi.MsgPack.Tests.ReadOnlySequence.SingleSegment
         [Fact]
         public void GetFirstNonByteEmpty()
         {
-            var e = Should.Throw<IndexOutOfRangeException>(() => System.Array.Empty<byte>().ToSingleSegment().GetFirst());
+            var e = Should.Throw<IndexOutOfRangeException>(() => System.Array.Empty<int>().ToSingleSegment().GetFirst());
             e.Message.ShouldBe("ReadOnlySequence is too short. Expected: 1, actual length: 0");
         }
     }

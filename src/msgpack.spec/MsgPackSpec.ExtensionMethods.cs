@@ -28,7 +28,7 @@ namespace ProGaudi.MsgPack
                     return memory.Span[0];
             }
 
-            throw new InvalidOperationException("We should never get here, because it means that non-empty sequence is empty.")
+            throw new InvalidOperationException("We should never get here, because it means that non-empty sequence is empty.");
         }
 
         /// <summary>
@@ -38,11 +38,10 @@ namespace ProGaudi.MsgPack
         /// <param name="ros">Sequence of elements</param>
         /// <param name="destination">Span to copy data to.</param>
         /// <typeparam name="T">Type of element</typeparam>
-        /// <returns><c>true</c> if copy successful, <c>false</c> otherwise.</returns>
+        /// <returns><c>true</c> if span is fully filled, <c>false</c> otherwise.</returns>
         public static bool TryFillSpan<T>(this ReadOnlySequence<T> ros, Span<T> destination)
         {
             if (destination.IsEmpty) return true;
-            if (ros.IsSingleSegment) return ros.First.Span.TryCopyTo(destination);
 
             var span = destination;
             foreach (var memory in ros)
