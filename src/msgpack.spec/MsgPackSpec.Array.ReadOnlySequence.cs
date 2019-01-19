@@ -126,7 +126,7 @@ namespace ProGaudi.MsgPack
                 throw GetReadOnlySequenceIsTooShortException(length, sequence.Length);
 
             var code = buffer[0];
-            if (code == Array16)
+            if (code == Array32)
                 return BinaryPrimitives.ReadUInt32BigEndian(buffer.Slice(1));
             return ThrowWrongCodeException(code, Array32);
         }
