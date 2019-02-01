@@ -122,7 +122,7 @@ namespace ProGaudi.MsgPack
             WriteInt64BigEndian(buffer.Slice(7), timestamp.Seconds);
             WriteUInt32BigEndian(buffer.Slice(3), timestamp.NanoSeconds);
             WriteExtension8Header(buffer, ExtensionTypes.Timestamp, 12);
-            return false;
+            return true;
         }
 
         /// <summary>

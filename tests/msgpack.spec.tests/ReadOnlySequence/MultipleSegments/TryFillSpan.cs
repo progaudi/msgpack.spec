@@ -38,7 +38,7 @@ namespace ProGaudi.MsgPack.Tests.ReadOnlySequence.MultipleSegments
         [Fact]
         public void TryFillSpanNonByteEmpty()
         {
-            var empty = System.Array.Empty<byte>();
+            var empty = System.Array.Empty<int>();
             empty.ToMultipleSegments().TryFillSpan(empty).ShouldBeTrue();
         }
     }
